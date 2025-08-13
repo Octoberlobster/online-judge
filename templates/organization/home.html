@@ -1,0 +1,106 @@
+{% extends "common-content.html" %}
+
+{% block content_media %}
+    <style>
+        .class-list td {
+            vertical-align: middle;
+        }
+
+        .class-list td:first-child {
+            text-align: left;
+            padding: 0.5em 0.5em 0.5em 1em;
+        }
+
+        .class-list td:last-child {
+            width: 8em;
+        }
+
+        .class-description {
+            color: #777;
+        }
+    </style>
+{% endblock %}
+
+{% block content_js_media %}
+    <script type="text/javascript">
+        $(function () {
+            $('.leave-organization').click(function () {
+                return confirm('{{ _('Are you sure you want to leave this organization?') }}\n' +
+                    {% if organization.is_open %}
+                        '{{ _('You will have to rejoin to show up on the organization leaderboard.') }}'
+                    {% else %}
+                        '{{ _('You will have to request membership in order to join again.') }}'
+                    {% endif %}
+                );
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block info_float %}
+    {% if request.user.is_authenticated %}
+        {% if request.profile in organization %}
+            <form method="post" action="{{ url('leave_organization', organization.id, organization.slug) }}">
+                {% csrf_token %}
+                <input type="submit" class="unselectable button full leave-organization" value="{{ _('Leave organization') }}">
+            </form>
+        {% elif organization.is_open %}
+            <form method="post" action="{{ url('join_organization', organization.id, organization.slug) }}">
+                {% csrf_token %}
+                <input type="submit" class="unselectable button full" value="{{ _('Join organization') }}">
+            </form>
+        {% else %}
+            <a href="{{ url('request_organization', organization.id, organization.slug) }}"
+               class="unselectable button full">{{ _('Request membership') }}</a>
+        {% endif %}
+        <hr>
+    {% endif %}
+
+    {% if can_edit %}
+        <div><a href="{{ url('edit_organization', organization.id, organization.slug) }}">{{ _('Edit organization') }}</a></div>
+    {% endif %}
+
+    {% if can_review_requests %}
+        <div>
+            <a href="{{ url('organization_requests_pending', organization.id, organization.slug) }}">{{ _('View requests') }}</a>
+        </div>
+    {% endif %}
+
+    {% if perms.judge.change_organization %}
+        <div>
+            <a href="{{ url('admin:judge_organization_change', organization.id) }}">{{ _('Admin organization') }}</a>
+        </div>
+    {% endif %}
+
+    <div>
+        <a href="{{ organization.get_users_url() }}">{{ _('View members') }}</a>
+    </div>
+{% endblock %}
+
+{% block description %}
+    {% cache 3600 'organization_html' organization.id MATH_ENGINE %}
+        {{ organization.about|markdown('organization-about', MATH_ENGINE)|reference|str|safe }}
+    {% endcache %}
+
+    {% if classes %}
+        <hr>
+        <table class="table striped class-list">
+            <thead><tr><th>{{ _('Class') }}</th><th></th></tr></thead>
+            <tbody>
+                {% for class in classes %}
+                    <tr>
+                        <td>
+                            <a href="{{ class.get_absolute_url() }}">{{ class.name }}</a>
+                            <div class="class-description">{{ class.description }}</div>
+                        </td>
+                        <td>{% if class.joined %}
+                            {{ _('Joined') }}
+                        {% else -%}
+                            <a class="button" href="{{ class.get_join_url() }}">{{ _('Request to join') }}</a>
+                        {%- endif %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}
