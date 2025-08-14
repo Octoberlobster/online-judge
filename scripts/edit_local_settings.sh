@@ -11,8 +11,8 @@ export EDIT_SETTINGS_RUNNING=true
 # Configuration values - 填入你的真實數值
 SECRET_KEY='thisiskey'
 ALLOWED_HOSTS='example.com,127.0.0.1,localhost'
-DB_USER='txc'
-DB_PASSWORD='test'
+DB_USER='xc'
+DB_PASSWORD='Mbuibm9290'
 STATIC_ROOT='/test/www/dmoj/static'
 BRIDGE_JUDGE='1.2.3.4:7779,0.0.0.0:8888'
 BRIDGE_DJANGO='127.0.0.1:9988'
@@ -21,7 +21,7 @@ EMAIL_HOST_PASSWORD='trgsuhakhtgzhrtd'
 
 echo "正在更新 local_settings.py..."
 
-cd .././dmoj
+cd dmoj
 
 # 檢查 local_settings.py 是否存在
 if [ ! -f "local_settings.py" ]; then
@@ -96,8 +96,26 @@ echo "- EMAIL_HOST_USER: $EMAIL_HOST_USER"
 echo "- EMAIL_HOST_PASSWORD: [已設定]"
 echo ""
 echo "原始檔案已備份至 local_settings.py.backup"
+cd ../
+python3 manage.py check
 
-python ../manage.py check
+#---------------step6--------------
+# 編譯 SCSS / PostCSS 樣式
+./make_style.sh
+# 收集所有靜態資源到您在 local_settings.py 設定的 STATIC_ROOT
+python3 manage.py collectstatic --noinput
+# 生成 internationalization files
+python3 manage.py compilemessages
+python3 manage.py compilejsi18n
+python3 manage.py makemigrations
+python3 manage.py migrate
+
+#載入初始資料
+python3 manage.py loaddata navbar
+python3 manage.py loaddata language_all
+
+#建立管理員資料
+python3 manage.py createsuperuser
 
 unset EDIT_SETTINGS_RUNNING
-
+ 
