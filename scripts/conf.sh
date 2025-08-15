@@ -113,9 +113,9 @@ set -Eeuo pipefail
 
 ### ===== 使用者可調整區 =====
 PORT=12080                           # 例：80 或 12080
-SERVER_NAME="34.80.241.241"            # 只填主機名，不要含 http:// 或 https://
-ROOT_DIR="/home/aiversity0/dmoj-site"       # 用於 502.html / logo.png / robots.txt 及 icons
-STATIC_ALIAS="/home/aiversity0/dmoj-site/static/"  # /static 對應的實際路徑（結尾建議保留 /）
+SERVER_NAME="IP"            # 只填主機名，不要含 http:// 或 https://
+ROOT_DIR="${HMOE}/dmoj-site"       # 用於 502.html / logo.png / robots.txt 及 icons
+STATIC_ALIAS="${HMOE}/dmoj-site/static/"  # /static 對應的實際路徑（結尾建議保留 /）
 CONF_PATH="/etc/nginx/conf.d/nginx.conf"    # 產生的 nginx 設定檔路徑
 ### ===== 可調整區結束 =====
 
