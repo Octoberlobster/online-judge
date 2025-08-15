@@ -12,11 +12,11 @@ BRIDGE_DJANGO='localhost:8099'
 EMAIL_HOST_USER='host email'
 EMAIL_HOST_PASSWORD='aaaa aaaa aaaa aaaa'
 
-STATIC_ROOT='${HMOE}/dmoj-site/static'
+STATIC_ROOT='${HOME}/dmoj-site/static'
 CONFIG_FILE="./uwsgi.ini"
-NEW_CHDIR="${HMOE}/dmoj-site"
-NEW_PYTHONPATH="${HMOE}/dmoj-site"
-NEW_VIRTUALENV="${HMOE}/dmojsite"
+NEW_CHDIR="${HOME}/dmoj-site"
+NEW_PYTHONPATH="${HOME}/dmoj-site"
+NEW_VIRTUALENV="${HOME}/dmojsite"
 
 
 . "${NEW_VIRTUALENV}/bin/activate"
