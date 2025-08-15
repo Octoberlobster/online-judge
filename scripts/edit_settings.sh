@@ -4,19 +4,21 @@ set -euo pipefail
 
 SECRET_KEY='thisiskey'
 ALLOWED_HOSTS='0.0.0.0,127.0.0.1,localhost'
-DB_USER='DB_USER'
-DB_PASSWORD='DB_PASSWORD'
-STATIC_ROOT='path to/dmoj-site/static'
-BRIDGE_JUDGE='localhost:8098'
-BRIDGE_DJANGO='localhost:8099'
+DB_USER='DB_User'
+DB_PASSWORD='DB_Password'
+STATIC_ROOT='/path to/dmoj-site/static'
+BRIDGE_JUDGE='0.0.0.0:8098'
+BRIDGE_DJANGO='127.0.0.1:8099'
+DMOJ_PROBLEM_DATA_ROOT='/path to/dmoj-site/problems'
 EMAIL_HOST_USER='EMAIL_HOST_USER'
 EMAIL_HOST_PASSWORD='EMAIL_HOST_PASSWORD'
 CONFIG_FILE="./uwsgi.ini"
-NEW_CHDIR="path to/dmoj-site"
-NEW_PYTHONPATH="path to/dmoj-site"
-NEW_VIRTUALENV="path to/dmojsite"
+NEW_CHDIR="/path to/dmoj-site"
+NEW_PYTHONPATH="/path to/dmoj-site"
+NEW_VIRTUALENV="/path to/dmojsite"
 # uwsgi.ini 檔案的絕對路徑
-UWSGI_INI_PATH="path to/dmojsite/bin/uwsgi --ini uwsgi.ini"
+UWSGI_INI_PATH="/path to/dmojsite/bin/uwsgi --ini uwsgi.ini"
+
 
 
 . "${NEW_VIRTUALENV}/bin/activate"
@@ -54,6 +56,13 @@ sed -i "s/'PASSWORD': 'User Password',/'PASSWORD': '$DB_PASSWORD',/" local_setti
 
 echo "updating STATIC_ROOT..."
 sed -i "s|STATIC_ROOT = '/static'|STATIC_ROOT = '$STATIC_ROOT'|" local_settings.py
+
+echo "updating DMOJ_PROBLEM_DATA_ROOT..."
+if grep -q '^DMOJ_PROBLEM_DATA_ROOT' local_settings.py; then
+    sed -i "s|^DMOJ_PROBLEM_DATA_ROOT.*|DMOJ_PROBLEM_DATA_ROOT = '$DMOJ_PROBLEM_DATA_ROOT'|" local_settings.py
+else
+    echo "DMOJ_PROBLEM_DATA_ROOT = '$DMOJ_PROBLEM_DATA_ROOT'" >> local_settings.py
+fi
 
 echo "updating Bridge setting..."
 
@@ -97,6 +106,7 @@ echo "- ALLOWED_HOSTS: $ALLOWED_HOSTS"
 echo "- DB_USER: $DB_USER"  
 echo "- DB_PASSWORD: [已設定]"
 echo "- STATIC_ROOT: $STATIC_ROOT"
+echo "- DMOJ_PROBLEM_DATA_ROOT: $DMOJ_PROBLEM_DATA_ROOT"
 echo "- BRIDGE_JUDGE: $BRIDGE_JUDGE_FORMATTED"
 echo "- BRIDGE_DJANGO: $BRIDGE_DJANGO_FORMATTED"
 echo "- EMAIL_HOST_USER: $EMAIL_HOST_USER"
