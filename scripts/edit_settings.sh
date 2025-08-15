@@ -4,19 +4,19 @@ set -euo pipefail
 
 SECRET_KEY='thisiskey'
 ALLOWED_HOSTS='0.0.0.0,127.0.0.1,localhost'
-DB_USER='DB_User'
-DB_PASSWORD='DB_Password'
-
+DB_USER='DB_USER'
+DB_PASSWORD='DB_PASSWORD'
+STATIC_ROOT='path to/dmoj-site/static'
 BRIDGE_JUDGE='localhost:8098'
 BRIDGE_DJANGO='localhost:8099'
-EMAIL_HOST_USER='host email'
-EMAIL_HOST_PASSWORD='aaaa aaaa aaaa aaaa'
-
-STATIC_ROOT='${HOME}/dmoj-site/static'
+EMAIL_HOST_USER='EMAIL_HOST_USER'
+EMAIL_HOST_PASSWORD='EMAIL_HOST_PASSWORD'
 CONFIG_FILE="./uwsgi.ini"
-NEW_CHDIR="${HOME}/dmoj-site"
-NEW_PYTHONPATH="${HOME}/dmoj-site"
-NEW_VIRTUALENV="${HOME}/dmojsite"
+NEW_CHDIR="path to/dmoj-site"
+NEW_PYTHONPATH="path to/dmoj-site"
+NEW_VIRTUALENV="path to/dmojsite"
+# uwsgi.ini 檔案的絕對路徑
+UWSGI_INI_PATH="path to/dmojsite/bin/uwsgi --ini uwsgi.ini"
 
 
 . "${NEW_VIRTUALENV}/bin/activate"
@@ -149,6 +149,5 @@ fi
 
 echo "---"
 echo "uwsgi.ini 檔案修改完成！"
-
 
 

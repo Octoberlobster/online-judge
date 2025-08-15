@@ -4,25 +4,25 @@
 # 請在這裡填入你專案的實際路徑
 # =================================================================
 # uwsgi.ini 檔案的絕對路徑
-UWSGI_INI_PATH="${HOME}/dmojsite/bin/uwsgi --ini uwsgi.ini"
+UWSGI_INI_PATH="path to/dmojsite/bin/uwsgi --ini uwsgi.ini"
 # 專案根目錄的絕對路徑
-PROJECT_DIRECTORY="${HOME}/dmoj-site"
+PROJECT_DIRECTORY="path to/dmoj-site"
 # bridged 服務的執行指令路徑
-BRIDGE_COMMAND_PATH="${HOME}/dmojsite/bin/python manage.py runbridged"
+BRIDGE_COMMAND_PATH="path to/dmojsite/bin/python manage.py runbridged"
 # 專案的 Python 路徑
-PYTHON_PATH="${HOME}/dmoj-site"
+PYTHON_PATH="path to/dmoj-site"
 # celery 服務的執行指令路徑
-CELERY_COMMAND_PATH="${HOME}/dmojsite/bin/celery -A dmoj_celery worker"
+CELERY_COMMAND_PATH="path to/dmojsite/bin/celery -A dmoj_celery worker"
 # celery 服務的使用者和群組
-CELERY_USER="aiversity0"
-CELERY_GROUP="aiversity0"
+CELERY_USER="CeleryUser"
+CELERY_GROUP="CeleryGroup"
 # websocket 服務的執行指令路徑
-EVENT_COMMAND_PATH="${HOME}/dmoj-site/websocket/daemon.js"
+EVENT_COMMAND_PATH="path to/dmoj-site/websocket/daemon.js"
 # websocket 服務的 Node.js 模組路徑
-NODE_PATH="${HOME}/dmoj-site/websocket/node_modules"
+NODE_PATH="path to/dmoj-site/websocket/node_modules"
 # websocket 服務的使用者和群組
-EVENT_USER="aiversity0"
-EVENT_GROUP="aiversity0"
+EVENT_USER="EventUser"
+EVENT_GROUP="EventGroup"
 # =================================================================
 
 # 檢查變數是否已填寫
@@ -114,8 +114,8 @@ set -Eeuo pipefail
 ### ===== 使用者可調整區 =====
 PORT=12080                           # 例：80 或 12080
 SERVER_NAME="IP"            # 只填主機名，不要含 http:// 或 https://
-ROOT_DIR="${HOME}/dmoj-site"       # 用於 502.html / logo.png / robots.txt 及 icons
-STATIC_ALIAS="${HOME}/dmoj-site/static/"  # /static 對應的實際路徑（結尾建議保留 /）
+ROOT_DIR="path to/dmoj-site"       # 用於 502.html / logo.png / robots.txt 及 icons
+STATIC_ALIAS="path to/dmoj-site/static/"  # /static 對應的實際路徑（結尾建議保留 /）
 CONF_PATH="/etc/nginx/conf.d/nginx.conf"    # 產生的 nginx 設定檔路徑
 ### ===== 可調整區結束 =====
 
@@ -194,11 +194,3 @@ EOF
 
 sudo nginx -t && sudo systemctl reload nginx && echo "已寫入 ${CONF_PATH}（語法 OK）。/"
 
-#!/bin/bash
-DMOJ_STATIC_PATH="${HOME}/dmoj-site/static"
-sudo apt update
-sudo apt install -y acl
-sudo setfacl -m u:www-data:x /home
-sudo setfacl -m u:www-data:x "${HOME}"
-sudo setfacl -R -m u:www-data:rx "$DMOJ_STATIC_PATH"
-sudo setfacl -R -m d:u:www-data:rx "$DMOJ_STATIC_PATH"
