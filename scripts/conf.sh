@@ -4,15 +4,15 @@
 # 請在這裡填入你專案的實際路徑
 # =================================================================
 # uwsgi.ini 檔案的絕對路徑
-UWSGI_INI_PATH="//path to/dmojsite/bin/uwsgi --ini uwsgi.ini"
+UWSGI_INI_PATH="/path to/dmojsite/bin/uwsgi --ini uwsgi.ini"
 # 專案根目錄的絕對路徑
-PROJECT_DIRECTORY="//path to/dmoj-site"
+PROJECT_DIRECTORY="/path to/dmoj-site"
 # bridged 服務的執行指令路徑
-BRIDGE_COMMAND_PATH="//path to/dmojsite/bin/python manage.py runbridged"
+BRIDGE_COMMAND_PATH="/path to/dmojsite/bin/python manage.py runbridged"
 # 專案的 Python 路徑
-PYTHON_PATH="//path to/dmoj-site"
+PYTHON_PATH="/path to/dmoj-site"
 # celery 服務的執行指令路徑
-CELERY_COMMAND_PATH="//path to/dmojsite/bin/celery -A dmoj_celery worker"
+CELERY_COMMAND_PATH="/path to/dmojsite/bin/celery -A dmoj_celery worker"
 # celery 服務的使用者和群組
 CELERY_USER="CeleryUser"
 CELERY_GROUP="CeleryGroup"
@@ -115,7 +115,7 @@ set -Eeuo pipefail
 PORT=12080                           # 例：80 或 12080
 SERVER_NAME="IP"            # 只填主機名，不要含 http:// 或 https://
 ROOT_DIR="/path to/dmoj-site"       # 用於 502.html / logo.png / robots.txt 及 icons
-STATIC_ALIAS="path to/dmoj-site/static/"  # /static 對應的實際路徑（結尾建議保留 /）
+STATIC_ALIAS="/path to/dmoj-site/static/"  # /static 對應的實際路徑（結尾建議保留 /）
 CONF_PATH="/etc/nginx/conf.d/nginx.conf"    # 產生的 nginx 設定檔路徑
 ### ===== 可調整區結束 =====
 
