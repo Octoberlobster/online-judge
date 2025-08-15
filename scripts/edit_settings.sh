@@ -6,39 +6,41 @@ SECRET_KEY='thisiskey'
 ALLOWED_HOSTS='0.0.0.0,127.0.0.1,localhost,34.80.241.241'
 DB_USER='xc'
 DB_PASSWORD='Mbuibm9290'
-STATIC_ROOT='/home/aiversity0/dmoj-site/static'
+
 BRIDGE_JUDGE='localhost:8098'
 BRIDGE_DJANGO='localhost:8099'
 EMAIL_HOST_USER='aiversity6@gmail.com'
-EMAIL_HOST_PASSWORD='ijjy iiby fawb ozgj'
+EMAIL_HOST_PASSWORD='aaaa aaaa aaaa aaaa'
+
+STATIC_ROOT='${HMOE}/dmoj-site/static'
 CONFIG_FILE="./uwsgi.ini"
-NEW_CHDIR="/home/aiversity0/dmoj-site"
-NEW_PYTHONPATH="/home/aiversity0/dmoj-site"
-NEW_VIRTUALENV="/home/aiversity0/dmojsite"
+NEW_CHDIR="${HMOE}/dmoj-site"
+NEW_PYTHONPATH="${HMOE}/dmoj-site"
+NEW_VIRTUALENV="${HMOE}/dmojsite"
 # uwsgi.ini 檔案的絕對路徑
-UWSGI_INI_PATH="/home/aiversity0/dmojsite/bin/uwsgi --ini uwsgi.ini"
+UWSGI_INI_PATH="${HMOE}/dmojsite/bin/uwsgi --ini uwsgi.ini"
 # 專案根目錄的絕對路徑
-PROJECT_DIRECTORY="/home/aiversity0/dmoj-site"
+PROJECT_DIRECTORY="${HMOE}/dmoj-site"
 # bridged 服務的執行指令路徑
-BRIDGE_COMMAND_PATH="/home/aiversity0/dmojsite/bin/python manage.py runbridged"
+BRIDGE_COMMAND_PATH="${HMOE}/dmojsite/bin/python manage.py runbridged"
 # 專案的 Python 路徑
-PYTHON_PATH="/home/aiversity0/dmoj-site"
+PYTHON_PATH="${HMOE}/dmoj-site"
 # celery 服務的執行指令路徑
-CELERY_COMMAND_PATH="/home/aiversity0/dmojsite/bin/celery -A dmoj_celery worker"
+CELERY_COMMAND_PATH="${HMOE}/dmojsite/bin/celery -A dmoj_celery worker"
 # celery 服務的使用者和群組
 CELERY_USER="aiversity0"
 CELERY_GROUP="aiversity0"
 # websocket 服務的執行指令路徑
-EVENT_COMMAND_PATH=" /home/aiversity0/dmoj-site/websocket/daemon.js"
+EVENT_COMMAND_PATH="${HMOE}/dmoj-site/websocket/daemon.js"
 # websocket 服務的 Node.js 模組路徑
-NODE_PATH="/home/aiversity0/dmoj-site/websocket/node_modules"
+NODE_PATH="${HMOE}/dmoj-site/websocket/node_modules"
 # websocket 服務的使用者和群組
 EVENT_USER="aiversity0"
 EVENT_GROUP="aiversity0"
 PORT=12080                           # 例：80 或 12080
 SERVER_NAME="34.80.241.241"            # 只填主機名，不要含 http:// 或 https://
-ROOT_DIR="/home/aiversity0/dmoj-site"       # 用於 502.html / logo.png / robots.txt 及 icons
-STATIC_ALIAS="/home/aiversity0/dmoj-site/static/"  # /static 對應的實際路徑（結尾建議保留 /）
+ROOT_DIR="${HMOE}/dmoj-site"       # 用於 502.html / logo.png / robots.txt 及 icons
+STATIC_ALIAS="${HMOE}/dmoj-site/static/"  # /static 對應的實際路徑（結尾建議保留 /）
 CONF_PATH="/etc/nginx/conf.d/nginx.conf"    # 產生的 nginx 設定檔路徑
 
 . "${NEW_VIRTUALENV}/bin/activate"

@@ -4,22 +4,22 @@
 # 請在這裡填入你專案的實際路徑
 # =================================================================
 # uwsgi.ini 檔案的絕對路徑
-UWSGI_INI_PATH="/home/aiversity0/dmojsite/bin/uwsgi --ini uwsgi.ini"
+UWSGI_INI_PATH="${HMOE}/dmojsite/bin/uwsgi --ini uwsgi.ini"
 # 專案根目錄的絕對路徑
-PROJECT_DIRECTORY="/home/aiversity0/dmoj-site"
+PROJECT_DIRECTORY="${HMOE}/dmoj-site"
 # bridged 服務的執行指令路徑
-BRIDGE_COMMAND_PATH="/home/aiversity0/dmojsite/bin/python manage.py runbridged"
+BRIDGE_COMMAND_PATH="${HMOE}/dmojsite/bin/python manage.py runbridged"
 # 專案的 Python 路徑
-PYTHON_PATH="/home/aiversity0/dmoj-site"
+PYTHON_PATH="${HMOE}/dmoj-site"
 # celery 服務的執行指令路徑
-CELERY_COMMAND_PATH="/home/aiversity0/dmojsite/bin/celery -A dmoj_celery worker"
+CELERY_COMMAND_PATH="${HMOE}/dmojsite/bin/celery -A dmoj_celery worker"
 # celery 服務的使用者和群組
 CELERY_USER="aiversity0"
 CELERY_GROUP="aiversity0"
 # websocket 服務的執行指令路徑
-EVENT_COMMAND_PATH=" /home/aiversity0/dmoj-site/websocket/daemon.js"
+EVENT_COMMAND_PATH="${HMOE}/dmoj-site/websocket/daemon.js"
 # websocket 服務的 Node.js 模組路徑
-NODE_PATH="/home/aiversity0/dmoj-site/websocket/node_modules"
+NODE_PATH="${HMOE}/dmoj-site/websocket/node_modules"
 # websocket 服務的使用者和群組
 EVENT_USER="aiversity0"
 EVENT_GROUP="aiversity0"
