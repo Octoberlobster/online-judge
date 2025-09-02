@@ -6,6 +6,7 @@
 *.mo
 *~
 *.swp
+
 resources/dark
 resources/martor-description.css
 resources/style.css

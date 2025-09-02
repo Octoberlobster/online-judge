@@ -210,8 +210,23 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
     def download_csv_sample(self, request):
         """下載範例 CSV 文件"""
         from django.http import HttpResponse
+        from django.conf import settings
         import csv
+        import os
         
+        # 嘗試讀取實際的 sample_problems_with_solutions.csv 檔案
+        csv_file_path = os.path.join(settings.BASE_DIR, 'sample_problems_with_solutions.csv')
+        
+        if os.path.exists(csv_file_path):
+            # 如果檔案存在，直接提供檔案內容
+            with open(csv_file_path, 'r', encoding='utf-8-sig') as f:
+                csv_content = f.read()
+            
+            response = HttpResponse(csv_content, content_type='text/csv; charset=utf-8-sig')
+            response['Content-Disposition'] = 'attachment; filename="sample_problems_with_solutions.csv"'
+            return response
+        
+        # 如果檔案不存在，則生成預設範例
         response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
         response['Content-Disposition'] = 'attachment; filename="sample_problems_with_solutions.csv"'
         

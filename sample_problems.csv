@@ -1,5 +1,5 @@
 code,name,description,group,time_limit,memory_limit,points,types,authors,allowed_languages,is_public,partial,short_circuit
-testaplusb,測試 A+B Problem,"計算兩個整數 A 和 B 的和。
+test_a_plus_b,測試 A+B Problem,"計算兩個整數 A 和 B 的和。
 
 ## 輸入
 第一行包含兩個整數 A 和 B。
@@ -16,7 +16,7 @@ testaplusb,測試 A+B Problem,"計算兩個整數 A 和 B 的和。
 ```
 3
 ```",Demo,1.0,65536,100,Math,,Verilog,true,false,false
-testfibonacci,測試費波納契數列,"計算費波納契數列的第 n 項。
+test_fibonacci,測試費波納契數列,"計算費波納契數列的第 n 項。
 
 ## 輸入
 一個整數 n (1 ≤ n ≤ 45)。
@@ -33,7 +33,7 @@ testfibonacci,測試費波納契數列,"計算費波納契數列的第 n 項。
 ```
 55
 ```",Demo,2.0,131072,150,"Math,Dynamic Programming",,verilog,true,true,false
-testverilog,Verilog 測試題目,"設計一個 Verilog 模組。
+test_verilog,Verilog 測試題目,"設計一個 Verilog 模組。
 
 ## 題目描述
 設計一個 2-to-1 多工器。

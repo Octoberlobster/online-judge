@@ -1155,3 +1155,6 @@ INFO 2025-08-28 12:58:31,932 judge_handler Judge authenticated: ('127.0.0.1', 37
 INFO 2025-09-01 13:27:55,372 daemon Exiting due to SIGINT
 INFO 2025-09-01 13:29:05,996 judge_handler Judge connected from: ('127.0.0.1', 35918)
 INFO 2025-09-01 13:29:06,020 judge_handler Judge authenticated: ('127.0.0.1', 35918) (verilog)
+INFO 2025-09-02 10:31:44,052 daemon Exiting due to SIGINT
+INFO 2025-09-02 10:38:54,908 judge_handler Judge connected from: ('127.0.0.1', 49414)
+INFO 2025-09-02 10:38:54,931 judge_handler Judge authenticated: ('127.0.0.1', 49414) (verilog)
