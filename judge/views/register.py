@@ -13,7 +13,7 @@ from registration.backends.default.views import (ActivationView as OldActivation
 from registration.forms import RegistrationForm
 from sortedm2m.forms import SortedMultipleChoiceField
 
-from judge.models import Language, Organization, Profile, TIMEZONE
+from judge.models import Language, Organization, Profile, TIMEZONE, AllowedEmailDomain
 from judge.utils.recaptcha import ReCaptchaField, ReCaptchaWidget
 from judge.utils.subscription import Subscription, newsletter_id
 from judge.widgets import Select2MultipleWidget, Select2Widget
@@ -48,9 +48,22 @@ class CustomRegistrationForm(RegistrationForm):
             raise forms.ValidationError(gettext('The email address "%s" is already taken. Only one registration '
                                                   'is allowed per address.') % email_data)
         
-        # 2. 【新增】檢查 Email 是否以 .edu 結尾 (轉換成小寫後再比對)
-        if not email_data.lower().endswith('.edu.tw'):
-            raise forms.ValidationError("註冊失敗：僅允許使用 .edu.tw 結尾的電子郵件。")
+        # 2. 檢查是否有設定允許的域名
+        allowed_domains = AllowedEmailDomain.objects.filter(is_active=True)
+        
+        if allowed_domains.exists():
+            # 如果有設定允許的域名，則檢查郵件是否符合
+            if not AllowedEmailDomain.is_domain_allowed(email_data):
+                allowed_list = ', '.join(allowed_domains.values_list('domain', flat=True))
+                raise forms.ValidationError(
+                    gettext('Registration failed: Only emails from the following domains are allowed: %(domains)s') % {
+                        'domains': allowed_list
+                    }
+                )
+        else:
+            # 如果沒有設定允許的域名，則使用原來的 .edu.tw 限制（向後兼容）
+            if not email_data.lower().endswith('.edu.tw'):
+                raise forms.ValidationError("註冊失敗：僅允許使用 .edu.tw 結尾的電子郵件。")
 
         # 3. 原始的黑名單檢查 (保留，以防萬一)
         if '@' in email_data:

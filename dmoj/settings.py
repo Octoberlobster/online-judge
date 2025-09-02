@@ -42,7 +42,7 @@ DMOJ_2FA_HARDCORE = False
 # Set to 1 to use HTTPS if request was made to https://
 # Set to 2 to always use HTTPS for links
 # Set to 0 to always use HTTP for links
-DMOJ_SSL = 0
+DMOJ_SSL = 2
 
 # Refer to https://dmoj.ca/post/103-point-system-rework
 DMOJ_PP_STEP = 0.95
@@ -175,10 +175,18 @@ else:
                     'model': 'judge.Problem',
                     'icon': 'fa-question-circle',
                     'children': [
+                        'judge.CSVImportHelper',
                         'judge.ProblemGroup',
                         'judge.ProblemType',
                         'judge.License',
                         'judge.ProblemPointsVote',
+                    ],
+                    'custom_links': [
+                        {
+                            'title': '匯入題目 CSV',
+                            'url': '/admin/judge/problem/import-csv/',
+                            'icon': 'fa-upload',
+                        },
                     ],
                 },
                 ('judge.Submission', 'fa-check-square-o'),

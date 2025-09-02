@@ -2,6 +2,7 @@ import errno
 import os
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
@@ -23,6 +24,17 @@ def unlink_if_exists(file):
     except OSError as e:
         if e.errno != errno.ENOENT:
             raise
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    """
+    自動為新創建的用戶建立 Profile
+    """
+    if created:
+        Profile.objects.get_or_create(user=instance, defaults={
+            'language': Language.get_default_language(),
+        })
 
 
 @receiver(post_save, sender=Problem)

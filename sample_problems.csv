@@ -1,0 +1,51 @@
+code,name,description,group,time_limit,memory_limit,points,types,authors,allowed_languages,is_public,partial,short_circuit
+testaplusb,測試 A+B Problem,"計算兩個整數 A 和 B 的和。
+
+## 輸入
+第一行包含兩個整數 A 和 B。
+
+## 輸出
+輸出 A + B 的結果。
+
+## 範例輸入
+```
+1 2
+```
+
+## 範例輸出
+```
+3
+```",Demo,1.0,65536,100,Math,,Verilog,true,false,false
+testfibonacci,測試費波納契數列,"計算費波納契數列的第 n 項。
+
+## 輸入
+一個整數 n (1 ≤ n ≤ 45)。
+
+## 輸出
+費波納契數列的第 n 項。
+
+## 範例輸入
+```
+10
+```
+
+## 範例輸出
+```
+55
+```",Demo,2.0,131072,150,"Math,Dynamic Programming",,verilog,true,true,false
+testverilog,Verilog 測試題目,"設計一個 Verilog 模組。
+
+## 題目描述
+設計一個 2-to-1 多工器。
+
+## 輸入
+- a: 輸入信號 A
+- b: 輸入信號 B  
+- sel: 選擇信號
+
+## 輸出
+- out: 輸出信號
+
+## 功能
+當 sel = 0 時，out = a
+當 sel = 1 時，out = b",Demo,5.0,131072,200,verilog,,Verilog,true,false,false

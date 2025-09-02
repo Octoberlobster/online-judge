@@ -209,6 +209,7 @@
                         <ul style="width: 150px">
                             {% if request.user.is_staff or request.user.is_superuser %}
                                 <li><a href="{{ url('admin:index') }}">{{ _('Admin') }}</a></li>
+                                <li><a href="{{ url('admin:judge_allowedemaildomain_changelist') }}">{{ _('Email Domains') }}</a></li>
                             {% endif %}
                             <li><a href="{{ url('user_edit_profile') }}">{{ _('Edit profile') }}</a></li>
                             {% if request.user.is_impersonate %}

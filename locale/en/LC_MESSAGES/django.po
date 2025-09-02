@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-21 00:48+0000\n"
+"POT-Creation-Date: 2025-08-31 14:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,95 +18,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: dmoj/settings.py:380
-msgid "Catalan"
-msgstr ""
-
 #: dmoj/settings.py:381
-msgid "German"
-msgstr ""
-
-#: dmoj/settings.py:382
-msgid "Greek"
-msgstr ""
-
-#: dmoj/settings.py:383
-msgid "English"
-msgstr ""
-
-#: dmoj/settings.py:384
-msgid "Spanish"
-msgstr ""
-
-#: dmoj/settings.py:385
-msgid "French"
-msgstr ""
-
-#: dmoj/settings.py:386
-msgid "Croatian"
-msgstr ""
-
-#: dmoj/settings.py:387
-msgid "Hungarian"
-msgstr ""
-
-#: dmoj/settings.py:388
-msgid "Japanese"
-msgstr ""
-
-#: dmoj/settings.py:389
-msgid "Korean"
-msgstr ""
-
-#: dmoj/settings.py:390
-msgid "Brazilian Portuguese"
-msgstr ""
-
-#: dmoj/settings.py:391
-msgid "Romanian"
-msgstr ""
-
-#: dmoj/settings.py:392
-msgid "Russian"
-msgstr ""
-
-#: dmoj/settings.py:393
-msgid "Serbian (Latin)"
-msgstr ""
-
-#: dmoj/settings.py:394
-msgid "Turkish"
-msgstr ""
-
-#: dmoj/settings.py:395
-msgid "Vietnamese"
-msgstr ""
-
-#: dmoj/settings.py:396
-msgid "Simplified Chinese"
-msgstr ""
-
-#: dmoj/settings.py:397
 msgid "Traditional Chinese"
 msgstr ""
 
-#: dmoj/urls.py:32
+#: dmoj/settings.py:382
+msgid "English"
+msgstr ""
+
+#: dmoj/urls.py:34
 msgid "Activation Successful!"
 msgstr ""
 
-#: dmoj/urls.py:40
+#: dmoj/urls.py:42
 msgid "Registration Completed"
 msgstr ""
 
-#: dmoj/urls.py:44
+#: dmoj/urls.py:46
 msgid "Registration Not Allowed"
 msgstr ""
 
-#: dmoj/urls.py:93 templates/base.html:183
+#: dmoj/urls.py:95 templates/base.html:183
 msgid "Home"
 msgstr ""
 
-#: judge/admin/comments.py:23 judge/admin/interface.py:72
+#: judge/admin/comments.py:23 judge/admin/interface.py:87
 msgid "Content"
 msgstr ""
 
@@ -254,7 +190,7 @@ msgstr ""
 msgid "username"
 msgstr ""
 
-#: judge/admin/contest.py:368 templates/base.html:249
+#: judge/admin/contest.py:368 templates/base.html:250
 msgid "virtual"
 msgstr ""
 
@@ -262,18 +198,28 @@ msgstr ""
 msgid "link path"
 msgstr ""
 
-#: judge/admin/interface.py:73
+#: judge/admin/interface.py:49
+msgid "Template name"
+msgstr ""
+
+#: judge/admin/interface.py:50
+msgid ""
+"Example: 'flatpages/contact_page.html'. If this isn't provided, the system "
+"will use 'flatpages/markdown.html'."
+msgstr ""
+
+#: judge/admin/interface.py:88
 msgid "Summary"
 msgstr ""
 
-#: judge/admin/interface.py:124 judge/models/contest.py:491
+#: judge/admin/interface.py:139 judge/models/contest.py:491
 #: judge/models/contest.py:623 judge/models/profile.py:331
 #: judge/models/profile.py:362 judge/models/submission.py:67
 #: judge/models/ticket.py:32
 msgid "user"
 msgstr ""
 
-#: judge/admin/interface.py:165
+#: judge/admin/interface.py:180
 msgid "object"
 msgstr ""
 
@@ -310,8 +256,8 @@ msgid "Limits"
 msgstr ""
 
 #: judge/admin/problem.py:135 judge/admin/submission.py:243
-#: templates/problem/submission-diff.html:65 templates/stats/tabs.html:4
-#: templates/submission/list.html:317
+#: templates/base.html:284 templates/problem/submission-diff.html:65
+#: templates/stats/tabs.html:4 templates/submission/list.html:317
 msgid "Language"
 msgstr ""
 
@@ -379,7 +325,7 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
-#: judge/admin/profile.py:108 judge/views/register.py:28
+#: judge/admin/profile.py:108 judge/views/register.py:27
 #: templates/registration/registration_form.html:177
 msgid "Timezone"
 msgstr ""
@@ -399,13 +345,38 @@ msgstr[1] ""
 msgid "Recalculate scores"
 msgstr ""
 
+#: judge/admin/registration.py:19
+msgid "Timestamps"
+msgstr ""
+
+#: judge/admin/registration.py:31
+msgid "Active"
+msgstr ""
+
+#: judge/admin/registration.py:36
+msgid "Inactive"
+msgstr ""
+
+#: judge/admin/registration.py:39 judge/views/status.py:23
+#: templates/submission/list.html:308
+msgid "Status"
+msgstr ""
+
+#: judge/admin/registration.py:51 judge/models/registration.py:47
+msgid "Allowed email domain"
+msgstr ""
+
+#: judge/admin/registration.py:52 judge/models/registration.py:48
+msgid "Allowed email domains"
+msgstr ""
+
 #: judge/admin/runtime.py:50 templates/user/edit-profile.html:124
 #: templates/user/edit-profile.html:246 templates/user/edit-profile.html:366
 #: templates/user/edit-profile.html:396
 msgid "Regenerate"
 msgstr ""
 
-#: judge/admin/runtime.py:64
+#: judge/admin/runtime.py:64 judge/models/registration.py:26
 msgid "Description"
 msgstr ""
 
@@ -667,7 +638,7 @@ msgstr ""
 msgid "You must solve at least one problem before you can update your profile."
 msgstr ""
 
-#: judge/forms.py:80 judge/views/organization.py:151 judge/views/register.py:58
+#: judge/forms.py:80 judge/views/organization.py:151 judge/views/register.py:84
 #, python-brace-format
 msgid "You may not be part of more than {count} public organization."
 msgid_plural "You may not be part of more than {count} public organizations."
@@ -702,7 +673,7 @@ msgstr ""
 msgid "Any judge"
 msgstr ""
 
-#: judge/forms.py:160 judge/views/register.py:25
+#: judge/forms.py:160 judge/views/register.py:24
 #: templates/problem/submission-diff.html:63
 #: templates/registration/registration_form.html:143
 #: templates/user/base-users-table.html:5
@@ -2405,6 +2376,38 @@ msgstr ""
 msgid "organization join requests"
 msgstr ""
 
+#: judge/models/registration.py:13
+msgid "Email domain"
+msgstr ""
+
+#: judge/models/registration.py:14
+msgid "Allowed email domain for registration (e.g., edu.tw, gmail.com)"
+msgstr ""
+
+#: judge/models/registration.py:18
+msgid "Enter a valid domain name (e.g., edu.tw, example.com)"
+msgstr ""
+
+#: judge/models/registration.py:27
+msgid "Optional description for this domain"
+msgstr ""
+
+#: judge/models/registration.py:32
+msgid "Is active"
+msgstr ""
+
+#: judge/models/registration.py:33
+msgid "Whether this domain is currently allowed for registration"
+msgstr ""
+
+#: judge/models/registration.py:38
+msgid "Created at"
+msgstr ""
+
+#: judge/models/registration.py:43
+msgid "Updated at"
+msgstr ""
+
 #: judge/models/runtime.py:19
 msgid "short identifier"
 msgstr ""
@@ -2937,40 +2940,40 @@ msgstr ""
 msgid "Preparing your comment data"
 msgstr ""
 
-#: judge/utils/problem_data.py:63
+#: judge/utils/problem_data.py:66
 msgid "Empty batches not allowed."
 msgstr ""
 
-#: judge/utils/problem_data.py:82
+#: judge/utils/problem_data.py:85
 #, python-format
 msgid "Points must be defined for non-batch case #%d."
 msgstr ""
 
-#: judge/utils/problem_data.py:87
+#: judge/utils/problem_data.py:90
 #, python-format
 msgid "Input file for case %d does not exist: %s"
 msgstr ""
 
-#: judge/utils/problem_data.py:90
+#: judge/utils/problem_data.py:93
 #, python-format
 msgid "Output file for case %d does not exist: %s"
 msgstr ""
 
-#: judge/utils/problem_data.py:115
+#: judge/utils/problem_data.py:121
 #, python-format
 msgid "Batch start case #%d requires points."
 msgstr ""
 
-#: judge/utils/problem_data.py:136
+#: judge/utils/problem_data.py:142
 #, python-format
 msgid "Attempt to end batch outside of one in case #%d."
 msgstr ""
 
-#: judge/utils/problem_data.py:154
+#: judge/utils/problem_data.py:160
 msgid "How did you corrupt the zip path?"
 msgstr ""
 
-#: judge/utils/problem_data.py:160
+#: judge/utils/problem_data.py:166
 msgid "How did you corrupt the generator path?"
 msgstr ""
 
@@ -3220,7 +3223,7 @@ msgstr ""
 msgid "Could not find such organization."
 msgstr ""
 
-#: judge/views/organization.py:81 judge/views/register.py:33
+#: judge/views/organization.py:81 judge/views/register.py:32
 #: templates/user/user-list-tabs.html:5
 msgid "Organizations"
 msgstr ""
@@ -3493,40 +3496,47 @@ msgstr ""
 msgid "Best solutions for problem %(number)s in %(contest)s"
 msgstr ""
 
-#: judge/views/register.py:26
+#: judge/views/register.py:25
 msgid "A username must contain letters, numbers, or underscores."
 msgstr ""
 
-#: judge/views/register.py:30
+#: judge/views/register.py:29
 msgid "Preferred language"
 msgstr ""
 
-#: judge/views/register.py:37
+#: judge/views/register.py:36
 msgid "Subscribe to newsletter?"
 msgstr ""
 
-#: judge/views/register.py:44
+#: judge/views/register.py:48
 #, python-format
 msgid ""
 "The email address \"%s\" is already taken. Only one registration is allowed "
 "per address."
 msgstr ""
 
-#: judge/views/register.py:50
+#: judge/views/register.py:59
+#, python-format
+msgid ""
+"Registration failed: Only emails from the following domains are allowed: "
+"%(domains)s"
+msgstr ""
+
+#: judge/views/register.py:73
 msgid ""
 "Your email provider is not allowed due to history of abuse. Please use a "
 "reputable email provider."
 msgstr ""
 
-#: judge/views/register.py:65
+#: judge/views/register.py:90
 msgid "Register"
 msgstr ""
 
-#: judge/views/register.py:103
+#: judge/views/register.py:127
 msgid "Activation Key Invalid"
 msgstr ""
 
-#: judge/views/register.py:114
+#: judge/views/register.py:137
 msgid "Authentication failure"
 msgstr ""
 
@@ -3536,10 +3546,6 @@ msgstr ""
 
 #: judge/views/stats.py:62
 msgid "Language statistics"
-msgstr ""
-
-#: judge/views/status.py:23 templates/submission/list.html:308
-msgid "Status"
 msgstr ""
 
 #: judge/views/status.py:108
@@ -3730,7 +3736,7 @@ msgid "Updated on site"
 msgstr ""
 
 #: judge/views/user.py:387 templates/admin/auth/user/change_form.html:14
-#: templates/admin/auth/user/change_form.html:17 templates/base.html:213
+#: templates/admin/auth/user/change_form.html:17 templates/base.html:214
 #: templates/user/user-tabs.html:16
 msgid "Edit profile"
 msgstr ""
@@ -3758,6 +3764,99 @@ msgstr ""
 #: judge/views/user.py:508
 msgid "You have sent too many password reset requests. Please try again later."
 msgstr ""
+
+#: templates/admin/bulk_import_problems.html:4
+#: templates/admin/bulk_import_problems.html:14 templates/admin/index.html:15
+msgid "Bulk Import Problems"
+msgstr ""
+
+#: templates/admin/bulk_import_problems.html:4
+msgid "Django site admin"
+msgstr ""
+
+#: templates/admin/bulk_import_problems.html:7
+msgid "Django administration"
+msgstr ""
+
+#: templates/admin/bulk_import_problems.html:32
+msgid "Upload CSV File"
+msgstr ""
+
+#: templates/admin/bulk_import_problems.html:36
+msgid "CSV File"
+msgstr ""
+
+#: templates/admin/bulk_import_problems.html:44
+msgid "File Encoding"
+msgstr ""
+
+#: templates/admin/bulk_import_problems.html:59
+msgid "Dry Run"
+msgstr ""
+
+#: templates/admin/bulk_import_problems.html:69
+msgid "Update Existing"
+msgstr ""
+
+#: templates/admin/bulk_import_problems.html:77
+msgid "Import Problems"
+msgstr ""
+
+#: templates/admin/bulk_import_problems.html:78
+msgid "Cancel"
+msgstr ""
+
+#: templates/admin/bulk_import_problems.html:138
+msgid "Manage Problems"
+msgstr ""
+
+#: templates/admin/bulk_import_problems.html:139
+msgid "Manage Problem Groups"
+msgstr ""
+
+#: templates/admin/bulk_import_problems.html:140
+msgid "Manage Problem Types"
+msgstr ""
+
+#: templates/admin/index.html:7
+msgid "Quick Management"
+msgstr "Quick Management"
+
+#: templates/admin/index.html:11
+msgid "Email Domain Management"
+msgstr "Email Domain Management"
+
+#: templates/admin/index.html:12
+msgid "Manage allowed email domains for registration"
+msgstr "Manage allowed email domains for registration"
+
+#: templates/admin/index.html:16
+msgid "Import multiple problems from CSV file"
+msgstr ""
+
+#: templates/admin/index.html:19
+msgid "User Management"
+msgstr "User Management"
+
+#: templates/admin/index.html:20
+msgid "Manage user profiles and permissions"
+msgstr "Manage user profiles and permissions"
+
+#: templates/admin/index.html:23
+msgid "Problem Management"
+msgstr "Problem Management"
+
+#: templates/admin/index.html:24
+msgid "Manage and edit contest problems"
+msgstr "Manage and edit contest problems"
+
+#: templates/admin/index.html:27
+msgid "Contest Management"
+msgstr "Contest Management"
+
+#: templates/admin/index.html:28
+msgid "Create and manage contest events"
+msgstr "Create and manage contest events"
 
 #: templates/admin/judge/contest/change_form.html:9
 msgid "Are you sure you want to rejudge ALL the submissions?"
@@ -3815,37 +3914,45 @@ msgstr ""
 msgid "Hello, %(username)s."
 msgstr ""
 
-#: templates/base.html:215
+#: templates/base.html:212
+msgid "Email Domains"
+msgstr ""
+
+#: templates/base.html:216
 msgid "Stop impersonating"
 msgstr ""
 
-#: templates/base.html:220
+#: templates/base.html:221
 msgid "Log out"
 msgstr ""
 
-#: templates/base.html:229
+#: templates/base.html:230
 #: templates/registration/password_reset_complete.html:4
 msgid "Log in"
 msgstr ""
 
-#: templates/base.html:230 templates/registration/registration_form.html:181
+#: templates/base.html:231 templates/registration/registration_form.html:181
 msgid "or"
 msgstr ""
 
-#: templates/base.html:231
+#: templates/base.html:232
 msgid "Sign up"
 msgstr ""
 
-#: templates/base.html:243
+#: templates/base.html:244
 msgid "spectating"
 msgstr ""
 
-#: templates/base.html:256
+#: templates/base.html:257
 msgid "This site works best with JavaScript enabled."
 msgstr ""
 
-#: templates/base.html:283
-msgid "proudly powered by **DMOJ**"
+#: templates/base.html:296
+msgid "Developed by **SiliconMind@NUK**"
+msgstr ""
+
+#: templates/base.html:301
+msgid "Powered by **DMOJ**"
 msgstr ""
 
 #: templates/blog/content.html:13 templates/comments/list.html:89
@@ -5749,42 +5856,46 @@ msgstr ""
 msgid "Test case #%(id)d:"
 msgstr ""
 
-#: templates/submission/status-testcases.html:101
+#: templates/submission/status-testcases.html:104
 msgid "Your output (clipped)"
 msgstr ""
 
-#: templates/submission/status-testcases.html:113
+#: templates/submission/status-testcases.html:116
 msgid "Judge feedback"
 msgstr ""
 
-#: templates/submission/status-testcases.html:129
+#: templates/submission/status-testcases.html:133
 msgid "Resources:"
 msgstr ""
 
-#: templates/submission/status-testcases.html:138
+#: templates/submission/status-testcases.html:143
 msgid "Maximum single-case runtime:"
 msgstr ""
 
-#: templates/submission/status-testcases.html:143
+#: templates/submission/status-testcases.html:149
 msgid "Final pretest score:"
 msgstr ""
 
-#: templates/submission/status-testcases.html:145
+#: templates/submission/status-testcases.html:151
 msgid "Final score:"
 msgstr ""
 
-#: templates/submission/status-testcases.html:152
-#: templates/submission/status-testcases.html:156
+#: templates/submission/status-testcases.html:158
+#: templates/submission/status-testcases.html:162
 #, python-format
 msgid "%(points)s/%(total)s points"
 msgstr ""
 
-#: templates/submission/status-testcases.html:161
+#: templates/submission/status-testcases.html:167
 msgid "Passing pretests does not guarantee a full score on system tests."
 msgstr ""
 
-#: templates/submission/status-testcases.html:164
+#: templates/submission/status-testcases.html:170
 msgid "Submission aborted!"
+msgstr ""
+
+#: templates/submission/status-testcases.html:182
+msgid "Waveform Viewer"
 msgstr ""
 
 #: templates/submission/status.html:72

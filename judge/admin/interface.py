@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.flatpages.admin import FlatPageAdmin as OldFlatPageAdmin, FlatpageForm as OldFlatpageForm
-from django.forms import ModelForm
+from django.forms import ModelForm, CharField
 from django.urls import NoReverseMatch, reverse, reverse_lazy
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
@@ -43,8 +43,23 @@ class NavigationBarAdmin(DraggableMPTTAdmin):
 
 
 class FlatpageForm(OldFlatpageForm):
+    template_name = CharField(
+        max_length=200,
+        required=False,
+        label=_('Template name'),
+        help_text=_("Example: 'flatpages/contact_page.html'. If this isn't provided, "
+                    "the system will use 'flatpages/markdown.html'."),
+        initial='flatpages/markdown.html'
+    )
+    
     class Meta(OldFlatpageForm.Meta):
         widgets = {'content': AdminMartorWidget(attrs={'data-markdownfy-url': reverse_lazy('flatpage_preview')})}
+    
+    def __init__(self, *args, **kwargs):
+        super(FlatpageForm, self).__init__(*args, **kwargs)
+        # Set default template for new FlatPages
+        if not self.instance.pk and not self.initial.get('template_name'):
+            self.initial['template_name'] = 'flatpages/markdown.html'
 
 
 class FlatPageAdmin(VersionAdmin, OldFlatPageAdmin):

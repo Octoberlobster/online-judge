@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dmoj\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-20 23:04+0000\n"
+"POT-Creation-Date: 2025-08-31 14:03+0000\n"
 "PO-Revision-Date: 2023-01-21 00:48\n"
 "Last-Translator: \n"
 "Language-Team: Chinese Traditional\n"
@@ -17,95 +17,31 @@ msgstr ""
 "X-Crowdin-File: django.po\n"
 "X-Crowdin-File-ID: 10\n"
 
-#: dmoj/settings.py:380
-msgid "Catalan"
-msgstr "加泰隆語"
-
 #: dmoj/settings.py:381
-msgid "German"
-msgstr "德文"
-
-#: dmoj/settings.py:382
-msgid "Greek"
-msgstr "希臘文"
-
-#: dmoj/settings.py:383
-msgid "English"
-msgstr "英文"
-
-#: dmoj/settings.py:384
-msgid "Spanish"
-msgstr "西班牙文"
-
-#: dmoj/settings.py:385
-msgid "French"
-msgstr "法文"
-
-#: dmoj/settings.py:386
-msgid "Croatian"
-msgstr "克羅地亞文"
-
-#: dmoj/settings.py:387
-msgid "Hungarian"
-msgstr "匈牙利文"
-
-#: dmoj/settings.py:388
-msgid "Japanese"
-msgstr "日語"
-
-#: dmoj/settings.py:389
-msgid "Korean"
-msgstr "韓文"
-
-#: dmoj/settings.py:390
-msgid "Brazilian Portuguese"
-msgstr "巴西葡萄牙語"
-
-#: dmoj/settings.py:391
-msgid "Romanian"
-msgstr "羅馬尼亞文"
-
-#: dmoj/settings.py:392
-msgid "Russian"
-msgstr "俄文"
-
-#: dmoj/settings.py:393
-msgid "Serbian (Latin)"
-msgstr "塞爾維亞文（拉丁語系）"
-
-#: dmoj/settings.py:394
-msgid "Turkish"
-msgstr "土耳其文"
-
-#: dmoj/settings.py:395
-msgid "Vietnamese"
-msgstr "越南文"
-
-#: dmoj/settings.py:396
-msgid "Simplified Chinese"
-msgstr "簡體中文"
-
-#: dmoj/settings.py:397
 msgid "Traditional Chinese"
 msgstr "繁体中文"
 
-#: dmoj/urls.py:32
+#: dmoj/settings.py:382
+msgid "English"
+msgstr "英文"
+
+#: dmoj/urls.py:34
 msgid "Activation Successful!"
 msgstr "啟動成功！"
 
-#: dmoj/urls.py:40
+#: dmoj/urls.py:42
 msgid "Registration Completed"
 msgstr "註冊完成"
 
-#: dmoj/urls.py:44
+#: dmoj/urls.py:46
 msgid "Registration Not Allowed"
 msgstr "不允許註冊"
 
-#: dmoj/urls.py:93 templates/base.html:183
+#: dmoj/urls.py:95 templates/base.html:183
 msgid "Home"
 msgstr "首頁"
 
-#: judge/admin/comments.py:23 judge/admin/interface.py:72
+#: judge/admin/comments.py:23 judge/admin/interface.py:87
 msgid "Content"
 msgstr "内容"
 
@@ -245,7 +181,7 @@ msgstr "重新計算結果"
 msgid "username"
 msgstr "使用者名稱"
 
-#: judge/admin/contest.py:368 templates/base.html:249
+#: judge/admin/contest.py:368 templates/base.html:250
 msgid "virtual"
 msgstr "模擬競賽"
 
@@ -253,18 +189,30 @@ msgstr "模擬競賽"
 msgid "link path"
 msgstr "連結路徑"
 
-#: judge/admin/interface.py:73
+#: judge/admin/interface.py:49
+#, fuzzy
+#| msgid "translated name"
+msgid "Template name"
+msgstr "翻譯名稱"
+
+#: judge/admin/interface.py:50
+msgid ""
+"Example: 'flatpages/contact_page.html'. If this isn't provided, the system "
+"will use 'flatpages/markdown.html'."
+msgstr ""
+
+#: judge/admin/interface.py:88
 msgid "Summary"
 msgstr "概要"
 
-#: judge/admin/interface.py:124 judge/models/contest.py:491
+#: judge/admin/interface.py:139 judge/models/contest.py:491
 #: judge/models/contest.py:623 judge/models/profile.py:331
 #: judge/models/profile.py:362 judge/models/submission.py:67
 #: judge/models/ticket.py:32
 msgid "user"
 msgstr "使用者"
 
-#: judge/admin/interface.py:165
+#: judge/admin/interface.py:180
 msgid "object"
 msgstr "对象"
 
@@ -301,8 +249,8 @@ msgid "Limits"
 msgstr "限制"
 
 #: judge/admin/problem.py:135 judge/admin/submission.py:243
-#: templates/problem/submission-diff.html:65 templates/stats/tabs.html:4
-#: templates/submission/list.html:317
+#: templates/base.html:284 templates/problem/submission-diff.html:65
+#: templates/stats/tabs.html:4 templates/submission/list.html:317
 msgid "Language"
 msgstr "語言"
 
@@ -367,7 +315,7 @@ msgstr "使用者"
 msgid "Email"
 msgstr "電子郵件"
 
-#: judge/admin/profile.py:108 judge/views/register.py:28
+#: judge/admin/profile.py:108 judge/views/register.py:27
 #: templates/registration/registration_form.html:177
 msgid "Timezone"
 msgstr "時區"
@@ -386,13 +334,44 @@ msgstr[0] "%d個用戶的分數被重判了。"
 msgid "Recalculate scores"
 msgstr "重新計算分數"
 
+#: judge/admin/registration.py:19
+msgid "Timestamps"
+msgstr ""
+
+#: judge/admin/registration.py:31
+#, fuzzy
+#| msgid "activate"
+msgid "Active"
+msgstr "激活"
+
+#: judge/admin/registration.py:36
+#, fuzzy
+#| msgid "activate"
+msgid "Inactive"
+msgstr "激活"
+
+#: judge/admin/registration.py:39 judge/views/status.py:23
+#: templates/submission/list.html:308
+msgid "Status"
+msgstr "狀態"
+
+#: judge/admin/registration.py:51 judge/models/registration.py:47
+msgid "Allowed email domain"
+msgstr ""
+
+#: judge/admin/registration.py:52 judge/models/registration.py:48
+#, fuzzy
+#| msgid "Allowed languages"
+msgid "Allowed email domains"
+msgstr "允許的語言"
+
 #: judge/admin/runtime.py:50 templates/user/edit-profile.html:124
 #: templates/user/edit-profile.html:246 templates/user/edit-profile.html:366
 #: templates/user/edit-profile.html:396
 msgid "Regenerate"
 msgstr "重新產生"
 
-#: judge/admin/runtime.py:64
+#: judge/admin/runtime.py:64 judge/models/registration.py:26
 msgid "Description"
 msgstr "描述說明"
 
@@ -533,8 +512,12 @@ msgstr "每題將採計你的最高得分提交。"
 
 #: judge/contest_format/atcoder.py:122 judge/contest_format/icpc.py:132
 #, python-format
-msgid "Each submission before the first maximum score submission will incur a **penalty of %d minute**."
-msgid_plural "Each submission before the first maximum score submission will incur a **penalty of %d minutes**."
+msgid ""
+"Each submission before the first maximum score submission will incur a "
+"**penalty of %d minute**."
+msgid_plural ""
+"Each submission before the first maximum score submission will incur a "
+"**penalty of %d minutes**."
 msgstr[0] ""
 
 #: judge/contest_format/atcoder.py:127
@@ -546,7 +529,9 @@ msgid "Default"
 msgstr "默認"
 
 #: judge/contest_format/default.py:80
-msgid "Ties will be broken by the sum of the last submission time on problems with a non-zero score."
+msgid ""
+"Ties will be broken by the sum of the last submission time on problems with "
+"a non-zero score."
 msgstr "同分將以所有非零得分題目的最後提交時間總和決勝。"
 
 #: judge/contest_format/ecoo.py:18
@@ -554,22 +539,30 @@ msgid "ECOO"
 msgstr "ECOO"
 
 #: judge/contest_format/ecoo.py:130
-msgid "The score on your **last** non-CE submission for each problem will be used."
+msgid ""
+"The score on your **last** non-CE submission for each problem will be used."
 msgstr "每題將採計你最後一次非 CE 提交的分數。"
 
 #: judge/contest_format/ecoo.py:135
 #, python-format
-msgid "There is a **%d bonus** for fully solving on your first non-CE submission."
+msgid ""
+"There is a **%d bonus** for fully solving on your first non-CE submission."
 msgstr "若你於首次非 CE 提交即完全解出，將獲得 **%d 分** 獎勵。"
 
 #: judge/contest_format/ecoo.py:141
 #, python-format
-msgid "For every **%d minute** you submit before the end of your window, there will be a **1** point bonus."
-msgid_plural "For every **%d minutes** you submit before the end of your window, there will be a **1** point bonus."
+msgid ""
+"For every **%d minute** you submit before the end of your window, there will "
+"be a **1** point bonus."
+msgid_plural ""
+"For every **%d minutes** you submit before the end of your window, there "
+"will be a **1** point bonus."
 msgstr[0] "每在可提交時段結束前 **%d 分鐘** 提交一次，將獲得 **1** 分獎勵。"
 
 #: judge/contest_format/ecoo.py:147
-msgid "Ties will be broken by the sum of the last submission time on **all** problems."
+msgid ""
+"Ties will be broken by the sum of the last submission time on **all** "
+"problems."
 msgstr "同分將以所有題目的最後提交時間總和決勝。"
 
 #: judge/contest_format/ecoo.py:149 judge/contest_format/ioi.py:102
@@ -582,8 +575,13 @@ msgid "ICPC"
 msgstr "ICPC"
 
 #: judge/contest_format/icpc.py:137
-msgid "Ties will be broken by the sum of the last score altering submission time on problems with a non-zero score, followed by the time of the last score altering submission."
-msgstr "同分將先以所有非零得分題目的最後改變分數之提交時間總和決勝，若仍同分，再以最後改變分數之提交時間決勝。"
+msgid ""
+"Ties will be broken by the sum of the last score altering submission time on "
+"problems with a non-zero score, followed by the time of the last score "
+"altering submission."
+msgstr ""
+"同分將先以所有非零得分題目的最後改變分數之提交時間總和決勝，若仍同分，再以最"
+"後改變分數之提交時間決勝。"
 
 #: judge/contest_format/ioi.py:11
 msgid "IOI"
@@ -594,7 +592,9 @@ msgid "The maximum score for each problem batch will be used."
 msgstr "每個題目批次將採計最高分。"
 
 #: judge/contest_format/ioi.py:99 judge/contest_format/legacy_ioi.py:100
-msgid "Ties will be broken by the sum of the last score altering submission time on problems with a non-zero score."
+msgid ""
+"Ties will be broken by the sum of the last score altering submission time on "
+"problems with a non-zero score."
 msgstr "同分將以所有非零得分題目的最後改變分數之提交時間總和決勝。"
 
 #: judge/contest_format/legacy_ioi.py:18
@@ -631,7 +631,7 @@ msgstr "啟用實驗性功能"
 msgid "You must solve at least one problem before you can update your profile."
 msgstr "您必須解開至少一道問題才可以更新您的個人檔案。"
 
-#: judge/forms.py:80 judge/views/organization.py:151 judge/views/register.py:58
+#: judge/forms.py:80 judge/views/organization.py:151 judge/views/register.py:84
 #, python-brace-format
 msgid "You may not be part of more than {count} public organization."
 msgid_plural "You may not be part of more than {count} public organizations."
@@ -665,7 +665,7 @@ msgstr "請至少選擇一項要下載的內容。"
 msgid "Any judge"
 msgstr "任何評測伺服器"
 
-#: judge/forms.py:160 judge/views/register.py:25
+#: judge/forms.py:160 judge/views/register.py:24
 #: templates/problem/submission-diff.html:63
 #: templates/registration/registration_form.html:143
 #: templates/user/base-users-table.html:5
@@ -893,7 +893,9 @@ msgid "curators"
 msgstr "策展人"
 
 #: judge/models/contest.py:74
-msgid "These users will be able to edit the contest, but will not be listed as authors."
+msgid ""
+"These users will be able to edit the contest, but will not be listed as "
+"authors."
 msgstr "這些使用者將能編輯這場競賽，但不會被列為作者。"
 
 #: judge/models/contest.py:77 judge/models/problem.py:129
@@ -925,7 +927,9 @@ msgid "spectators"
 msgstr "觀眾"
 
 #: judge/models/contest.py:85
-msgid "These users will be able to spectate the contest, but not see the problems ahead of time."
+msgid ""
+"These users will be able to spectate the contest, but not see the problems "
+"ahead of time."
 msgstr "這些使用者能觀戰競賽，但無法提前看到題目。"
 
 #: judge/models/contest.py:88 judge/models/runtime.py:139
@@ -955,7 +959,9 @@ msgid "publicly visible"
 msgstr "公開可見"
 
 #: judge/models/contest.py:94
-msgid "Should be set even for organization-private contests, where it determines whether the contest is visible to members of the specified organizations."
+msgid ""
+"Should be set even for organization-private contests, where it determines "
+"whether the contest is visible to members of the specified organizations."
 msgstr "組織內競賽也需公開，否則責組織成員無法查看本競賽。"
 
 #: judge/models/contest.py:97
@@ -1059,15 +1065,22 @@ msgid "run pretests only"
 msgstr "僅執行預測試"
 
 #: judge/models/contest.py:131
-msgid "Whether judges should grade pretests only, versus all testcases. Commonly set during a contest, then unset prior to rejudging user submissions when the contest ends."
-msgstr "設置裁判服務器是否只運行預測試而不是所有測試。通常在競賽進行時啟動，然後在競賽結束後重新評分前關閉。"
+msgid ""
+"Whether judges should grade pretests only, versus all testcases. Commonly "
+"set during a contest, then unset prior to rejudging user submissions when "
+"the contest ends."
+msgstr ""
+"設置裁判服務器是否只運行預測試而不是所有測試。通常在競賽進行時啟動，然後在競"
+"賽結束後重新評分前關閉。"
 
 #: judge/models/contest.py:135
 msgid "show short form settings display"
 msgstr "顯示簡潔設定區塊"
 
 #: judge/models/contest.py:136
-msgid "Whether to show a section containing contest settings on the contest page or not."
+msgid ""
+"Whether to show a section containing contest settings on the contest page or "
+"not."
 msgstr "是否在競賽頁面顯示包含競賽設定的區塊。"
 
 #: judge/models/contest.py:139 judge/models/problem.py:180
@@ -1113,7 +1126,8 @@ msgid "logo override image"
 msgstr "自訂 Logo 圖像"
 
 #: judge/models/contest.py:151
-msgid "This image will replace the default site logo for users inside the contest."
+msgid ""
+"This image will replace the default site logo for users inside the contest."
 msgstr "此圖像將在競賽內取代預設站台 Logo。"
 
 #: judge/models/contest.py:154
@@ -1134,7 +1148,9 @@ msgid "access code"
 msgstr "存取代碼"
 
 #: judge/models/contest.py:158
-msgid "An optional code to prompt contestants before they are allowed to join the contest. Leave it blank to disable."
+msgid ""
+"An optional code to prompt contestants before they are allowed to join the "
+"contest. Leave it blank to disable."
 msgstr "在參賽者被允許參加競賽之前的一個可選代碼。如無需要請留空白禁用。"
 
 #: judge/models/contest.py:160 judge/models/problem.py:160
@@ -1158,23 +1174,34 @@ msgid "contest format configuration"
 msgstr "競賽格式設定"
 
 #: judge/models/contest.py:165
-msgid "A JSON object to serve as the configuration for the chosen contest format module. Leave empty to use None. Exact format depends on the contest format selected."
-msgstr "作為選定競賽格式模塊的配置的JSON對象。留空來不使用。實在格式依賴於所選的競賽格式。"
+msgid ""
+"A JSON object to serve as the configuration for the chosen contest format "
+"module. Leave empty to use None. Exact format depends on the contest format "
+"selected."
+msgstr ""
+"作為選定競賽格式模塊的配置的JSON對象。留空來不使用。實在格式依賴於所選的競賽"
+"格式。"
 
 #: judge/models/contest.py:168
 msgid "contest problem label script"
 msgstr "競賽題目標籤腳本"
 
 #: judge/models/contest.py:169
-msgid "A custom Lua function to generate problem labels. Requires a single function with an integer parameter, the zero-indexed contest problem index, and returns a string, the label."
-msgstr "以自訂 Lua 函式產生題目標籤。需提供一個整數參數（自 0 起算之題目索引），並回傳字串標籤。"
+msgid ""
+"A custom Lua function to generate problem labels. Requires a single function "
+"with an integer parameter, the zero-indexed contest problem index, and "
+"returns a string, the label."
+msgstr ""
+"以自訂 Lua 函式產生題目標籤。需提供一個整數參數（自 0 起算之題目索引），並回"
+"傳字串標籤。"
 
 #: judge/models/contest.py:172
 msgid "contest lock"
 msgstr "競賽鎖定"
 
 #: judge/models/contest.py:173
-msgid "Prevent submissions from this contest from being rejudged after this date."
+msgid ""
+"Prevent submissions from this contest from being rejudged after this date."
 msgstr "在此日期之後，禁止重新評測本競賽的提交。"
 
 #: judge/models/contest.py:175
@@ -1324,7 +1351,8 @@ msgid "max submissions"
 msgstr "最大提交次數"
 
 #: judge/models/contest.py:592
-msgid "Maximum number of submissions for this problem, or leave blank for no limit."
+msgid ""
+"Maximum number of submissions for this problem, or leave blank for no limit."
 msgstr "本題最多可以提交的次數，留空表示無限制。"
 
 #: judge/models/contest.py:595
@@ -1598,7 +1626,8 @@ msgid "These users will be able to edit the problem, and be listed as authors."
 msgstr "這些使用者將能編輯此題目，並且他們將被列為作者。"
 
 #: judge/models/problem.py:127
-msgid "These users will be able to edit the problem, but not be listed as authors."
+msgid ""
+"These users will be able to edit the problem, but not be listed as authors."
 msgstr "這些使用者將能編輯此題目，但他們不會被列為作者。"
 
 #: judge/models/problem.py:131
@@ -1614,7 +1643,9 @@ msgid "The group of problem, shown under Category in the problem list."
 msgstr "題目所屬群組，顯示於題目列表的分類下。"
 
 #: judge/models/problem.py:137
-msgid "The time limit for this problem, in seconds. Fractional seconds (e.g. 1.5) are supported."
+msgid ""
+"The time limit for this problem, in seconds. Fractional seconds (e.g. 1.5) "
+"are supported."
 msgstr "這個題目的時間限制（以秒為單位）。支持小數秒計時方式（例如1.5）。"
 
 #: judge/models/problem.py:141 judge/models/problem.py:521
@@ -1622,7 +1653,9 @@ msgid "memory limit"
 msgstr "記憶體限制"
 
 #: judge/models/problem.py:142
-msgid "The memory limit for this problem, in kilobytes (e.g. 256mb = 262144 kilobytes)."
+msgid ""
+"The memory limit for this problem, in kilobytes (e.g. 256mb = 262144 "
+"kilobytes)."
 msgstr "此題目的記憶體限制，以kb為單位（例如 256mb = 262144 kb）。"
 
 #: judge/models/problem.py:146
@@ -1630,7 +1663,9 @@ msgid "short circuit"
 msgstr "短路"
 
 #: judge/models/problem.py:148
-msgid "Points awarded for problem completion. Points are displayed with a 'p' suffix if partial."
+msgid ""
+"Points awarded for problem completion. Points are displayed with a 'p' "
+"suffix if partial."
 msgstr "完成題目得分的分數，如果有部分分數而顯示'p'結尾。"
 
 #: judge/models/problem.py:151
@@ -1658,7 +1693,8 @@ msgid "date of publishing"
 msgstr "發佈日期"
 
 #: judge/models/problem.py:159
-msgid "Doesn't have the magic ability to auto-publish due to backward compatibility."
+msgid ""
+"Doesn't have the magic ability to auto-publish due to backward compatibility."
 msgstr "基於相容性，無法自動發佈。"
 
 #: judge/models/problem.py:161
@@ -2008,7 +2044,9 @@ msgid "maximum size"
 msgstr "最大人數"
 
 #: judge/models/profile.py:54
-msgid "Maximum amount of users in this organization, only applicable to private organizations."
+msgid ""
+"Maximum amount of users in this organization, only applicable to private "
+"organizations."
 msgstr "這個組織用戶最大數量，只適用於私人組織。"
 
 #: judge/models/profile.py:56 judge/models/profile.py:111
@@ -2016,7 +2054,9 @@ msgid "Student access code."
 msgstr "學生存取代碼。"
 
 #: judge/models/profile.py:60
-msgid "This image will replace the default site logo for users viewing the organization."
+msgid ""
+"This image will replace the default site logo for users viewing the "
+"organization."
 msgstr "此圖片將替換訪問該組織的用戶的默認網站標識。"
 
 #: judge/models/profile.py:62
@@ -2028,7 +2068,8 @@ msgid "Whether members are compelled to select a class when joining."
 msgstr "加入時是否強制選擇班級。"
 
 #: judge/models/profile.py:67
-msgid "Class membership cannot be enforced when organization has open enrollment."
+msgid ""
+"Class membership cannot be enforced when organization has open enrollment."
 msgstr "組織為開放註冊時無法強制班級成員資格。"
 
 #: judge/models/profile.py:95
@@ -2216,7 +2257,8 @@ msgid "JSON array of 16-character Base32-encoded codes for scratch codes."
 msgstr "含有16字符的32進制代碼的JSON數組。"
 
 #: judge/models/profile.py:197
-msgid "Scratch codes must be empty or a JSON array of 16-character Base32 codes."
+msgid ""
+"Scratch codes must be empty or a JSON array of 16-character Base32 codes."
 msgstr "一次性代碼必須是空的或者是一個含有32進制代碼的JSON數組。"
 
 #: judge/models/profile.py:199
@@ -2332,12 +2374,51 @@ msgstr "組織加入申請"
 msgid "organization join requests"
 msgstr "組織加入申請"
 
+#: judge/models/registration.py:13
+msgid "Email domain"
+msgstr ""
+
+#: judge/models/registration.py:14
+msgid "Allowed email domain for registration (e.g., edu.tw, gmail.com)"
+msgstr ""
+
+#: judge/models/registration.py:18
+msgid "Enter a valid domain name (e.g., edu.tw, example.com)"
+msgstr ""
+
+#: judge/models/registration.py:27
+msgid "Optional description for this domain"
+msgstr ""
+
+#: judge/models/registration.py:32
+#, fuzzy
+#| msgid "activate"
+msgid "Is active"
+msgstr "激活"
+
+#: judge/models/registration.py:33
+msgid "Whether this domain is currently allowed for registration"
+msgstr ""
+
+#: judge/models/registration.py:38
+#, fuzzy
+#| msgid "Create"
+msgid "Created at"
+msgstr "創建"
+
+#: judge/models/registration.py:43
+#, fuzzy
+#| msgid "Update"
+msgid "Updated at"
+msgstr "更新"
+
 #: judge/models/runtime.py:19
 msgid "short identifier"
 msgstr "短識別碼"
 
 #: judge/models/runtime.py:20
-msgid "The identifier for this language; the same as its executor id for judges."
+msgid ""
+"The identifier for this language; the same as its executor id for judges."
 msgstr "此語言的識別碼；與評測端的 executor ID 相同。"
 
 #: judge/models/runtime.py:22
@@ -2349,7 +2430,9 @@ msgid "Longer name for the language, e.g. \"Python 2\" or \"C++11\"."
 msgstr "語言的較長名稱，例如「Python 2」或「C++11」。"
 
 #: judge/models/runtime.py:25
-msgid "More readable, but short, name to display publicly; e.g. \"PY2\" or \"C++11\". If left blank, it will default to the short identifier."
+msgid ""
+"More readable, but short, name to display publicly; e.g. \"PY2\" or \"C+"
+"+11\". If left blank, it will default to the short identifier."
 msgstr "比較好聽的公開語言簡稱，比如“PY2”和“C++11”，如果放空則使用短標識符。"
 
 #: judge/models/runtime.py:29
@@ -2357,7 +2440,9 @@ msgid "common name"
 msgstr "常用名稱"
 
 #: judge/models/runtime.py:30
-msgid "Common name for the language. For example, the common name for C++03, C++11, and C++14 would be \"C++\"."
+msgid ""
+"Common name for the language. For example, the common name for C++03, C++11, "
+"and C++14 would be \"C++\"."
 msgstr "語言的通用名稱，例如C++03、C++11、C++14的通用名稱為“C++”。"
 
 #: judge/models/runtime.py:32
@@ -2365,8 +2450,11 @@ msgid "ace mode name"
 msgstr "Ace 模式名稱"
 
 #: judge/models/runtime.py:33
-msgid "Language ID for Ace.js editor highlighting, appended to \"mode-\" to determine the Ace JavaScript file to use, e.g., \"python\"."
-msgstr "Ace.js編輯器高亮顯示的語言標識符，加上“mode-”前綴而決定使用的JavaScript文件。"
+msgid ""
+"Language ID for Ace.js editor highlighting, appended to \"mode-\" to "
+"determine the Ace JavaScript file to use, e.g., \"python\"."
+msgstr ""
+"Ace.js編輯器高亮顯示的語言標識符，加上“mode-”前綴而決定使用的JavaScript文件。"
 
 #: judge/models/runtime.py:35
 msgid "pygments name"
@@ -2389,15 +2477,21 @@ msgid "runtime info override"
 msgstr "執行環境資訊覆寫"
 
 #: judge/models/runtime.py:40
-msgid "Do not set this unless you know what you're doing! It will override the usually more specific, judge-provided runtime info!"
-msgstr "除非你可以確定你手動設置的軟件信息能比裁判服務器自動獲取地好，不要使用該設置！"
+msgid ""
+"Do not set this unless you know what you're doing! It will override the "
+"usually more specific, judge-provided runtime info!"
+msgstr ""
+"除非你可以確定你手動設置的軟件信息能比裁判服務器自動獲取地好，不要使用該設"
+"置！"
 
 #: judge/models/runtime.py:42
 msgid "language description"
 msgstr "語言描述"
 
 #: judge/models/runtime.py:43
-msgid "Use this field to inform users of quirks with your environment, additional restrictions, etc."
+msgid ""
+"Use this field to inform users of quirks with your environment, additional "
+"restrictions, etc."
 msgstr "使用此空間來表達運行環境的特性，額外限制等信息。"
 
 #: judge/models/runtime.py:45
@@ -2457,7 +2551,9 @@ msgid "block judge"
 msgstr "封鎖評測伺服器"
 
 #: judge/models/runtime.py:130
-msgid "Whether this judge should be blocked from connecting, even if its key is correct."
+msgid ""
+"Whether this judge should be blocked from connecting, even if its key is "
+"correct."
 msgstr "是否封鎖此評測伺服器？即使評測伺服器的密鑰正確。"
 
 #: judge/models/runtime.py:132
@@ -2851,40 +2947,40 @@ msgstr "正在準備你的提交資料"
 msgid "Preparing your comment data"
 msgstr "正在準備你的評論資料"
 
-#: judge/utils/problem_data.py:63
+#: judge/utils/problem_data.py:66
 msgid "Empty batches not allowed."
 msgstr "不允許空的批次。"
 
-#: judge/utils/problem_data.py:82
+#: judge/utils/problem_data.py:85
 #, python-format
 msgid "Points must be defined for non-batch case #%d."
 msgstr "非批次測資 #%d 必須設定分數。"
 
-#: judge/utils/problem_data.py:87
+#: judge/utils/problem_data.py:90
 #, python-format
 msgid "Input file for case %d does not exist: %s"
 msgstr "測資 #%d 的輸入檔不存在：%s"
 
-#: judge/utils/problem_data.py:90
+#: judge/utils/problem_data.py:93
 #, python-format
 msgid "Output file for case %d does not exist: %s"
 msgstr "測資 #%d 的輸出檔不存在：%s"
 
-#: judge/utils/problem_data.py:115
+#: judge/utils/problem_data.py:121
 #, python-format
 msgid "Batch start case #%d requires points."
 msgstr "批次開始測資 #%d 需要設定分數。"
 
-#: judge/utils/problem_data.py:136
+#: judge/utils/problem_data.py:142
 #, python-format
 msgid "Attempt to end batch outside of one in case #%d."
 msgstr "在測資 #%d 嘗試於批次外結束批次。"
 
-#: judge/utils/problem_data.py:154
+#: judge/utils/problem_data.py:160
 msgid "How did you corrupt the zip path?"
 msgstr "你是如何把 ZIP 路徑搞壞的？"
 
-#: judge/utils/problem_data.py:160
+#: judge/utils/problem_data.py:166
 msgid "How did you corrupt the generator path?"
 msgstr "你是如何把產生器路徑搞壞的？"
 
@@ -3015,7 +3111,9 @@ msgid "Banned from joining"
 msgstr "禁止加入"
 
 #: judge/views/contests.py:360
-msgid "You have been declared persona non grata for this contest. You are permanently barred from joining this contest."
+msgid ""
+"You have been declared persona non grata for this contest. You are "
+"permanently barred from joining this contest."
 msgstr "您在該競賽不受歡迎。您被永久禁止參加該競賽。"
 
 #: judge/views/contests.py:390
@@ -3129,7 +3227,7 @@ msgstr "找不到鍵值為「%s」的組織。"
 msgid "Could not find such organization."
 msgstr "找不到該組織。"
 
-#: judge/views/organization.py:81 judge/views/register.py:33
+#: judge/views/organization.py:81 judge/views/register.py:32
 #: templates/user/user-list-tabs.html:5
 msgid "Organizations"
 msgstr "組織"
@@ -3303,7 +3401,9 @@ msgid "Banned from submitting"
 msgstr "禁止提交"
 
 #: judge/views/problem.py:712
-msgid "You have been declared persona non grata for this problem. You are permanently barred from submitting to this problem."
+msgid ""
+"You have been declared persona non grata for this problem. You are "
+"permanently barred from submitting to this problem."
 msgstr "您在該題目不受歡迎。您被永久禁止為該題目提交解決程序。"
 
 #: judge/views/problem.py:716
@@ -3395,36 +3495,48 @@ msgstr "%(contest)s 中 %(problem)s 的最佳題解"
 msgid "Best solutions for problem %(number)s in %(contest)s"
 msgstr "%(contest)s 中題目 %(number)s 的最佳題解"
 
-#: judge/views/register.py:26
+#: judge/views/register.py:25
 msgid "A username must contain letters, numbers, or underscores."
 msgstr "使用者名稱只能包含英數字與底線。"
 
-#: judge/views/register.py:30
+#: judge/views/register.py:29
 msgid "Preferred language"
 msgstr "偏好語言"
 
-#: judge/views/register.py:37
+#: judge/views/register.py:36
 msgid "Subscribe to newsletter?"
 msgstr "訂閱電子報？"
 
-#: judge/views/register.py:44
+#: judge/views/register.py:48
 #, python-format
-msgid "The email address \"%s\" is already taken. Only one registration is allowed per address."
+msgid ""
+"The email address \"%s\" is already taken. Only one registration is allowed "
+"per address."
 msgstr "電子郵件地址“%s”已被使用。每個電子郵件地址只允許一個賬戶。"
 
-#: judge/views/register.py:50
-msgid "Your email provider is not allowed due to history of abuse. Please use a reputable email provider."
-msgstr "由於濫用歷史，我們不允許您的電子郵件提供商。請使用有信譽的電子郵件提供商。"
+#: judge/views/register.py:59
+#, python-format
+msgid ""
+"Registration failed: Only emails from the following domains are allowed: "
+"%(domains)s"
+msgstr ""
 
-#: judge/views/register.py:65
+#: judge/views/register.py:73
+msgid ""
+"Your email provider is not allowed due to history of abuse. Please use a "
+"reputable email provider."
+msgstr ""
+"由於濫用歷史，我們不允許您的電子郵件提供商。請使用有信譽的電子郵件提供商。"
+
+#: judge/views/register.py:90
 msgid "Register"
 msgstr "註冊"
 
-#: judge/views/register.py:103
+#: judge/views/register.py:127
 msgid "Activation Key Invalid"
 msgstr "啟用金鑰無效"
 
-#: judge/views/register.py:114
+#: judge/views/register.py:137
 msgid "Authentication failure"
 msgstr "驗證失敗"
 
@@ -3435,10 +3547,6 @@ msgstr "其他"
 #: judge/views/stats.py:62
 msgid "Language statistics"
 msgstr "語言統計"
-
-#: judge/views/status.py:23 templates/submission/list.html:308
-msgid "Status"
-msgstr "狀態"
 
 #: judge/views/status.py:108
 msgid "Version matrix"
@@ -3628,7 +3736,7 @@ msgid "Updated on site"
 msgstr "已在站台上更新"
 
 #: judge/views/user.py:387 templates/admin/auth/user/change_form.html:14
-#: templates/admin/auth/user/change_form.html:17 templates/base.html:213
+#: templates/admin/auth/user/change_form.html:17 templates/base.html:214
 #: templates/user/user-tabs.html:16
 msgid "Edit profile"
 msgstr "編輯個人資料"
@@ -3656,6 +3764,117 @@ msgstr "您已成功登出。"
 #: judge/views/user.py:508
 msgid "You have sent too many password reset requests. Please try again later."
 msgstr "你送出了過多的重設密碼請求，請稍後再試。"
+
+#: templates/admin/bulk_import_problems.html:4
+#: templates/admin/bulk_import_problems.html:14 templates/admin/index.html:15
+#, fuzzy
+#| msgid "Hot problems"
+msgid "Bulk Import Problems"
+msgstr "熱門題目"
+
+#: templates/admin/bulk_import_problems.html:4
+msgid "Django site admin"
+msgstr ""
+
+#: templates/admin/bulk_import_problems.html:7
+#, fuzzy
+#| msgid "administrators"
+msgid "Django administration"
+msgstr "管理員"
+
+#: templates/admin/bulk_import_problems.html:32
+msgid "Upload CSV File"
+msgstr ""
+
+#: templates/admin/bulk_import_problems.html:36
+msgid "CSV File"
+msgstr ""
+
+#: templates/admin/bulk_import_problems.html:44
+#, fuzzy
+#| msgid "Pending"
+msgid "File Encoding"
+msgstr "待確認"
+
+#: templates/admin/bulk_import_problems.html:59
+msgid "Dry Run"
+msgstr ""
+
+#: templates/admin/bulk_import_problems.html:69
+#, fuzzy
+#| msgid "Update subscription"
+msgid "Update Existing"
+msgstr "更新訂閱"
+
+#: templates/admin/bulk_import_problems.html:77
+#, fuzzy
+#| msgid "Hot problems"
+msgid "Import Problems"
+msgstr "熱門題目"
+
+#: templates/admin/bulk_import_problems.html:78
+msgid "Cancel"
+msgstr ""
+
+#: templates/admin/bulk_import_problems.html:138
+#, fuzzy
+#| msgid "Clone Problem"
+msgid "Manage Problems"
+msgstr "複製題目"
+
+#: templates/admin/bulk_import_problems.html:139
+#, fuzzy
+#| msgid "problem groups"
+msgid "Manage Problem Groups"
+msgstr "題目群組"
+
+#: templates/admin/bulk_import_problems.html:140
+#, fuzzy
+#| msgid "Problem types"
+msgid "Manage Problem Types"
+msgstr "題目類型"
+
+#: templates/admin/index.html:7
+msgid "Quick Management"
+msgstr "快速管理"
+
+#: templates/admin/index.html:11
+msgid "Email Domain Management"
+msgstr "郵件域名管理"
+
+#: templates/admin/index.html:12
+msgid "Manage allowed email domains for registration"
+msgstr "管理允許註冊的郵件域名"
+
+#: templates/admin/index.html:16
+msgid "Import multiple problems from CSV file"
+msgstr ""
+
+#: templates/admin/index.html:19
+msgid "User Management"
+msgstr "用戶管理"
+
+#: templates/admin/index.html:20
+msgid "Manage user profiles and permissions"
+msgstr "管理用戶資料和權限"
+
+#: templates/admin/index.html:23
+msgid "Problem Management"
+msgstr "題目管理"
+
+#: templates/admin/index.html:24
+msgid "Manage and edit contest problems"
+msgstr "管理和編輯競賽題目"
+
+#: templates/admin/index.html:27
+msgid "Contest Management"
+msgstr "競賽管理"
+
+#: templates/admin/index.html:28
+#, fuzzy
+#| msgid "Create private contests"
+msgid "Create and manage contest events"
+msgstr "創建和管理競賽活動"
 
 #: templates/admin/judge/contest/change_form.html:9
 msgid "Are you sure you want to rejudge ALL the submissions?"
@@ -3713,37 +3932,47 @@ msgstr "編輯使用者"
 msgid "Hello, %(username)s."
 msgstr "您好，%(username)s。"
 
-#: templates/base.html:215
+#: templates/base.html:212
+msgid "Email Domains"
+msgstr ""
+
+#: templates/base.html:216
 msgid "Stop impersonating"
 msgstr "停止身分模擬"
 
-#: templates/base.html:220
+#: templates/base.html:221
 msgid "Log out"
 msgstr "登出"
 
-#: templates/base.html:229
+#: templates/base.html:230
 #: templates/registration/password_reset_complete.html:4
 msgid "Log in"
 msgstr "登錄"
 
-#: templates/base.html:230 templates/registration/registration_form.html:181
+#: templates/base.html:231 templates/registration/registration_form.html:181
 msgid "or"
 msgstr "或"
 
-#: templates/base.html:231
+#: templates/base.html:232
 msgid "Sign up"
 msgstr "註冊"
 
-#: templates/base.html:243
+#: templates/base.html:244
 msgid "spectating"
 msgstr "觀戰"
 
-#: templates/base.html:256
+#: templates/base.html:257
 msgid "This site works best with JavaScript enabled."
 msgstr "本站在啟用 JavaScript 後可獲得最佳體驗。"
 
-#: templates/base.html:283
-msgid "proudly powered by **DMOJ**"
+#: templates/base.html:296
+msgid "Developed by **SiliconMind@NUK**"
+msgstr ""
+
+#: templates/base.html:301
+#, fuzzy
+#| msgid "proudly powered by **DMOJ**"
+msgid "Powered by **DMOJ**"
 msgstr "由 **DMOJ** 強力驅動"
 
 #: templates/blog/content.html:13 templates/comments/list.html:89
@@ -4144,23 +4373,33 @@ msgstr[0] "本場競賽的作者為 %(link_authors)s。"
 
 #: templates/contest/contest.html:86
 #, python-format
-msgid "Special thanks to %(link_testers)s for testing and feedback on the problems."
-msgid_plural "Special thanks to %(link_testers)s for testing and feedback on the problems."
+msgid ""
+"Special thanks to %(link_testers)s for testing and feedback on the problems."
+msgid_plural ""
+"Special thanks to %(link_testers)s for testing and feedback on the problems."
 msgstr[0] "特別感謝 %(link_testers)s 協助測試與提供題目回饋。"
 
 #: templates/contest/contest.html:98
 #, python-format
-msgid "This contest will be **rated** for **all** participants who have a rating between **%(rating_floor)d** and **%(rating_ceiling)d**, inclusive."
-msgstr "本競賽將對評分介於 **%(rating_floor)d** 至 **%(rating_ceiling)d**（含）的所有參賽者計分。"
+msgid ""
+"This contest will be **rated** for **all** participants who have a rating "
+"between **%(rating_floor)d** and **%(rating_ceiling)d**, inclusive."
+msgstr ""
+"本競賽將對評分介於 **%(rating_floor)d** 至 **%(rating_ceiling)d**（含）的所有"
+"參賽者計分。"
 
 #: templates/contest/contest.html:100
 #, python-format
-msgid "This contest will be **rated** for **all** participants who have a rating of at least **%(rating_floor)d**."
+msgid ""
+"This contest will be **rated** for **all** participants who have a rating of "
+"at least **%(rating_floor)d**."
 msgstr "本競賽將對評分至少 **%(rating_floor)d** 的所有參賽者計分。"
 
 #: templates/contest/contest.html:102
 #, python-format
-msgid "This contest will be **rated** for **all** participants who have a rating of at most **%(rating_ceiling)d**."
+msgid ""
+"This contest will be **rated** for **all** participants who have a rating of "
+"at most **%(rating_ceiling)d**."
 msgstr "本競賽將對評分至多 **%(rating_ceiling)d** 的所有參賽者計分。"
 
 #: templates/contest/contest.html:104
@@ -4169,21 +4408,31 @@ msgstr "本競賽將對所有參賽者計分。"
 
 #: templates/contest/contest.html:108
 #, python-format
-msgid "This contest will be **rated** for participants who submit at least once and have a rating between **%(rating_floor)d** and **%(rating_ceiling)d**, inclusive."
-msgstr "本競賽將對至少提交一次且評分介於 **%(rating_floor)d** 至 **%(rating_ceiling)d**（含）的參賽者計分。"
+msgid ""
+"This contest will be **rated** for participants who submit at least once and "
+"have a rating between **%(rating_floor)d** and **%(rating_ceiling)d**, "
+"inclusive."
+msgstr ""
+"本競賽將對至少提交一次且評分介於 **%(rating_floor)d** 至 "
+"**%(rating_ceiling)d**（含）的參賽者計分。"
 
 #: templates/contest/contest.html:110
 #, python-format
-msgid "This contest will be **rated** for participants who submit at least once and have a rating of at least **%(rating_floor)d**."
+msgid ""
+"This contest will be **rated** for participants who submit at least once and "
+"have a rating of at least **%(rating_floor)d**."
 msgstr "本競賽將對至少提交一次且評分至少 **%(rating_floor)d** 的參賽者計分。"
 
 #: templates/contest/contest.html:112
 #, python-format
-msgid "This contest will be **rated** for participants who submit at least once and have a rating of at most **%(rating_ceiling)d**."
+msgid ""
+"This contest will be **rated** for participants who submit at least once and "
+"have a rating of at most **%(rating_ceiling)d**."
 msgstr "本競賽將對至少提交一次且評分至多 **%(rating_ceiling)d** 的參賽者計分。"
 
 #: templates/contest/contest.html:114
-msgid "This contest will be **rated** for participants who submit at least once."
+msgid ""
+"This contest will be **rated** for participants who submit at least once."
 msgstr "本競賽將對至少提交一次的參賽者計分。"
 
 #: templates/contest/contest.html:118
@@ -4234,7 +4483,8 @@ msgid "The scoreboard will be **hidden** until your window is over."
 msgstr "在你的作答時段結束前，計分板將會**隱藏**。"
 
 #: templates/contest/contest.html:167
-msgid "The scoreboard will be **hidden** for the entire duration of the contest."
+msgid ""
+"The scoreboard will be **hidden** for the entire duration of the contest."
 msgstr "整個競賽期間，計分板將會**隱藏**。"
 
 #: templates/contest/contest.html:169
@@ -4269,7 +4519,9 @@ msgid "Are you sure you want to join?"
 msgstr "確定要加入嗎？"
 
 #: templates/contest/list.html:18
-msgid "Joining a contest for the first time starts your timer, after which it becomes unstoppable."
+msgid ""
+"Joining a contest for the first time starts your timer, after which it "
+"becomes unstoppable."
 msgstr "計時器在你第一次參加競賽的時候就會啟動，競賽開始後將不會停止。"
 
 #: templates/contest/list.html:70
@@ -4335,11 +4587,14 @@ msgid "Are you sure you want to leave?"
 msgstr "確定要離開嗎？"
 
 #: templates/contest/media-js.html:5
-msgid "You cannot come back to a virtual participation. You will have to start a new one."
+msgid ""
+"You cannot come back to a virtual participation. You will have to start a "
+"new one."
 msgstr "離開虛擬競賽后將無法再次返回，必須重新開始虛擬競賽。"
 
 #: templates/contest/media-js.html:10
-msgid "Joining a contest starts your timer, after which it becomes unstoppable."
+msgid ""
+"Joining a contest starts your timer, after which it becomes unstoppable."
 msgstr "加入競賽後將開始計時，之後無法停止。"
 
 #: templates/contest/media-js.html:16
@@ -4486,7 +4741,10 @@ msgid "Newsletter unsubscribe"
 msgstr "取消訂閱電子報"
 
 #: templates/newsletter/subscription_unsubscribe_email_sent.html:8
-msgid "Your unsubscription request has successfully been received. An email has been sent to you with a link you need to follow in order to confirm your unsubscription."
+msgid ""
+"Your unsubscription request has successfully been received. An email has "
+"been sent to you with a link you need to follow in order to confirm your "
+"unsubscription."
 msgstr "您的退訂請求已被收到。一份包含確認鏈接的郵件已被發送。"
 
 #: templates/newsletter/subscription_unsubscribe_user.html:17
@@ -4505,8 +4763,11 @@ msgid "Newsletter update"
 msgstr "電子報更新"
 
 #: templates/newsletter/subscription_update.html:9
-msgid "Due to a technical error we were not able to submit your confirmation email. This could be because your email address is invalid."
-msgstr "由於技術原因我們無法發送您的確認電子郵件。這可能是因為您的電子郵件地址無效。"
+msgid ""
+"Due to a technical error we were not able to submit your confirmation email. "
+"This could be because your email address is invalid."
+msgstr ""
+"由於技術原因我們無法發送您的確認電子郵件。這可能是因為您的電子郵件地址無效。"
 
 #: templates/newsletter/subscription_update.html:14
 msgid "Update subscription"
@@ -4517,8 +4778,13 @@ msgid "Your subscription has successfully been updated."
 msgstr "你的訂閱已成功更新。"
 
 #: templates/newsletter/subscription_update_email_sent.html:8
-msgid "Your update request was successfully received and an activation email has been sent to you. In that email you will find a link which you need to follow in order to update your subscription."
-msgstr "您的更新請求成功已被成功接收。我們已經發送了激活電子郵件。該電子郵件中包含了更新您的訂閱的鏈接。"
+msgid ""
+"Your update request was successfully received and an activation email has "
+"been sent to you. In that email you will find a link which you need to "
+"follow in order to update your subscription."
+msgstr ""
+"您的更新請求成功已被成功接收。我們已經發送了激活電子郵件。該電子郵件中包含了"
+"更新您的訂閱的鏈接。"
 
 #: templates/organization/edit.html:11
 #: templates/organization/requests/pending.html:34
@@ -4715,11 +4981,17 @@ msgid "Save"
 msgstr "儲存"
 
 #: templates/problem/editorial.html:23
-msgid "Remember to use this editorial **only** when stuck, and **not to copy-paste code from it**. Please be respectful to the problem author and editorialist."
-msgstr "記住 **只** 在沒有思路時使用題解，**不要從它複製粘貼代碼**。請尊重題目和題解的作者。"
+msgid ""
+"Remember to use this editorial **only** when stuck, and **not to copy-paste "
+"code from it**. Please be respectful to the problem author and editorialist."
+msgstr ""
+"記住 **只** 在沒有思路時使用題解，**不要從它複製粘貼代碼**。請尊重題目和題解"
+"的作者。"
 
 #: templates/problem/editorial.html:24
-msgid "Submitting an official solution before solving the problem yourself is a bannable offence."
+msgid ""
+"Submitting an official solution before solving the problem yourself is a "
+"bannable offence."
 msgstr "在真正解決題目之前提交題解的代碼是可以封禁的罪行。"
 
 #: templates/problem/editorial.html:30 templates/problem/problem.html:230
@@ -4767,11 +5039,14 @@ msgstr "結束 ID 必須大於起始 ID。"
 
 #: templates/problem/manage_submission.html:90
 #, python-brace-format
-msgid "You are about to rejudge {count} submissions. Are you sure you want to do this?"
+msgid ""
+"You are about to rejudge {count} submissions. Are you sure you want to do "
+"this?"
 msgstr "您將重新評分{count}提交，是否確認？"
 
 #: templates/problem/manage_submission.html:96
-msgid "You are about to rejudge a few submissions. Are you sure you want to do this?"
+msgid ""
+"You are about to rejudge a few submissions. Are you sure you want to do this?"
 msgstr "您將重新評分一些提交，是否確認？"
 
 #: templates/problem/manage_submission.html:115
@@ -5010,7 +5285,9 @@ msgstr "警告！"
 
 #: templates/problem/submit.html:205
 #, python-format
-msgid "Your default language, %(language)s, is unavailable for this problem and has been deselected."
+msgid ""
+"Your default language, %(language)s, is unavailable for this problem and has "
+"been deselected."
 msgstr "您的默認編程語言，%(language)s，在此題目不可用，且已取消選擇。"
 
 #: templates/problem/submit.html:213
@@ -5045,7 +5322,8 @@ msgid "Justification:"
 msgstr "理由："
 
 #: templates/problem/vote-ajax.html:27
-msgid "A short justification for your vote to this problem's point value (optional)."
+msgid ""
+"A short justification for your vote to this problem's point value (optional)."
 msgstr "針對本題分數投票的簡短理由（選填）。"
 
 #: templates/problem/vote-ajax.html:33
@@ -5091,8 +5369,12 @@ msgstr "感謝註冊 %(site_name)s！很高興你加入。"
 
 #: templates/registration/activation_email.html:8
 #, python-format
-msgid "The last step is activating your account. Please activate your %(site_name)s account in the next %(count)s day."
-msgid_plural "The last step is activating your account. Please activate your %(site_name)s account in the next %(count)s days."
+msgid ""
+"The last step is activating your account. Please activate your %(site_name)s "
+"account in the next %(count)s day."
+msgid_plural ""
+"The last step is activating your account. Please activate your %(site_name)s "
+"account in the next %(count)s days."
 msgstr[0] ""
 
 #: templates/registration/activation_email.html:14
@@ -5102,12 +5384,16 @@ msgstr "請點擊以下連結以啟用你的帳號："
 
 #: templates/registration/activation_email.html:18
 #: templates/registration/activation_email.txt:11
-msgid "Alternatively, you can reply to this message to activate your account. Your reply must keep the following text intact for this to work:"
+msgid ""
+"Alternatively, you can reply to this message to activate your account. Your "
+"reply must keep the following text intact for this to work:"
 msgstr "或者，回覆此訊息亦可啟用；請確保下列文字維持原樣："
 
 #: templates/registration/activation_email.html:22
 #, python-format
-msgid "See you soon! If you have problems activating your account, feel free to send us an email at %(email)s."
+msgid ""
+"See you soon! If you have problems activating your account, feel free to "
+"send us an email at %(email)s."
 msgstr "期待盡快見到你！若啟用遇到問題，歡迎來信 %(email)s。"
 
 #: templates/registration/activation_email.html:25
@@ -5118,7 +5404,8 @@ msgstr "期待盡快見到你！"
 #: templates/registration/activation_email.txt:1
 #, python-format
 msgid "Please activate your %(site_name)s account in the next %(count)s day."
-msgid_plural "Please activate your %(site_name)s account in the next %(count)s days."
+msgid_plural ""
+"Please activate your %(site_name)s account in the next %(count)s days."
 msgstr[0] ""
 
 #: templates/registration/activation_email_subject.txt:1
@@ -5156,7 +5443,9 @@ msgid "We found your password in [a database of compromised passwords][0]."
 msgstr "我們在[外洩密碼資料庫][0]中發現你的密碼。"
 
 #: templates/registration/password_change_form.html:8
-msgid "To protect your account, we are requiring you to change your password to a more secure password."
+msgid ""
+"To protect your account, we are requiring you to change your password to a "
+"more secure password."
 msgstr "為保護你的帳號，請將密碼更改為更安全的組合。"
 
 #: templates/registration/password_change_form.html:13
@@ -5180,12 +5469,18 @@ msgid "Invalid password reset link."
 msgstr "密碼重設連結無效。"
 
 #: templates/registration/password_reset_done.html:4
-msgid "We've emailed you instructions for setting your password. You should be receiving them shortly."
+msgid ""
+"We've emailed you instructions for setting your password. You should be "
+"receiving them shortly."
 msgstr "我們已經通過電子郵件向您發送設置密碼的說明。你應該很快就會收到。"
 
 #: templates/registration/password_reset_done.html:5
-msgid "If you don't receive an email, please make sure you've entered the address you registered with, and check your spam folder."
-msgstr "如果您沒有收到電子郵件，請確保您打開的是您註冊時所用的郵箱，並檢查您的垃圾郵件文件夾。"
+msgid ""
+"If you don't receive an email, please make sure you've entered the address "
+"you registered with, and check your spam folder."
+msgstr ""
+"如果您沒有收到電子郵件，請確保您打開的是您註冊時所用的郵箱，並檢查您的垃圾郵"
+"件文件夾。"
 
 #: templates/registration/password_reset_email.html:6
 #, python-format
@@ -5194,18 +5489,25 @@ msgstr "忘記 %(site_name)s 的密碼了嗎？別擔心！"
 
 #: templates/registration/password_reset_email.html:8
 #, python-format
-msgid "To reset the password for your account \"%(username)s\", click the link below."
+msgid ""
+"To reset the password for your account \"%(username)s\", click the link "
+"below."
 msgstr "要重設帳號「%(username)s」的密碼，請點擊下方連結。"
 
 #: templates/registration/password_reset_email.html:14
 #, python-format
-msgid "See you soon! If you have problems resetting your password, feel free to shoot us an email at %(email)s."
+msgid ""
+"See you soon! If you have problems resetting your password, feel free to "
+"shoot us an email at %(email)s."
 msgstr "若重設密碼遇到問題，歡迎來信 %(email)s。"
 
 #: templates/registration/password_reset_email.txt:1
 #, python-format
-msgid "You're receiving this email because you requested a password reset for your user account at %(site_name)s."
-msgstr "因為您要求您的用戶帳戶在 %(site_name)s 重置密碼，所以您收到這封電子郵件。"
+msgid ""
+"You're receiving this email because you requested a password reset for your "
+"user account at %(site_name)s."
+msgstr ""
+"因為您要求您的用戶帳戶在 %(site_name)s 重置密碼，所以您收到這封電子郵件。"
 
 #: templates/registration/password_reset_email.txt:3
 msgid "Please go to the following page and choose a new password:"
@@ -5239,7 +5541,9 @@ msgid "Registration is currently closed. Please contact an administrator."
 msgstr "目前暫停開放註冊，請聯絡管理員。"
 
 #: templates/registration/registration_complete.html:3
-msgid "You have successfully been registered. An email has been sent to the email address you provided to confirm your registration."
+msgid ""
+"You have successfully been registered. An email has been sent to the email "
+"address you provided to confirm your registration."
 msgstr "您已成功註冊。一封電子郵件已被發送到的您的電子郵件地址以確認您的註冊。"
 
 #: templates/registration/registration_form.html:170
@@ -5276,12 +5580,16 @@ msgid "Register!"
 msgstr "註冊！"
 
 #: templates/registration/totp_disable.html:31
-msgid "To protect your account, you must first authenticate before you can disable Two Factor Authentication."
+msgid ""
+"To protect your account, you must first authenticate before you can disable "
+"Two Factor Authentication."
 msgstr "為了保護您的帳戶，您必須先進行身份驗證才能禁用兩因素認證。"
 
 #: templates/registration/totp_disable.html:38
 #: templates/registration/two_factor_auth.html:79
-msgid "Enter the 6-digit code generated by your app or one of your 16-character scratch codes:"
+msgid ""
+"Enter the 6-digit code generated by your app or one of your 16-character "
+"scratch codes:"
 msgstr "輸入您應用生成的6位數代碼或者一個16位一次性代碼："
 
 #: templates/registration/totp_disable.html:41
@@ -5324,11 +5632,15 @@ msgstr "這些代碼僅能使用一次，且僅供緊急情況。"
 
 #: templates/registration/totp_enable.html:100
 #: templates/user/edit-profile.html:376
-msgid "You can use these codes to login to your account or disable two-factor authentication."
+msgid ""
+"You can use these codes to login to your account or disable two-factor "
+"authentication."
 msgstr "你可以使用這些代碼登入帳號或停用雙重驗證。"
 
 #: templates/registration/totp_enable.html:101
-msgid "If you ever need more scratch codes, you can regenerate them on the edit profile tab."
+msgid ""
+"If you ever need more scratch codes, you can regenerate them on the edit "
+"profile tab."
 msgstr "若需要更多備用驗證碼，可在編輯個人資料頁重新產生。"
 
 #: templates/registration/totp_enable.html:102
@@ -5337,7 +5649,9 @@ msgid "Please write these down and keep them in a secure location."
 msgstr "請抄錄並妥善保管這些代碼。"
 
 #: templates/registration/totp_enable.html:103
-msgid "These codes will never be shown again after you enable two-factor authentication."
+msgid ""
+"These codes will never be shown again after you enable two-factor "
+"authentication."
 msgstr "啟用雙重驗證後，這些代碼將不再顯示。"
 
 #: templates/registration/totp_enable.html:108
@@ -5346,8 +5660,13 @@ msgstr "重要："
 
 #: templates/registration/totp_enable.html:109
 #, python-format
-msgid "If you lose your authentication device and are unable to use your scratch codes, %(site_name)s admins will NOT be able to recover your account. Please keep your scratch codes safe!"
-msgstr "若遺失認證裝置且無法使用備用碼，%(site_name)s 管理員無法協助找回帳號，請務必妥善保管備用碼！"
+msgid ""
+"If you lose your authentication device and are unable to use your scratch "
+"codes, %(site_name)s admins will NOT be able to recover your account. Please "
+"keep your scratch codes safe!"
+msgstr ""
+"若遺失認證裝置且無法使用備用碼，%(site_name)s 管理員無法協助找回帳號，請務必"
+"妥善保管備用碼！"
 
 #: templates/registration/two_factor_auth.html:33
 #: templates/user/edit-profile.html:164
@@ -5373,8 +5692,11 @@ msgstr "使用備用驗證碼"
 
 #: templates/registration/two_factor_auth.html:98
 #, python-format
-msgid "If you lost your authentication device and are unable to use your scratch codes, please contact us at %(email)s."
-msgstr "如果您丟失了您的身份驗證設備且無法使用您的驗證碼，請聯繫我們 %(email)s。"
+msgid ""
+"If you lost your authentication device and are unable to use your scratch "
+"codes, please contact us at %(email)s."
+msgstr ""
+"如果您丟失了您的身份驗證設備且無法使用您的驗證碼，請聯繫我們 %(email)s。"
 
 #: templates/stats/language.html:11
 msgid "Submission Statistics"
@@ -5434,7 +5756,9 @@ msgstr "%(date)s 於 %(judge)s"
 
 #: templates/submission/internal-error-message.html:3
 #, python-format
-msgid "An internal error occurred while grading, and the %(site_name)s administrators have been notified."
+msgid ""
+"An internal error occurred while grading, and the %(site_name)s "
+"administrators have been notified."
 msgstr "評測時發生內部錯誤，%(site_name)s 管理員已收到通知。"
 
 #: templates/submission/internal-error-message.html:5
@@ -5554,43 +5878,47 @@ msgstr "預測試 #%(id)d："
 msgid "Test case #%(id)d:"
 msgstr "測資 #%(id)d："
 
-#: templates/submission/status-testcases.html:101
+#: templates/submission/status-testcases.html:104
 msgid "Your output (clipped)"
 msgstr "你的輸出（已截斷）"
 
-#: templates/submission/status-testcases.html:113
+#: templates/submission/status-testcases.html:116
 msgid "Judge feedback"
 msgstr "評測回饋"
 
-#: templates/submission/status-testcases.html:129
+#: templates/submission/status-testcases.html:133
 msgid "Resources:"
 msgstr "資源："
 
-#: templates/submission/status-testcases.html:138
+#: templates/submission/status-testcases.html:143
 msgid "Maximum single-case runtime:"
 msgstr "單筆測資最長執行時間："
 
-#: templates/submission/status-testcases.html:143
+#: templates/submission/status-testcases.html:149
 msgid "Final pretest score:"
 msgstr "最終預測試分數："
 
-#: templates/submission/status-testcases.html:145
+#: templates/submission/status-testcases.html:151
 msgid "Final score:"
 msgstr "最終分數："
 
-#: templates/submission/status-testcases.html:152
-#: templates/submission/status-testcases.html:156
+#: templates/submission/status-testcases.html:158
+#: templates/submission/status-testcases.html:162
 #, python-format
 msgid "%(points)s/%(total)s points"
 msgstr "%(points)s/%(total)s 分"
 
-#: templates/submission/status-testcases.html:161
+#: templates/submission/status-testcases.html:167
 msgid "Passing pretests does not guarantee a full score on system tests."
 msgstr "通過預測試不代表在系統測試能獲得滿分。"
 
-#: templates/submission/status-testcases.html:164
+#: templates/submission/status-testcases.html:170
 msgid "Submission aborted!"
 msgstr "提交已中止！"
+
+#: templates/submission/status-testcases.html:182
+msgid "Waveform Viewer"
+msgstr ""
 
 #: templates/submission/status.html:72
 msgid "View source"
@@ -5677,8 +6005,13 @@ msgid "Thanks for opening a ticket!"
 msgstr "感謝你提出工單！"
 
 #: templates/ticket/new_problem.html:9
-msgid "Please keep in mind that this form is for reporting issues with a problem statement, and not for asking for help. If you require assistance on solving a problem, ask in the comments instead."
-msgstr "請注意，此表單用於報告題目描述中的問題，而不是尋求幫助。如果您需要詢問解題方法，請在評論中進行提問。"
+msgid ""
+"Please keep in mind that this form is for reporting issues with a problem "
+"statement, and not for asking for help. If you require assistance on solving "
+"a problem, ask in the comments instead."
+msgstr ""
+"請注意，此表單用於報告題目描述中的問題，而不是尋求幫助。如果您需要詢問解題方"
+"法，請在評論中進行提問。"
 
 #: templates/ticket/ticket.html:30
 #, python-brace-format
@@ -5718,7 +6051,9 @@ msgid "Search by handle..."
 msgstr "以代稱搜尋..."
 
 #: templates/user/edit-profile.html:107
-msgid "The administrators for this site require all the staff to have Two-factor Authentication enabled, so it may not be disabled at this time."
+msgid ""
+"The administrators for this site require all the staff to have Two-factor "
+"Authentication enabled, so it may not be disabled at this time."
 msgstr "本站管理員要求所有工作人員皆啟用雙重驗證，因此目前不可停用。"
 
 #: templates/user/edit-profile.html:112
@@ -5730,7 +6065,8 @@ msgid "This will invalidate any previous API tokens."
 msgstr "這將會使先前所有 API 權杖失效。"
 
 #: templates/user/edit-profile.html:114
-msgid "It also allows access to your account without Two-factor Authentication."
+msgid ""
+"It also allows access to your account without Two-factor Authentication."
 msgstr "同時這也允許在未通過雙重驗證的情況下存取你的帳號。"
 
 #: templates/user/edit-profile.html:115
@@ -5759,7 +6095,8 @@ msgid "Are you sure you want to delete this security key?"
 msgstr "確定要刪除此安全金鑰嗎？"
 
 #: templates/user/edit-profile.html:207
-msgid "Are you sure you want to generate or regenerate a new set of scratch codes?"
+msgid ""
+"Are you sure you want to generate or regenerate a new set of scratch codes?"
 msgstr "確定要產生或重新產生一組新的備用驗證碼嗎？"
 
 #: templates/user/edit-profile.html:208
@@ -5767,7 +6104,8 @@ msgid "This will invalidate any previous scratch codes you have."
 msgstr "這將使你先前的所有備用驗證碼失效。"
 
 #: templates/user/edit-profile.html:209 templates/user/edit-profile.html:379
-msgid "You will not be able to view your scratch codes after you leave this page!"
+msgid ""
+"You will not be able to view your scratch codes after you leave this page!"
 msgstr "離開此頁後將無法再檢視備用驗證碼！"
 
 #: templates/user/edit-profile.html:278
@@ -6054,3 +6392,51 @@ msgstr "管理資料"
 #: templates/widgets/select_all.html:8
 msgid "Check all"
 msgstr "全選"
+
+#~ msgid "Catalan"
+#~ msgstr "加泰隆語"
+
+#~ msgid "German"
+#~ msgstr "德文"
+
+#~ msgid "Greek"
+#~ msgstr "希臘文"
+
+#~ msgid "Spanish"
+#~ msgstr "西班牙文"
+
+#~ msgid "French"
+#~ msgstr "法文"
+
+#~ msgid "Croatian"
+#~ msgstr "克羅地亞文"
+
+#~ msgid "Hungarian"
+#~ msgstr "匈牙利文"
+
+#~ msgid "Japanese"
+#~ msgstr "日語"
+
+#~ msgid "Korean"
+#~ msgstr "韓文"
+
+#~ msgid "Brazilian Portuguese"
+#~ msgstr "巴西葡萄牙語"
+
+#~ msgid "Romanian"
+#~ msgstr "羅馬尼亞文"
+
+#~ msgid "Russian"
+#~ msgstr "俄文"
+
+#~ msgid "Serbian (Latin)"
+#~ msgstr "塞爾維亞文（拉丁語系）"
+
+#~ msgid "Turkish"
+#~ msgstr "土耳其文"
+
+#~ msgid "Vietnamese"
+#~ msgstr "越南文"
+
+#~ msgid "Simplified Chinese"
+#~ msgstr "簡體中文"

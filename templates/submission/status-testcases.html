@@ -76,6 +76,7 @@
                     {%- if case.feedback %}&nbsp;({{ case.feedback }}){% endif -%}
                 </td>
 
+                <!--
                 <td>
                     {%- if case.status != 'SC' -%}
                         {%- if case.status == 'TLE' -%}
@@ -85,14 +86,16 @@
                         {%- endif -%}
                     {%- endif -%}
                 </td>
+               
 
                 <td>{% if case.status != 'SC' %}{{ case.memory|kbdetailformat }}]{% endif %}</td>
 
                 {% if not batch.id %}
                     <td>({{ case.points|floatformat(0) }}/{{ case.total|floatformat(0) }})</td>
                 {% endif %}
+                 -->
             </tr>
-
+               
             {% if print_case_output or case.extended_feedback %}
                 <tr id="{{ case.id }}-output" style="display:none" class="case-feedback toggled">
                     {% if print_case_output %}
@@ -126,7 +129,9 @@
         {% if submission.is_graded %}
             <br>
             {% if submission.result != "AB" %}
+            <!--
                 <b>{{ _('Resources:') }}</b>
+               
                 {% if submission.result == "TLE" %}
                     <span>---,</span>
                 {% else %}
@@ -139,6 +144,7 @@
                     <span title="{{ max_execution_time }}s">{{ max_execution_time|floatformat(3) }}s</span>
                     <br>
                 {% endif %}
+               -->
                 {% if is_pretest %}
                     <b>{{ _('Final pretest score:') }}</b>
                 {% else %}

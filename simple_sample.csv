@@ -1,0 +1,28 @@
+code,name,description,group,time_limit,memory_limit,points,types,authors,allowed_languages,is_public,partial,short_circuit,solution_content,solution_is_public,solution_publish_on,solution_authors,translations
+simple_hello,簡單問候,輸出 Hello，基礎練習,Demo,1.0,262144,50,Traditional,,Verilog,true,false,false,"簡單的輸出問題，適合初學者練習。
+
+**解法：**
+直接使用 $display 輸出即可。
+
+```verilog
+module hello;
+    initial begin
+        $display(""Hello"");
+        $finish;
+    end
+endmodule
+```",true,2025-09-01 10:00:00,,"en:Simple Hello:Output Hello for basic practice"
+basic_add,基礎加法,計算 1+1,Demo,1.0,262144,75,Math,,Verilog,true,false,false,"最基本的加法運算。
+
+**題目：**計算 1 + 1 的結果
+
+**解法：**
+```verilog
+module add_one;
+    initial begin
+        $display(""%d"", 1 + 1);
+        $finish;
+    end
+endmodule
+```",true,2025-09-01 11:00:00,,
+logic_and,邏輯與門,實現 AND 運算,Demo,2.0,262144,100,Implementation,,Verilog,true,false,false,,,,en:Logic AND Gate:Implement AND operation

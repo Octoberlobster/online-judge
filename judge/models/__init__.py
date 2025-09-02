@@ -4,6 +4,7 @@ from judge.models.choices import ACE_THEMES, EFFECTIVE_MATH_ENGINES, MATH_ENGINE
 from judge.models.comment import Comment, CommentLock, CommentVote
 from judge.models.contest import Contest, ContestMoss, ContestParticipation, ContestProblem, ContestSubmission, \
     ContestTag, Rating
+from judge.models.csv_import_helper import CSVImportHelper
 from judge.models.interface import BlogPost, MiscConfig, NavigationBar, validate_regex
 from judge.models.problem import LanguageLimit, License, Problem, ProblemClarification, ProblemGroup, \
     ProblemPointsVote, ProblemTranslation, ProblemType, Solution, SubmissionSourceAccess, \
@@ -11,6 +12,7 @@ from judge.models.problem import LanguageLimit, License, Problem, ProblemClarifi
 from judge.models.problem_data import CHECKERS, ProblemData, ProblemTestCase, problem_data_storage, \
     problem_directory_file
 from judge.models.profile import Class, Organization, OrganizationRequest, Profile, WebAuthnCredential
+from judge.models.registration import AllowedEmailDomain
 from judge.models.runtime import Judge, Language, RuntimeVersion
 from judge.models.submission import SUBMISSION_RESULT, Submission, SubmissionSource, SubmissionTestCase
 from judge.models.ticket import Ticket, TicketMessage
