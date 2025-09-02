@@ -1,0 +1,48 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        .email-domain-shortcut {
+            background: #417690;
+            color: white;
+            padding: 8px 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            text-decoration: none;
+            display: block;
+            font-weight: bold;
+        }
+        .email-domain-shortcut:hover {
+            background: #205067;
+            color: white;
+            text-decoration: none;
+        }
+        .admin-shortcut-section {
+            background: #f8f8f8;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            border-left: 4px solid #417690;
+        }
+        .admin-shortcut-section h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 14px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {% if user.is_staff or user.is_superuser %}
+        <div class="admin-shortcut-section">
+            <h3>🚀 快速管理</h3>
+            <a href="{% url 'admin:judge_allowedemaildomain_changelist' %}" class="email-domain-shortcut">
+                📧 郵件域名管理
+            </a>
+            <small style="color: #666;">管理允許註冊的郵件域名</small>
+        </div>
+    {% endif %}
+    
+    {{ block.super }}
+{% endblock %}

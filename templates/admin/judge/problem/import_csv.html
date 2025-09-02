@@ -1,0 +1,271 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block title %}{% trans "匯入題目 CSV" %} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+.import-info {
+    background: #e7f3ff;
+    border: 1px solid #bee5eb;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.import-info h3 {
+    margin-top: 0;
+    color: #0c5aa6;
+}
+
+.csv-download-link {
+    display: inline-block;
+    margin: 10px 0;
+    padding: 8px 15px;
+    background: #417690;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.csv-download-link:hover {
+    background: #205067;
+    color: white;
+}
+
+.form-row input[type="file"] {
+    padding: 8px;
+    border: 2px dashed #ccc;
+    border-radius: 4px;
+    width: 100%;
+    max-width: 400px;
+}
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+    &rsaquo; <a href="{% url 'admin:judge_problem_changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+    &rsaquo; {% trans "匯入 CSV" %}
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>{% trans "匯入題目 CSV" %}</h1>
+
+<div class="import-info">
+    <h3>{% trans "開始前準備" %}</h3>
+    <p>{% trans "請下載範例 CSV 文件作為參考：" %}</p>
+    <a href="{% url 'admin:judge_problem_download_csv_sample' %}" class="csv-download-link">
+        📄 {% trans "下載範例 CSV" %}
+    </a>
+</div>
+
+<div class="module aligned">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <fieldset class="module aligned">
+            <h2>{% trans "選擇 CSV 文件" %}</h2>
+            
+            <div class="form-row">
+                {{ form.csv_file.label_tag }}
+                <div>
+                    {{ form.csv_file }}
+                    {% if form.csv_file.help_text %}
+                        <p class="help">{{ form.csv_file.help_text }}</p>
+                    {% endif %}
+                    {% if form.csv_file.errors %}
+                        {% for error in form.csv_file.errors %}
+                            <p class="errornote">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </fieldset>
+        
+        <div class="submit-row">
+            {% if not is_preview %}
+                <input type="submit" name="preview" value="{% trans '預覽' %}" class="default" />
+                <input type="submit" name="import" value="{% trans '直接匯入' %}" />
+            {% else %}
+                <input type="submit" name="import" value="{% trans '確認匯入' %}" class="default" />
+                <a href="{% url 'admin:judge_problem_import_csv' %}" class="button cancel-link">{% trans "重新選擇文件" %}</a>
+            {% endif %}
+            <a href="{% url 'admin:judge_problem_changelist' %}" class="button cancel-link">{% trans "取消" %}</a>
+        </div>
+    </form>
+</div>
+
+{% if problems_preview %}
+<div class="module">
+    <h2>{% trans "預覽將要匯入的題目" %}</h2>
+    <div class="results">
+        <table id="result_list">
+            <thead>
+                <tr>
+                    <th scope="col">{% trans "題目代碼" %}</th>
+                    <th scope="col">{% trans "題目名稱" %}</th>
+                    <th scope="col">{% trans "組別" %}</th>
+                    <th scope="col">{% trans "分數" %}</th>
+                    <th scope="col">{% trans "時間限制" %}</th>
+                    <th scope="col">{% trans "記憶體限制" %}</th>
+                    <th scope="col">{% trans "允許語言" %}</th>
+                    <th scope="col">{% trans "公開" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for problem in problems_preview %}
+                <tr class="{% cycle 'row1' 'row2' %}">
+                    <td>{{ problem.code }}</td>
+                    <td>{{ problem.name }}</td>
+                    <td>{{ problem.group.name }}</td>
+                    <td>{{ problem.points }}</td>
+                    <td>{{ problem.time_limit }}s</td>
+                    <td>{{ problem.memory_limit }}KB</td>
+                    <td>
+                        {% if problem.allowed_languages %}
+                            {% for lang in problem.allowed_languages %}{{ lang.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                        {% else %}
+                            {% trans "所有語言" %}
+                        {% endif %}
+                    </td>
+                    <td>{{ problem.is_public|yesno:"是,否" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p class="paginator">
+            {% blocktrans count counter=problems_preview|length %}共 {{ counter }} 個題目將被匯入{% plural %}共 {{ counter }} 個題目將被匯入{% endblocktrans %}
+        </p>
+    </div>
+</div>
+{% endif %}
+
+<div class="module">
+    <h2>{% trans "CSV 格式說明" %}</h2>
+    <div class="form-row">
+        <p>{% trans "CSV 文件應包含以下欄位（第一行為標題行）：" %}</p>
+        <table class="csv-format-table">
+            <thead>
+                <tr>
+                    <th>{% trans "欄位名稱" %}</th>
+                    <th>{% trans "是否必填" %}</th>
+                    <th>{% trans "說明" %}</th>
+                    <th>{% trans "範例" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>code</code></td>
+                    <td>{% trans "是" %}</td>
+                    <td>{% trans "題目代碼，必須是小寫英文字母和數字" %}</td>
+                    <td><code>aplusb</code></td>
+                </tr>
+                <tr>
+                    <td><code>name</code></td>
+                    <td>{% trans "是" %}</td>
+                    <td>{% trans "題目名稱" %}</td>
+                    <td><code>A+B Problem</code></td>
+                </tr>
+                <tr>
+                    <td><code>description</code></td>
+                    <td>{% trans "是" %}</td>
+                    <td>{% trans "題目描述，支援 Markdown 格式" %}</td>
+                    <td><code>計算兩個整數的和</code></td>
+                </tr>
+                <tr>
+                    <td><code>group</code></td>
+                    <td>{% trans "是" %}</td>
+                    <td>{% trans "題目組別 ID" %}</td>
+                    <td><code>basic</code></td>
+                </tr>
+                <tr>
+                    <td><code>time_limit</code></td>
+                    <td>{% trans "是" %}</td>
+                    <td>{% trans "時間限制（秒）" %}</td>
+                    <td><code>1.0</code></td>
+                </tr>
+                <tr>
+                    <td><code>memory_limit</code></td>
+                    <td>{% trans "是" %}</td>
+                    <td>{% trans "記憶體限制（KB）" %}</td>
+                    <td><code>65536</code></td>
+                </tr>
+                <tr>
+                    <td><code>points</code></td>
+                    <td>{% trans "是" %}</td>
+                    <td>{% trans "題目分數" %}</td>
+                    <td><code>100</code></td>
+                </tr>
+                <tr>
+                    <td><code>types</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "題目類型，多個用逗號分隔" %}</td>
+                    <td><code>math,implementation</code></td>
+                </tr>
+                <tr>
+                    <td><code>authors</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "作者用戶名，多個用逗號分隔" %}</td>
+                    <td><code>admin,teacher</code></td>
+                </tr>
+                <tr>
+                    <td><code>allowed_languages</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "允許的程式語言，多個用逗號分隔。留空表示允許所有語言。支援語言名稱、通用名稱或短名稱" %}</td>
+                    <td><code>Verilog,verilog12,verilog</code></td>
+                </tr>
+                <tr>
+                    <td><code>is_public</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "是否公開（true/false）" %}</td>
+                    <td><code>true</code></td>
+                </tr>
+                <tr>
+                    <td><code>partial</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "是否允許部分分數（true/false）" %}</td>
+                    <td><code>false</code></td>
+                </tr>
+                <tr>
+                    <td><code>short_circuit</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "是否短路評測（true/false）" %}</td>
+                    <td><code>false</code></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+.csv-format-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.csv-format-table th,
+.csv-format-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.csv-format-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.csv-format-table code {
+    background-color: #f8f8f8;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: monospace;
+}
+</style>
+{% endblock %}

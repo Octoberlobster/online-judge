@@ -1,0 +1,32 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block content %}
+    {% if user.is_staff or user.is_superuser %}
+        <div class="module filtered" style="margin-bottom: 20px;">
+            <h2>{% trans "Quick Management" %}</h2>
+            <table style="width: 100%;">
+                <tbody>
+                    <tr class="row1">
+                        <td><a href="{% url 'admin:judge_allowedemaildomain_changelist' %}" class="changelink">{% trans "Email Domain Management" %}</a></td>
+                        <td style="color: #666; font-size: 12px;">{% trans "Manage allowed email domains for registration" %}</td>
+                    </tr>
+                    <tr class="row2">
+                        <td><a href="{% url 'admin:judge_profile_changelist' %}" class="changelink">{% trans "User Management" %}</a></td>
+                        <td style="color: #666; font-size: 12px;">{% trans "Manage user profiles and permissions" %}</td>
+                    </tr>
+                    <tr class="row1">
+                        <td><a href="{% url 'admin:judge_problem_changelist' %}" class="changelink">{% trans "Problem Management" %}</a></td>
+                        <td style="color: #666; font-size: 12px;">{% trans "Manage and edit contest problems" %}</td>
+                    </tr>
+                    <tr class="row2">
+                        <td><a href="{% url 'admin:judge_contest_changelist' %}" class="changelink">{% trans "Contest Management" %}</a></td>
+                        <td style="color: #666; font-size: 12px;">{% trans "Create and manage contest events" %}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+    
+    {{ block.super }}
+{% endblock %}
