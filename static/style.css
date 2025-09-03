@@ -959,6 +959,11 @@ img.inline-math {
   color: black;
 }
 
+.PLE {
+  background-color: #ff4444;
+  color: white;
+}
+
 .QU, .G {
   background: white;
   color: black;

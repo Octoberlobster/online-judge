@@ -1158,3 +1158,177 @@ INFO 2025-09-01 13:29:06,020 judge_handler Judge authenticated: ('127.0.0.1', 35
 INFO 2025-09-02 10:31:44,052 daemon Exiting due to SIGINT
 INFO 2025-09-02 10:38:54,908 judge_handler Judge connected from: ('127.0.0.1', 49414)
 INFO 2025-09-02 10:38:54,931 judge_handler Judge authenticated: ('127.0.0.1', 49414) (verilog)
+INFO 2025-09-02 19:07:41,969 daemon Exiting due to SIGINT
+INFO 2025-09-02 19:08:52,742 judge_handler Judge connected from: ('127.0.0.1', 48598)
+INFO 2025-09-02 19:08:52,766 judge_handler Judge authenticated: ('127.0.0.1', 48598) (verilog)
+INFO 2025-09-02 19:15:28,983 judge_handler Judge disconnected from: ('127.0.0.1', 48598) with name verilog
+INFO 2025-09-02 19:23:22,618 judge_handler Judge connected from: ('127.0.0.1', 46934)
+INFO 2025-09-02 19:23:22,640 judge_handler Judge authenticated: ('127.0.0.1', 46934) (verilog)
+INFO 2025-09-02 19:28:56,366 judge_handler Judge disconnected from: ('127.0.0.1', 46934) with name verilog
+INFO 2025-09-02 19:31:34,621 judge_handler Judge connected from: ('127.0.0.1', 54548)
+INFO 2025-09-02 19:31:34,644 judge_handler Judge authenticated: ('127.0.0.1', 54548) (verilog)
+INFO 2025-09-02 19:39:23,231 judge_handler Judge disconnected from: ('127.0.0.1', 54548) with name verilog
+INFO 2025-09-02 19:39:58,322 judge_handler Judge connected from: ('127.0.0.1', 44254)
+INFO 2025-09-02 19:39:58,345 judge_handler Judge authenticated: ('127.0.0.1', 44254) (verilog)
+INFO 2025-09-02 19:40:42,723 judge_list Specified judge verilog is available
+INFO 2025-09-02 19:40:42,724 judge_list Dispatched submission 100 to: verilog
+INFO 2025-09-02 19:40:42,749 judge_handler Submission acknowledged: 100
+INFO 2025-09-02 19:40:42,786 judge_handler verilog: Submission generated compiler messages: 100
+INFO 2025-09-02 19:40:42,794 judge_handler verilog: Grading has begun on: 100
+ERROR 2025-09-02 19:40:42,803 judge_handler Judge verilog failed while handling submission 100
+Traceback (most recent call last):
+  File "/home/xc/dmoj-site/judge/bridge/judge_handler.py", line 466, in on_internal_error
+    raise ValueError('\n\n' + packet['message'])
+ValueError: 
+
+Traceback (most recent call last):
+  File "/judge/dmoj/judge.py", line 415, in _worker_process_main
+    ipc_msg = next(case_gen)
+  File "/judge/dmoj/judge.py", line 506, in _grade_cases
+    result = self.grader.grade(case)
+  File "/judge/dmoj/graders/standard.py", line 30, in grade
+    self.populate_result(error, result, process)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/judge/dmoj/graders/standard.py", line 49, in populate_result
+    self.binary.populate_result(error, result, process)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/judge/dmoj/executors/VLOG.py", line 116, in populate_result
+    "xdc_file": open(self._dir + "/" + self.problem + ".xdc", "rb")
+                ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpslei67bq/popcount3.xdc'
+
+INFO 2025-09-02 19:40:45,956 judge_list Judge available after grading 100: verilog
+INFO 2025-09-02 19:42:43,155 judge_handler verilog: Updated problem list
+INFO 2025-09-02 19:42:43,171 judge_handler verilog: Updated problem list
+INFO 2025-09-02 19:42:53,008 judge_handler verilog: Updated problem list
+INFO 2025-09-02 19:43:05,844 judge_handler verilog: Updated problem list
+INFO 2025-09-02 19:43:15,224 judge_handler verilog: Updated problem list
+INFO 2025-09-02 19:43:42,003 judge_list Free judges: 1
+INFO 2025-09-02 19:43:42,003 judge_list Dispatched submission 101 to: verilog
+INFO 2025-09-02 19:43:42,027 judge_handler Submission acknowledged: 101
+INFO 2025-09-02 19:43:42,072 judge_handler verilog: Submission generated compiler messages: 101
+INFO 2025-09-02 19:43:42,085 judge_handler verilog: Grading has begun on: 101
+ERROR 2025-09-02 19:43:42,095 judge_handler Judge verilog failed while handling submission 101
+Traceback (most recent call last):
+  File "/home/xc/dmoj-site/judge/bridge/judge_handler.py", line 466, in on_internal_error
+    raise ValueError('\n\n' + packet['message'])
+ValueError: 
+
+Traceback (most recent call last):
+  File "/judge/dmoj/judge.py", line 415, in _worker_process_main
+    ipc_msg = next(case_gen)
+  File "/judge/dmoj/judge.py", line 506, in _grade_cases
+    result = self.grader.grade(case)
+  File "/judge/dmoj/graders/standard.py", line 30, in grade
+    self.populate_result(error, result, process)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/judge/dmoj/graders/standard.py", line 49, in populate_result
+    self.binary.populate_result(error, result, process)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/judge/dmoj/executors/VLOG.py", line 116, in populate_result
+    "xdc_file": open(self._dir + "/" + self.problem + ".xdc", "rb")
+                ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmp_43ksvei/popcount3.xdc'
+
+INFO 2025-09-02 19:43:44,654 judge_list Judge available after grading 101: verilog
+INFO 2025-09-02 19:52:44,582 judge_handler verilog: Updated problem list
+INFO 2025-09-02 19:52:44,658 judge_handler verilog: Updated problem list
+INFO 2025-09-02 19:52:52,555 judge_handler verilog: Updated problem list
+INFO 2025-09-02 19:53:02,621 judge_handler verilog: Updated problem list
+INFO 2025-09-02 19:53:04,403 judge_handler verilog: Updated problem list
+INFO 2025-09-02 19:53:04,408 judge_handler verilog: Updated problem list
+INFO 2025-09-02 19:53:20,704 judge_list Specified judge verilog is available
+INFO 2025-09-02 19:53:20,704 judge_list Dispatched submission 102 to: verilog
+INFO 2025-09-02 19:53:20,730 judge_handler Submission acknowledged: 102
+INFO 2025-09-02 19:53:20,767 judge_handler verilog: Submission generated compiler messages: 102
+INFO 2025-09-02 19:53:20,774 judge_handler verilog: Grading has begun on: 102
+INFO 2025-09-02 19:54:06,230 judge_handler verilog: 1 test case(s) completed on: 102
+INFO 2025-09-02 19:54:06,250 judge_handler verilog: Grading has ended on: 102
+INFO 2025-09-02 19:54:06,250 judge_list Judge available after grading 102: verilog
+INFO 2025-09-02 20:02:01,108 daemon Exiting due to SIGINT
+INFO 2025-09-02 20:02:15,493 judge_handler Judge connected from: ('127.0.0.1', 58868)
+INFO 2025-09-02 20:02:15,515 judge_handler Judge authenticated: ('127.0.0.1', 58868) (verilog)
+INFO 2025-09-02 20:02:27,637 judge_list Free judges: 1
+INFO 2025-09-02 20:02:27,638 judge_list Dispatched submission 103 to: verilog
+INFO 2025-09-02 20:02:27,661 judge_handler Submission acknowledged: 103
+INFO 2025-09-02 20:02:27,694 judge_handler verilog: Submission generated compiler messages: 103
+INFO 2025-09-02 20:02:27,709 judge_handler verilog: Grading has begun on: 103
+INFO 2025-09-02 20:03:14,334 judge_handler verilog: 1 test case(s) completed on: 103
+INFO 2025-09-02 20:03:14,351 judge_handler verilog: Grading has ended on: 103
+INFO 2025-09-02 20:03:14,351 judge_list Judge available after grading 103: verilog
+INFO 2025-09-03 00:13:42,676 judge_list Free judges: 1
+INFO 2025-09-03 00:13:42,676 judge_list Dispatched submission 104 to: verilog
+INFO 2025-09-03 00:13:42,700 judge_handler Submission acknowledged: 104
+INFO 2025-09-03 00:13:42,733 judge_handler verilog: Submission generated compiler messages: 104
+INFO 2025-09-03 00:13:42,744 judge_handler verilog: Grading has begun on: 104
+INFO 2025-09-03 00:14:29,096 judge_handler verilog: 1 test case(s) completed on: 104
+INFO 2025-09-03 00:14:29,113 judge_handler verilog: Grading has ended on: 104
+INFO 2025-09-03 00:14:29,113 judge_list Judge available after grading 104: verilog
+INFO 2025-09-03 00:18:29,449 judge_handler verilog: Updated problem list
+INFO 2025-09-03 00:18:29,464 judge_handler verilog: Updated problem list
+INFO 2025-09-03 00:18:36,345 judge_handler verilog: Updated problem list
+INFO 2025-09-03 00:18:40,291 judge_handler verilog: Updated problem list
+INFO 2025-09-03 00:18:45,665 judge_handler verilog: Updated problem list
+INFO 2025-09-03 00:18:53,615 judge_list Free judges: 1
+INFO 2025-09-03 00:18:53,615 judge_list Dispatched submission 105 to: verilog
+INFO 2025-09-03 00:18:53,642 judge_handler Submission acknowledged: 105
+INFO 2025-09-03 00:18:53,674 judge_handler verilog: Submission generated compiler messages: 105
+INFO 2025-09-03 00:18:53,681 judge_handler verilog: Grading has begun on: 105
+INFO 2025-09-03 00:19:38,624 judge_handler verilog: 1 test case(s) completed on: 105
+INFO 2025-09-03 00:19:38,642 judge_handler verilog: Grading has ended on: 105
+INFO 2025-09-03 00:19:38,642 judge_list Judge available after grading 105: verilog
+INFO 2025-09-03 00:25:29,804 judge_list Free judges: 1
+INFO 2025-09-03 00:25:29,804 judge_list Dispatched submission 106 to: verilog
+INFO 2025-09-03 00:25:29,829 judge_handler Submission acknowledged: 106
+INFO 2025-09-03 00:25:29,860 judge_handler verilog: Submission generated compiler messages: 106
+INFO 2025-09-03 00:25:29,868 judge_handler verilog: Grading has begun on: 106
+INFO 2025-09-03 00:26:14,118 judge_handler verilog: 1 test case(s) completed on: 106
+INFO 2025-09-03 00:26:14,133 judge_handler verilog: Grading has ended on: 106
+INFO 2025-09-03 00:26:14,134 judge_list Judge available after grading 106: verilog
+INFO 2025-09-03 00:27:11,274 judge_list Free judges: 1
+INFO 2025-09-03 00:27:11,274 judge_list Dispatched submission 107 to: verilog
+INFO 2025-09-03 00:27:11,297 judge_handler Submission acknowledged: 107
+INFO 2025-09-03 00:27:11,330 judge_handler verilog: Submission generated compiler messages: 107
+INFO 2025-09-03 00:27:11,337 judge_handler verilog: Grading has begun on: 107
+INFO 2025-09-03 00:27:47,748 judge_list Free judges: 0
+INFO 2025-09-03 00:27:47,748 judge_list Queued submission: 108
+INFO 2025-09-03 00:27:54,944 judge_handler verilog: 1 test case(s) completed on: 107
+INFO 2025-09-03 00:27:54,961 judge_handler verilog: Grading has ended on: 107
+INFO 2025-09-03 00:27:54,961 judge_list Judge available after grading 107: verilog
+INFO 2025-09-03 00:27:54,987 judge_list Dispatched queued submission 108: verilog
+INFO 2025-09-03 00:27:55,007 judge_handler Submission acknowledged: 108
+INFO 2025-09-03 00:27:55,039 judge_handler verilog: Submission generated compiler messages: 108
+INFO 2025-09-03 00:27:55,047 judge_handler verilog: Grading has begun on: 108
+INFO 2025-09-03 00:27:58,949 judge_list Free judges: 0
+INFO 2025-09-03 00:27:58,950 judge_list Queued submission: 109
+INFO 2025-09-03 00:28:39,034 judge_handler verilog: 1 test case(s) completed on: 108
+INFO 2025-09-03 00:28:39,051 judge_handler verilog: Grading has ended on: 108
+INFO 2025-09-03 00:28:39,052 judge_list Judge available after grading 108: verilog
+INFO 2025-09-03 00:28:39,075 judge_list Dispatched queued submission 109: verilog
+INFO 2025-09-03 00:28:39,099 judge_handler Submission acknowledged: 109
+INFO 2025-09-03 00:28:39,130 judge_handler verilog: Submission generated compiler messages: 109
+INFO 2025-09-03 00:28:39,138 judge_handler verilog: Grading has begun on: 109
+INFO 2025-09-03 00:29:22,472 judge_handler verilog: 1 test case(s) completed on: 109
+INFO 2025-09-03 00:29:22,489 judge_handler verilog: Grading has ended on: 109
+INFO 2025-09-03 00:29:22,489 judge_list Judge available after grading 109: verilog
+INFO 2025-09-03 00:34:18,488 judge_list Free judges: 1
+INFO 2025-09-03 00:34:18,488 judge_list Dispatched submission 110 to: verilog
+INFO 2025-09-03 00:34:18,512 judge_handler Submission acknowledged: 110
+INFO 2025-09-03 00:34:18,544 judge_handler verilog: Submission generated compiler messages: 110
+INFO 2025-09-03 00:34:18,551 judge_handler verilog: Grading has begun on: 110
+INFO 2025-09-03 00:35:03,312 judge_handler verilog: 1 test case(s) completed on: 110
+INFO 2025-09-03 00:35:03,329 judge_handler verilog: Grading has ended on: 110
+INFO 2025-09-03 00:35:03,329 judge_list Judge available after grading 110: verilog
+INFO 2025-09-03 05:18:21,206 judge_list Free judges: 1
+INFO 2025-09-03 05:18:21,206 judge_list Dispatched submission 111 to: verilog
+INFO 2025-09-03 05:18:21,230 judge_handler Submission acknowledged: 111
+INFO 2025-09-03 05:18:21,262 judge_handler verilog: Submission failed to compile: 111
+INFO 2025-09-03 05:18:21,262 judge_list Judge available after grading 111: verilog
+INFO 2025-09-03 05:19:57,642 judge_list Free judges: 1
+INFO 2025-09-03 05:19:57,642 judge_list Dispatched submission 112 to: verilog
+INFO 2025-09-03 05:19:57,667 judge_handler Submission acknowledged: 112
+INFO 2025-09-03 05:19:57,699 judge_handler verilog: Submission generated compiler messages: 112
+INFO 2025-09-03 05:19:57,706 judge_handler verilog: Grading has begun on: 112
+INFO 2025-09-03 05:19:57,714 judge_handler verilog: 1 test case(s) completed on: 112
+INFO 2025-09-03 05:19:57,734 judge_handler verilog: Grading has ended on: 112
+INFO 2025-09-03 05:19:57,734 judge_list Judge available after grading 112: verilog

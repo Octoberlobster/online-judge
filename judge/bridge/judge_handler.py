@@ -20,7 +20,8 @@ json_log = logging.getLogger('judge.json.bridge')
 
 UPDATE_RATE_LIMIT = 5
 UPDATE_RATE_TIME = 0.5
-SubmissionData = namedtuple('SubmissionData', 'time memory short_circuit pretests_only contest_no attempt_no user_id')
+SubmissionData = namedtuple('SubmissionData', 'time memory short_circuit pretests_only contest_no attempt_no user_id enable_waveform enable_ppa ppa_maximum_fmax')
+
 
 
 def _ensure_connection():
@@ -183,11 +184,12 @@ class JudgeHandler(ZlibPacketHandler):
         _ensure_connection()
 
         try:
-            pid, time, memory, short_circuit, lid, is_pretested, sub_date, uid, part_virtual, part_id = (
+            pid, time, memory, short_circuit, lid, is_pretested, sub_date, uid, part_virtual, part_id, enable_waveform, enable_ppa, ppa_maximum_fmax = (
                 Submission.objects.filter(id=submission)
-                          .values_list('problem__id', 'problem__time_limit', 'problem__memory_limit',
-                                       'problem__short_circuit', 'language__id', 'is_pretested', 'date', 'user__id',
-                                       'contest__participation__virtual', 'contest__participation__id')).get()
+                        .values_list('problem__id', 'problem__time_limit', 'problem__memory_limit',
+                                            'problem__short_circuit', 'language__id', 'is_pretested', 'date', 'user__id',
+                                            'contest__participation__virtual', 'contest__participation__id', 
+                                            'problem__enable_waveform', 'problem__enable_ppa', 'problem__ppa_maximum_fmax')).get()
         except Submission.DoesNotExist:
             logger.error('Submission vanished: %s', submission)
             json_log.error(self._make_json_log(
@@ -213,6 +215,9 @@ class JudgeHandler(ZlibPacketHandler):
             contest_no=part_virtual,
             attempt_no=attempt_no,
             user_id=uid,
+            enable_waveform=enable_waveform,
+            enable_ppa=enable_ppa,
+            ppa_maximum_fmax=ppa_maximum_fmax,
         )
 
     def disconnect(self, force=False):
@@ -240,6 +245,9 @@ class JudgeHandler(ZlibPacketHandler):
                 'in-contest': data.contest_no,
                 'attempt-no': data.attempt_no,
                 'user': data.user_id,
+                'enable_waveform': data.enable_waveform,
+                'enable_ppa': data.enable_ppa,
+                'ppa_maximum_fmax': data.ppa_maximum_fmax,
             },
         })
 
@@ -355,7 +363,7 @@ class JudgeHandler(ZlibPacketHandler):
         points = 0.0
         total = 0
         status = 0
-        status_codes = ['SC', 'AC', 'WA', 'MLE', 'TLE', 'IR', 'RTE', 'OLE']
+        status_codes = ['SC', 'AC', 'WA', 'MLE', 'TLE', 'IR', 'RTE', 'OLE', 'PLE']
         batches = {}  # batch number: (points, total)
 
         for case in SubmissionTestCase.objects.filter(submission=submission):
@@ -521,6 +529,8 @@ class JudgeHandler(ZlibPacketHandler):
                 test_case.status = 'MLE'
             elif status & 64:
                 test_case.status = 'OLE'
+            elif status & 128:
+                test_case.status = 'PLE'
             elif status & 2:
                 test_case.status = 'RTE'
             elif status & 16:
@@ -535,6 +545,10 @@ class JudgeHandler(ZlibPacketHandler):
             test_case.memory = result['memory']
             test_case.points = result['points']
             test_case.total = result['total-points']
+            # PLE 狀態應該得 0 分
+            if test_case.status == 'PLE':
+                test_case.points = 0
+            
             test_case.batch = self.batch_id if self.in_batch else None
             test_case.feedback = (result.get('feedback') or '')[:max_feedback]
             test_case.extended_feedback = result.get('extended-feedback') or ''

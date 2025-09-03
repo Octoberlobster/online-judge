@@ -170,13 +170,30 @@
                 <b>{{ _('Submission aborted!') }}</b>
             {% endif %}
             
-            {# 添加波形查看器 #}
-            {% if submission.language.key == 'VLOG' %}
+            {# 添加 PPA 指標區塊 - 只有在題目啟用 PPA 計算時才顯示 #}
+            {% if submission.problem.enable_ppa %}
+                {% set found_ppa = false %}
+                {% for batch in batches %}
+                    {% for case in batch.cases %}
+                        {% if case.extended_feedback and '[PPA]' in case.extended_feedback %}
+                            {% set ppa_text = case.extended_feedback.split('[PPA]')[1].strip() %}
+                            <br>
+                            <h4>{{ _('PPA') }}: <span style="font-weight: normal;">{{ ppa_text }}</span></h4>
+                            {% set found_ppa = true %}
+                            {% break %}
+                        {% endif %}
+                    {% endfor %}
+                    {% if found_ppa %}{% break %}{% endif %}
+                {% endfor %}
+            {% endif %}
+
+            {# 添加波形查看器 - 只有在題目啟用波型處理時才顯示 #}
+            {% if submission.language.key == 'VLOG' and submission.problem.enable_waveform %}
                 {% set found_vcd = false %}
                 {% for batch in batches %}
                     {% for case in batch.cases %}
                         {% if case.extended_feedback and '[WAVEFORM]VCD:' in case.extended_feedback %}
-                            {% set vcd_path = case.extended_feedback.split('[WAVEFORM]VCD:')[1].split('|')[0] %}
+                            {% set vcd_path = case.extended_feedback.split('[WAVEFORM]VCD:')[1].split('\n')[0].strip() %}
                             {% set vcd_filename = vcd_path.split('/')[-1] %}
                             <br>
                             <h4>{{ _('Waveform Viewer') }}</h4>
@@ -202,8 +219,9 @@
                         {% endif %}
                     {% endfor %}
                     {% if found_vcd %}{% break %}{% endif %}
-                {% endfor %}
+                {% endfor %}           
             {% endif %}
+
             
             <br>
             <br>

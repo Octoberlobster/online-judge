@@ -171,6 +171,15 @@ class Problem(models.Model):
     submission_source_visibility_mode = models.CharField(verbose_name=_('submission source visibility'), max_length=1,
                                                          default=SubmissionSourceAccess.FOLLOW,
                                                          choices=SUBMISSION_SOURCE_ACCESS)
+    
+
+    enable_waveform = models.BooleanField(verbose_name=_('enable waveform processing'), default=False,
+                                            help_text=_('Whether to process and display waveform files for Verilog problems.'))
+    enable_ppa = models.BooleanField(verbose_name=_('enable PPA calculation'), default=False,
+                                        help_text=_('Whether to calculate and display PPA (Performance, Power, Area) metrics for Verilog problems.'))
+    ppa_maximum_fmax = models.FloatField(verbose_name=_('maximum PPA Fmax (MHz)'), null=True, blank=True,
+                                            help_text=_('Maximum Fmax frequency allowed in MHz. If set, submissions above this frequency will fail.'),
+                                            validators=[MinValueValidator(0.1)])
 
     objects = TranslatedProblemQuerySet.as_manager()
     tickets = GenericRelation('Ticket')

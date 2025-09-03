@@ -137,6 +137,7 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         (_('Points'), {'fields': (('points', 'partial'), 'short_circuit')}),
         (_('Limits'), {'fields': ('time_limit', 'memory_limit')}),
         (_('Language'), {'fields': ('allowed_languages',)}),
+        (_('Verilog Settings'), {'classes': ('collapse',), 'fields': ('enable_waveform', 'enable_ppa', 'ppa_maximum_fmax')}),
         (_('Justice'), {'fields': ('banned_users',)}),
         (_('History'), {'fields': ('change_message',)}),
     )
