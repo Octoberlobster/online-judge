@@ -1,31 +1,26 @@
-[uwsgi]
-# Socket and pid file location/permission.
-uwsgi-socket = /tmp/dmoj-site.sock
-chmod-socket = 666
-pidfile = /tmp/dmoj-site.pid
+#!/bin/bash
+REAL_UID="${SUDO_UID:-$(id -u)}"
+REAL_HOME="$(getent passwd "${REAL_UID}" | cut -d: -f6)"
+DMOJ_STATIC_PATH="${HOME}/dmoj-site/static"
+SITE_DIR="${REAL_HOME}/dmoj-site" 
+PROBLEMS_DIR="${SITE_DIR}/problems"                # 問題庫目錄（會掛到容器 /problems）
+WAVES_DIR="${SITE_DIR}/waves"                      # 波形目錄（會掛到容器 /waves）
+log() { printf '[%s] %s\n' "$(date '+%F %T')" "$*"; }
+trap 'log "❌ 發生錯誤，腳本中止。"' ERR
+sudo apt update
+sudo apt install -y acl
+sudo setfacl -m u:www-data:x /home
+sudo setfacl -m u:www-data:x "${HOME}"
+sudo setfacl -R -m u:www-data:rx "$DMOJ_STATIC_PATH"
+sudo setfacl -R -m d:u:www-data:rx "$DMOJ_STATIC_PATH"
 
-# You should create an account dedicated to running dmoj under uwsgi.
-#uid = dmoj-uwsgi
-#gid = dmoj-uwsgi
+# ===== STEP 4：建立 problems / waves 目錄並設定權限 =====
+log "STEP 12: 建立 problems 目錄：${PROBLEMS_DIR}"
+sudo mkdir -p "${PROBLEMS_DIR}"
+sudo chmod 777 "${PROBLEMS_DIR}"
+sudo chown "$(id -u)":"$(id -g)" "${PROBLEMS_DIR}"
 
-# Paths.
-chdir = 
-pythonpath = 
-virtualenv = 
-
-# Details regarding DMOJ application.
-protocol = uwsgi
-master = true
-env = DJANGO_SETTINGS_MODULE=dmoj.settings
-module = dmoj.wsgi:application
-optimize = 2
-
-# Scaling settings. Tune as you like.
-memory-report = true
-cheaper-algo = backlog
-cheaper = 3
-cheaper-initial = 5
-cheaper-step = 1
-cheaper-rss-limit-soft = 201326592
-cheaper-rss-limit-hard = 234881024
-workers = 7
+log "STEP 13: 建立 waves 目錄：${WAVES_DIR}"
+sudo mkdir -p "${WAVES_DIR}"
+sudo chmod 777 "${WAVES_DIR}"
+sudo chown "$(id -u)":"$(id -g)" "${WAVES_DIR}"
