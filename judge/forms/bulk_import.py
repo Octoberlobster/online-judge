@@ -9,7 +9,8 @@ from judge.models import Problem, ProblemGroup, ProblemType, Language, Profile
 class CSVImportForm(forms.Form):
     csv_file = forms.FileField(
         label=_('CSV 文件'),
-        help_text=_('上傳包含題目資料的 CSV 文件。文件應包含以下欄位：code, name, description, group, types, time_limit, memory_limit, points, authors, allowed_languages'),
+        help_text=_('上傳包含題目資料的 CSV 文件。必填欄位：code, name, description, group, time_limit, memory_limit, points, allowed_languages。'
+                   'Verilog 相關欄位：enable_waveform, enable_ppa, f4pga_board, f4pga_target_fmax, openlane_pdk, openlane_ppa_score, openlane_critical_path_ns, openlane_core_area_um2, openlane_power_total'),
         widget=forms.ClearableFileInput(attrs={'accept': '.csv'})
     )
     
@@ -36,11 +37,11 @@ class CSVImportForm(forms.Form):
         reader = csv.DictReader(io.StringIO(csv_content))
         
         # 驗證必要的欄位
-        required_fields = ['code', 'name', 'description', 'group', 'time_limit', 'memory_limit', 'points']
+        required_fields = ['code', 'name', 'description', 'group', 'time_limit', 'memory_limit', 'points', 'allowed_languages']
         missing_fields = [field for field in required_fields if field not in reader.fieldnames]
         if missing_fields:
             raise ValidationError(
-                _('CSV 文件缺少必要欄位: %(fields)s') % {'fields': ', '.join(missing_fields)}
+                _('CSV 文件缺少必要欄位: %(fields)s。請確保您的 CSV 包含所有必填欄位。') % {'fields': ', '.join(missing_fields)}
             )
         
         problems_to_create = []
@@ -68,8 +69,7 @@ class CSVImportForm(forms.Form):
             errors.append(_('題目代碼不能為空'))
         elif Problem.objects.filter(code=code).exists():
             errors.append(_('題目代碼 "%(code)s" 已存在') % {'code': code})
-        elif not code.isalnum() or not code.islower():
-            errors.append(_('題目代碼必須是小寫字母和數字組成'))
+        # 注意：放寬代碼驗證以支援更多格式（如 basic_gate, cpu_design 等）
         
         # 驗證題目名稱
         name = row.get('name', '').strip()
@@ -155,6 +155,89 @@ class CSVImportForm(forms.Form):
         if errors:
             raise ValidationError(errors)
         
+        # 處理額外的布林欄位
+        is_public = row.get('is_public', '').strip().lower() in ('true', '1', 'yes')
+        partial = row.get('partial', '').strip().lower() in ('true', '1', 'yes')
+        short_circuit = row.get('short_circuit', '').strip().lower() in ('true', '1', 'yes')
+        is_manually_managed = row.get('is_manually_managed', '').strip().lower() in ('true', '1', 'yes')
+        is_organization_private = row.get('is_organization_private', '').strip().lower() in ('true', '1', 'yes')
+        enable_waveform = row.get('enable_waveform', '').strip().lower() in ('true', '1', 'yes')
+        
+        # 處理 Verilog 相關欄位
+        enable_ppa = row.get('enable_ppa', '').strip().lower() in ('true', '1', 'yes')
+        
+        # F4PGA 相關欄位
+        f4pga_board = row.get('f4pga_board', '').strip() or None
+        f4pga_part = row.get('f4pga_part', '').strip() or None
+        f4pga_package = row.get('f4pga_package', '').strip() or None
+        f4pga_target_fmax = None
+        fmax_value = row.get('f4pga_target_fmax', '') or ''
+        if fmax_value.strip():
+            try:
+                f4pga_target_fmax = float(fmax_value)
+            except (ValueError, TypeError):
+                pass
+        
+        # OpenLane 相關欄位
+        openlane_pdk = (row.get('openlane_pdk', '') or '').strip() or None
+        
+        # PPA 性能指標
+        openlane_ppa_score = None
+        ppa_score_value = row.get('openlane_ppa_score', '') or ''
+        if ppa_score_value.strip():
+            try:
+                openlane_ppa_score = float(ppa_score_value)
+            except (ValueError, TypeError):
+                pass
+        
+        openlane_critical_path_ns = None
+        critical_path_value = row.get('openlane_critical_path_ns', '') or ''
+        if critical_path_value.strip():
+            try:
+                openlane_critical_path_ns = float(critical_path_value)
+            except (ValueError, TypeError):
+                pass
+        
+        openlane_core_area_um2 = None
+        core_area_value = row.get('openlane_core_area_um2', '') or ''
+        if core_area_value.strip():
+            try:
+                openlane_core_area_um2 = float(core_area_value)
+            except (ValueError, TypeError):
+                pass
+        
+        openlane_power_total = None
+        power_value = row.get('openlane_power_total', '') or ''
+        if power_value.strip():
+            try:
+                openlane_power_total = float(power_value)
+            except (ValueError, TypeError):
+                pass
+
+        # 處理題解相關欄位
+        solution_content = row.get('solution_content', '').strip() or None
+        solution_is_public = row.get('solution_is_public', '').strip().lower() in ('true', '1', 'yes')
+        solution_publish_on = row.get('solution_publish_on', '').strip() or None
+        solution_authors_str = row.get('solution_authors', '').strip()
+        solution_authors = []
+        if solution_authors_str:
+            solution_author_usernames = [a.strip() for a in solution_authors_str.split(',')]
+            for username in solution_author_usernames:
+                try:
+                    author = Profile.objects.get(user__username=username)
+                    solution_authors.append(author)
+                except Profile.DoesNotExist:
+                    pass  # 忽略不存在的使用者
+        
+        # 處理其他欄位
+        license_name = row.get('license', '').strip() or None
+        og_image = row.get('og_image', '').strip() or None
+        summary = row.get('summary', '').strip() or None
+        date_str = row.get('date', '').strip() or None
+        banned_users_str = row.get('banned_users', '').strip()
+        organizations_str = row.get('organizations', '').strip()
+        translations = row.get('translations', '').strip() or None
+
         return {
             'code': code,
             'name': name,
@@ -166,7 +249,34 @@ class CSVImportForm(forms.Form):
             'points': points,
             'authors': authors,
             'allowed_languages': allowed_languages,
-            'is_public': row.get('is_public', '').strip().lower() in ('true', '1', 'yes'),
-            'partial': row.get('partial', '').strip().lower() in ('true', '1', 'yes'),
-            'short_circuit': row.get('short_circuit', '').strip().lower() in ('true', '1', 'yes'),
+            'is_public': is_public,
+            'partial': partial,
+            'short_circuit': short_circuit,
+            'is_manually_managed': is_manually_managed,
+            'is_organization_private': is_organization_private,
+            'enable_waveform': enable_waveform,
+            # Verilog 相關欄位
+            'enable_ppa': enable_ppa,
+            'f4pga_board': f4pga_board,
+            'f4pga_part': f4pga_part,
+            'f4pga_package': f4pga_package,
+            'f4pga_target_fmax': f4pga_target_fmax,
+            'openlane_pdk': openlane_pdk,
+            'openlane_ppa_score': openlane_ppa_score,
+            'openlane_critical_path_ns': openlane_critical_path_ns,
+            'openlane_core_area_um2': openlane_core_area_um2,
+            'openlane_power_total': openlane_power_total,
+            # 題解相關欄位
+            'solution_content': solution_content,
+            'solution_is_public': solution_is_public,
+            'solution_publish_on': solution_publish_on,
+            'solution_authors': solution_authors,
+            # 其他欄位
+            'license_name': license_name,
+            'og_image': og_image,
+            'summary': summary,
+            'date_str': date_str,
+            'banned_users_str': banned_users_str,
+            'organizations_str': organizations_str,
+            'translations': translations,
         }

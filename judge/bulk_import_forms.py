@@ -1,317 +1,240 @@
 import csv
 import io
-from datetime import datetime
 from django import forms
+from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
+from django.forms import FileField
 from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
-from django.utils import timezone
-from django.conf import settings
-from judge.models import Problem, ProblemGroup, ProblemType, Language, Profile, Solution, ProblemTranslation
 
 
 class CSVImportForm(forms.Form):
-    csv_file = forms.FileField(
-        label=_('CSV 文件'),
-        help_text=_('上傳包含題目資料的 CSV 文件。文件應包含以下欄位：code, name, description, group, types, time_limit, memory_limit, points, authors, allowed_languages。可選欄位：solution_content, solution_is_public, solution_publish_on, translations (格式: lang:name:description,lang:name:description...)'),
-        widget=forms.ClearableFileInput(attrs={'accept': '.csv'})
+    csv_file = FileField(
+        label='CSV File',
+        help_text='Upload a CSV file containing problem data. The file should include fields: '
+                  'code, name, description, group, time_limit, memory_limit, points, allowed_languages. '
+                  'For Verilog problems, additional fields are available: enable_waveform, enable_ppa, '
+                  'f4pga_board, f4pga_target_fmax, openlane_pdk, openlane_ppa_score, etc. '
+                  'When enable_ppa=false, all PPA-related fields are ignored regardless of their values.',
+        required=True
     )
     
     def clean_csv_file(self):
         csv_file = self.cleaned_data['csv_file']
-        
-        if not csv_file.name.endswith('.csv'):
-            raise ValidationError(_('文件必須是 CSV 格式'))
-        
-        # 檢查文件大小（限制為 5MB）
-        if csv_file.size > 5 * 1024 * 1024:
-            raise ValidationError(_('文件大小不能超過 5MB'))
+        if csv_file:
+            if not csv_file.name.endswith('.csv'):
+                raise forms.ValidationError('File must be a CSV file')
             
+            # Check file size (limit to 10MB)
+            if csv_file.size > 10 * 1024 * 1024:
+                raise forms.ValidationError('File size must be less than 10MB')
+        
         return csv_file
     
     def process_csv(self):
-        """處理 CSV 文件並返回待創建的題目列表"""
+        """Process the uploaded CSV file and return problem data"""
         csv_file = self.cleaned_data['csv_file']
         
-        # 讀取 CSV 內容
-        csv_content = csv_file.read().decode('utf-8-sig')  # 支援 BOM
-        csv_file.seek(0)  # 重置文件指針
+        # Read the file content
+        if hasattr(csv_file, 'read'):
+            content = csv_file.read()
+            if isinstance(content, bytes):
+                content = content.decode('utf-8-sig')
+        else:
+            raise ValidationError('Invalid file format')
         
-        reader = csv.DictReader(io.StringIO(csv_content))
+        # Parse CSV
+        csv_reader = csv.DictReader(io.StringIO(content))
+        problems_data = []
         
-        # 驗證必要的欄位
-        required_fields = ['code', 'name', 'description', 'group', 'time_limit', 'memory_limit', 'points']
-        missing_fields = [field for field in required_fields if field not in reader.fieldnames]
-        if missing_fields:
-            raise ValidationError(
-                _('CSV 文件缺少必要欄位: %(fields)s') % {'fields': ', '.join(missing_fields)}
-            )
-        
-        problems_to_create = []
-        errors = []
-        
-        for row_num, row in enumerate(reader, start=2):  # 從第2行開始計算（第1行是標題）
+        for row_num, row in enumerate(csv_reader, start=2):  # start=2 because header is row 1
             try:
-                problem_data = self._validate_row(row, row_num)
-                problems_to_create.append(problem_data)
-            except ValidationError as e:
-                errors.append(f'第 {row_num} 行: {", ".join(e.messages)}')
+                problem_data = self._process_row(row, row_num)
+                if problem_data:
+                    problems_data.append(problem_data)
+            except Exception as e:
+                raise ValidationError(f'Error processing row {row_num}: {str(e)}')
         
-        if errors:
-            raise ValidationError(_('CSV 文件有以下錯誤:\n%(errors)s') % {'errors': '\n'.join(errors)})
-        
-        return problems_to_create
+        return problems_data
     
-    def _validate_row(self, row, row_num):
-        """驗證單行資料"""
-        errors = []
+    def _process_row(self, row, row_num):
+        """Process a single CSV row and return problem data"""
+        # Basic validation
+        if not row.get('code') or not row.get('name'):
+            return None  # Skip empty rows
         
-        # 驗證題目代碼
-        code = (row.get('code', '') or '').strip()
-        # 移除可能的 BOM 字符
-        code = code.lstrip('\ufeff')
-        if not code:
-            errors.append(_('題目代碼不能為空'))
-        elif Problem.objects.filter(code=code).exists():
-            errors.append(_('題目代碼 "%(code)s" 已存在') % {'code': code})
-        elif not code.replace('_', '').isalnum() or not code.islower():
-            errors.append(_('題目代碼必須是小寫字母、數字和下劃線組成'))
-        
-        # 驗證題目名稱
-        name = (row.get('name', '') or '').strip()
-        if not name:
-            errors.append(_('題目名稱不能為空'))
-        
-        # 驗證題目描述
-        description = (row.get('description', '') or '').strip()
-        if not description:
-            errors.append(_('題目描述不能為空'))
-        
-        # 驗證題目組別
-        group_name = (row.get('group', '') or '').strip()
-        try:
-            group = ProblemGroup.objects.get(name=group_name)
-        except ProblemGroup.DoesNotExist:
-            errors.append(_('題目組別 "%(group)s" 不存在') % {'group': group_name})
-            group = None
-        
-        # 驗證時間限制
-        try:
-            time_limit = float(row.get('time_limit', 0) or 0)
-            if time_limit <= 0:
-                errors.append(_('時間限制必須大於 0'))
-        except (ValueError, TypeError):
-            errors.append(_('時間限制必須是有效的數字'))
-            time_limit = None
-        
-        # 驗證記憶體限制
-        try:
-            memory_limit = int(row.get('memory_limit', 0) or 0)
-            if memory_limit <= 0:
-                errors.append(_('記憶體限制必須大於 0'))
-        except (ValueError, TypeError):
-            errors.append(_('記憶體限制必須是有效的整數'))
-            memory_limit = None
-        
-        # 驗證分數
-        try:
-            points = float(row.get('points', 0) or 0)
-            if points < 0:
-                errors.append(_('分數不能為負數'))
-        except (ValueError, TypeError):
-            errors.append(_('分數必須是有效的數字'))
-            points = None
-        
-        # 驗證題目類型（可選）
-        types_str = (row.get('types', '') or '').strip()
-        types = []
-        if types_str:
-            type_names = [t.strip() for t in types_str.split(',')]
-            for type_name in type_names:
-                try:
-                    problem_type = ProblemType.objects.get(name=type_name)
-                    types.append(problem_type)
-                except ProblemType.DoesNotExist:
-                    errors.append(_('題目類型 "%(type)s" 不存在') % {'type': type_name})
-        
-        # 驗證作者（可選）
-        authors_str = (row.get('authors', '') or '').strip()
-        authors = []
-        if authors_str:
-            author_usernames = [a.strip() for a in authors_str.split(',')]
-            for username in author_usernames:
-                try:
-                    author = Profile.objects.get(user__username=username)
-                    authors.append(author)
-                except Profile.DoesNotExist:
-                    errors.append(_('作者 "%(author)s" 不存在') % {'author': username})
-        
-        # 驗證允許的程式語言（可選）
-        languages_str = (row.get('allowed_languages', '') or '').strip()
-        allowed_languages = []
-        if languages_str:
-            language_names = [l.strip() for l in languages_str.split(',')]
-            for language_name in language_names:
-                language = self._find_language(language_name)
-                if language:
-                    allowed_languages.append(language)
-                else:
-                    errors.append(_('程式語言 "%(language)s" 不存在') % {'language': language_name})
-        
-        # 驗證題解（可選）
-        solution_data = self._validate_solution(row, errors)
-        
-        # 驗證翻譯（可選）
-        translations_data = self._validate_translations(row, errors)
-        
-        if errors:
-            raise ValidationError(errors)
-        
+        # Extract basic fields
         problem_data = {
-            'code': code,
-            'name': name,
-            'description': description,
-            'group': group,
-            'types': types,
-            'time_limit': time_limit,
-            'memory_limit': memory_limit,
-            'points': points,
-            'authors': authors,
-            'allowed_languages': allowed_languages,
-            'is_public': (row.get('is_public', '') or '').strip().lower() in ('true', '1', 'yes'),
-            'partial': (row.get('partial', '') or '').strip().lower() in ('true', '1', 'yes'),
-            'short_circuit': (row.get('short_circuit', '') or '').strip().lower() in ('true', '1', 'yes'),
+            'code': row.get('code', '').strip(),
+            'name': row.get('name', '').strip(),
+            'description': row.get('description', ''),
+            'time_limit': float(row.get('time_limit', 1.0)),
+            'memory_limit': int(row.get('memory_limit', 262144)),
+            'points': float(row.get('points', 100)),
+            'is_public': self._parse_boolean(row.get('is_public', 'false')),
+            'partial': self._parse_boolean(row.get('partial', 'false')),
+            'short_circuit': self._parse_boolean(row.get('short_circuit', 'false')),
+            'is_manually_managed': self._parse_boolean(row.get('is_manually_managed', 'false')),
         }
         
-        if solution_data:
-            problem_data['solution'] = solution_data
-            
-        if translations_data:
-            problem_data['translations'] = translations_data
-            
+        # Process Verilog-specific fields
+        enable_waveform = self._parse_boolean(row.get('enable_waveform', 'false'))
+        enable_ppa = self._parse_boolean(row.get('enable_ppa', 'false'))
+        
+        problem_data['enable_waveform'] = enable_waveform
+        problem_data['enable_ppa'] = enable_ppa
+        
+        # PPA 相關欄位的智能處理
+        self._process_ppa_fields(row, problem_data, enable_ppa)
+        
+        # Process other fields
+        self._process_additional_fields(row, problem_data)
+        
         return problem_data
     
-    def _find_language(self, language_name):
-        """
-        根據語言名稱查找語言物件，支援多種識別方式：
-        - name (如 "Verilog")
-        - common_name (如 "verilog12") 
-        - short_name (如 "verilog")
-        """
-        # 先嘗試用 name 查找
-        try:
-            return Language.objects.get(name=language_name)
-        except Language.DoesNotExist:
-            pass
-        
-        # 再嘗試用 common_name 查找
-        try:
-            return Language.objects.get(common_name=language_name)
-        except Language.DoesNotExist:
-            pass
-        
-        # 最後嘗試用 short_name 查找
-        try:
-            return Language.objects.get(short_name=language_name)
-        except Language.DoesNotExist:
-            pass
-        
-        return None
+    def _parse_boolean(self, value):
+        """Parse boolean values from CSV"""
+        if isinstance(value, str):
+            return value.lower().strip() in ('true', '1', 'yes', 'on')
+        return bool(value)
     
-    def _validate_solution(self, row, errors):
-        """驗證題解資料"""
-        solution_content = row.get('solution_content', '') or ''
-        solution_content = solution_content.strip()
-        if not solution_content:
+    def _parse_float_or_none(self, value):
+        """Parse float value or return None if invalid"""
+        if not value or (isinstance(value, str) and not value.strip()):
             return None
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return None
+    
+    def _process_ppa_fields(self, row, problem_data, enable_ppa):
+        """Process PPA-related fields based on enable_ppa setting and CSV data"""
         
-        solution_data = {
-            'content': solution_content,
-            'is_public': (row.get('solution_is_public', '') or '').strip().lower() in ('true', '1', 'yes'),
-        }
+        # 初始化所有 PPA 欄位為預設值
+        problem_data['ppa_maximum_fmax'] = None
+        problem_data['f4pga_board'] = ''
+        problem_data['f4pga_target_fmax'] = None
+        problem_data['openlane_pdk'] = ''
+        problem_data['openlane_ppa_score'] = None
+        problem_data['openlane_critical_path_ns'] = None
+        problem_data['openlane_core_area_um2'] = None
+        problem_data['openlane_power_total'] = None
         
-        # 處理發布日期
-        publish_on_str = (row.get('solution_publish_on', '') or '').strip()
-        if publish_on_str:
+        # 只有當 enable_ppa 為 True 時才處理 PPA 欄位
+        if not enable_ppa:
+            return
+        
+        # 智能判斷：根據 CSV 檔案中的資料來判斷該啟用哪些功能
+        # F4PGA 需要同時有開發板和目標頻率才算完整設定
+        f4pga_board = row.get('f4pga_board', '').strip()
+        f4pga_target_fmax = self._parse_float_or_none(row.get('f4pga_target_fmax'))
+        has_f4pga_data = bool(f4pga_board and f4pga_target_fmax is not None)
+        
+        has_openlane_data = (
+            row.get('openlane_pdk', '').strip() or
+            row.get('openlane_ppa_score', '').strip() or
+            row.get('openlane_critical_path_ns', '').strip() or
+            row.get('openlane_core_area_um2', '').strip() or
+            row.get('openlane_power_total', '').strip()
+        )
+        
+        # PPA 最大頻率限制（通用設定）
+        problem_data['ppa_maximum_fmax'] = self._parse_float_or_none(row.get('ppa_maximum_fmax'))
+        
+        # F4PGA 設定：只有當有完整的 F4PGA 資料時才處理
+        if has_f4pga_data:
+            problem_data['f4pga_board'] = f4pga_board
+            problem_data['f4pga_target_fmax'] = f4pga_target_fmax
+            
+            # 驗證 F4PGA 開發板選項
+            valid_boards = ['basys3', 'arty_a7_35t', 'arty_a7_100t', 'nexys4_ddr', 'nexys_video', 'zybo_z7']
+            if problem_data['f4pga_board'] and problem_data['f4pga_board'] not in valid_boards:
+                raise ValidationError(f'Row {row_num}: Invalid F4PGA board "{problem_data["f4pga_board"]}". Valid options: {", ".join(valid_boards)}')
+        elif f4pga_board or f4pga_target_fmax is not None:
+            # 如果只有部分 F4PGA 資料，發出警告但不阻止匯入
+            print(f"Warning: Row has incomplete F4PGA data (board: '{f4pga_board}', target_fmax: {f4pga_target_fmax})")
+        
+        # OpenLane 設定：只有當有 OpenLane 相關資料時才處理
+        if has_openlane_data:
+            problem_data['openlane_pdk'] = row.get('openlane_pdk', '').strip()
+            problem_data['openlane_ppa_score'] = self._parse_float_or_none(row.get('openlane_ppa_score'))
+            problem_data['openlane_critical_path_ns'] = self._parse_float_or_none(row.get('openlane_critical_path_ns'))
+            problem_data['openlane_core_area_um2'] = self._parse_float_or_none(row.get('openlane_core_area_um2'))
+            problem_data['openlane_power_total'] = self._parse_float_or_none(row.get('openlane_power_total'))
+            
+            # 驗證 OpenLane PDK 選項
+            valid_pdks = ['sky130A', 'sky130B', 'gf180mcuC']
+            if problem_data['openlane_pdk'] and problem_data['openlane_pdk'] not in valid_pdks:
+                raise ValidationError(f'Row {row_num}: Invalid OpenLane PDK "{problem_data["openlane_pdk"]}". Valid options: {", ".join(valid_pdks)}')
+    
+    def _process_additional_fields(self, row, problem_data):
+        """Process additional fields like groups, types, etc."""
+        # Handle group
+        group_name = row.get('group', '').strip()
+        if group_name:
+            from judge.models import ProblemGroup
             try:
-                # 支援多種日期格式
-                for date_format in ['%Y-%m-%d', '%Y-%m-%d %H:%M:%S', '%Y/%m/%d', '%Y/%m/%d %H:%M:%S']:
-                    try:
-                        publish_on = datetime.strptime(publish_on_str, date_format)
-                        solution_data['publish_on'] = timezone.make_aware(publish_on)
-                        break
-                    except ValueError:
-                        continue
-                else:
-                    errors.append(_('題解發布日期格式不正確: "%(date)s"。請使用 YYYY-MM-DD 或 YYYY-MM-DD HH:MM:SS 格式') % {'date': publish_on_str})
-                    return None
-            except Exception:
-                errors.append(_('題解發布日期格式不正確: "%(date)s"') % {'date': publish_on_str})
-                return None
-        else:
-            # 如果沒有指定發布日期，預設為現在
-            solution_data['publish_on'] = timezone.now()
+                problem_data['group'] = ProblemGroup.objects.get(name=group_name)
+            except ProblemGroup.DoesNotExist:
+                raise ValidationError(f'Problem group "{group_name}" does not exist')
         
-        # 處理題解作者（可選）
-        solution_authors_str = (row.get('solution_authors', '') or '').strip()
-        solution_authors = []
-        if solution_authors_str:
-            author_usernames = [a.strip() for a in solution_authors_str.split(',')]
-            for username in author_usernames:
+        # Handle problem types
+        types_str = row.get('types', '').strip()
+        if types_str:
+            from judge.models import ProblemType
+            type_names = [name.strip() for name in types_str.split(',') if name.strip()]
+            types = []
+            for type_name in type_names:
                 try:
-                    author = Profile.objects.get(user__username=username)
-                    solution_authors.append(author)
-                except Profile.DoesNotExist:
-                    errors.append(_('題解作者 "%(author)s" 不存在') % {'author': username})
+                    types.append(ProblemType.objects.get(name=type_name))
+                except ProblemType.DoesNotExist:
+                    raise ValidationError(f'Problem type "{type_name}" does not exist')
+            problem_data['types'] = types
         
-        solution_data['authors'] = solution_authors
-        return solution_data
-    
-    def _validate_translations(self, row, errors):
-        """驗證翻譯資料"""
-        translations_str = row.get('translations', '') or ''
-        translations_str = translations_str.strip()
-        if not translations_str:
-            return None
+        # Handle allowed languages
+        languages_str = row.get('allowed_languages', '').strip()
+        if languages_str:
+            from judge.models import Language
+            language_names = [name.strip() for name in languages_str.split(',') if name.strip()]
+            languages = []
+            for lang_name in language_names:
+                try:
+                    languages.append(Language.objects.get(name=lang_name))
+                except Language.DoesNotExist:
+                    raise ValidationError(f'Language "{lang_name}" does not exist')
+            problem_data['allowed_languages'] = languages
         
-        translations_data = []
+        # Handle authors, curators, testers
+        for field_name in ['authors', 'curators', 'testers', 'banned_users']:
+            users_str = row.get(field_name, '').strip()
+            if users_str:
+                from judge.models import Profile
+                usernames = [name.strip() for name in users_str.split(',') if name.strip()]
+                users = []
+                for username in usernames:
+                    try:
+                        users.append(Profile.objects.get(user__username=username))
+                    except Profile.DoesNotExist:
+                        raise ValidationError(f'User "{username}" does not exist for field "{field_name}"')
+                problem_data[field_name] = users
         
-        # 格式: lang1:name1:description1,lang2:name2:description2
-        translation_entries = [t.strip() for t in translations_str.split(',')]
+        # Handle organizations
+        orgs_str = row.get('organizations', '').strip()
+        if orgs_str:
+            from judge.models import Organization
+            org_names = [name.strip() for name in orgs_str.split(',') if name.strip()]
+            organizations = []
+            for org_name in org_names:
+                try:
+                    organizations.append(Organization.objects.get(name=org_name))
+                except Organization.DoesNotExist:
+                    raise ValidationError(f'Organization "{org_name}" does not exist')
+            problem_data['organizations'] = organizations
         
-        valid_language_codes = [code for code, _ in settings.LANGUAGES]
+        # Handle other optional fields
+        optional_fields = ['license', 'og_image', 'summary']
+        for field in optional_fields:
+            value = row.get(field, '').strip()
+            if value:
+                problem_data[field] = value
         
-        for entry in translation_entries:
-            if not entry:
-                continue
-                
-            parts = entry.split(':', 2)  # 最多分割成3部分
-            if len(parts) != 3:
-                errors.append(_('翻譯格式不正確: "%(entry)s"。正確格式為: 語言代碼:翻譯名稱:翻譯描述') % {'entry': entry})
-                continue
-            
-            lang_code, trans_name, trans_description = [p.strip() for p in parts]
-            
-            # 驗證語言代碼
-            if lang_code not in valid_language_codes:
-                errors.append(_('不支援的語言代碼: "%(code)s"。支援的語言代碼: %(codes)s') % {
-                    'code': lang_code,
-                    'codes': ', '.join(valid_language_codes)
-                })
-                continue
-            
-            # 驗證翻譯名稱和描述
-            if not trans_name:
-                errors.append(_('語言 "%(lang)s" 的翻譯名稱不能為空') % {'lang': lang_code})
-                continue
-                
-            if not trans_description:
-                errors.append(_('語言 "%(lang)s" 的翻譯描述不能為空') % {'lang': lang_code})
-                continue
-            
-            translations_data.append({
-                'language': lang_code,
-                'name': trans_name,
-                'description': trans_description,
-            })
-        
-        return translations_data if translations_data else None
+        # Handle organization private setting
+        problem_data['is_organization_private'] = self._parse_boolean(row.get('is_organization_private', 'false'))

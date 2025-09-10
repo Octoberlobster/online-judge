@@ -20,8 +20,10 @@ json_log = logging.getLogger('judge.json.bridge')
 
 UPDATE_RATE_LIMIT = 5
 UPDATE_RATE_TIME = 0.5
-SubmissionData = namedtuple('SubmissionData', 'time memory short_circuit pretests_only contest_no attempt_no user_id enable_waveform enable_ppa ppa_maximum_fmax')
-
+SubmissionData = namedtuple(
+    'SubmissionData',
+    'time memory short_circuit pretests_only contest_no attempt_no user_id enable_waveform enable_ppa f4pga_board f4pga_target_fmax openlane_pdk openlane_ppa_score openlane_critical_path_ns openlane_core_area_um2 openlane_power_total'
+)
 
 
 def _ensure_connection():
@@ -184,12 +186,16 @@ class JudgeHandler(ZlibPacketHandler):
         _ensure_connection()
 
         try:
-            pid, time, memory, short_circuit, lid, is_pretested, sub_date, uid, part_virtual, part_id, enable_waveform, enable_ppa, ppa_maximum_fmax = (
+            pid, time, memory, short_circuit, lid, is_pretested, sub_date, uid, part_virtual, part_id, enable_waveform, enable_ppa, f4pga_board, f4pga_target_fmax, openlane_pdk, openlane_ppa_score, openlane_critical_path_ns, openlane_core_area_um2, openlane_power_total = (
                 Submission.objects.filter(id=submission)
-                        .values_list('problem__id', 'problem__time_limit', 'problem__memory_limit',
+                .values_list('problem__id', 'problem__time_limit', 'problem__memory_limit',
                                             'problem__short_circuit', 'language__id', 'is_pretested', 'date', 'user__id',
                                             'contest__participation__virtual', 'contest__participation__id', 
-                                            'problem__enable_waveform', 'problem__enable_ppa', 'problem__ppa_maximum_fmax')).get()
+                                            'problem__enable_waveform', 'problem__enable_ppa', 'problem__f4pga_board', 'problem__f4pga_target_fmax',
+                                            'problem__openlane_pdk', 'problem__openlane_ppa_score', 'problem__openlane_critical_path_ns',
+                                            'problem__openlane_core_area_um2', 'problem__openlane_power_total')).get()
+
+
         except Submission.DoesNotExist:
             logger.error('Submission vanished: %s', submission)
             json_log.error(self._make_json_log(
@@ -208,17 +214,24 @@ class JudgeHandler(ZlibPacketHandler):
             pass
 
         return SubmissionData(
-            time=time,
-            memory=memory,
-            short_circuit=short_circuit,
-            pretests_only=is_pretested,
-            contest_no=part_virtual,
-            attempt_no=attempt_no,
-            user_id=uid,
-            enable_waveform=enable_waveform,
-            enable_ppa=enable_ppa,
-            ppa_maximum_fmax=ppa_maximum_fmax,
-        )
+                time=time,
+                memory=memory,
+                short_circuit=short_circuit,
+                pretests_only=is_pretested,
+                contest_no=part_virtual,
+                attempt_no=attempt_no,
+                user_id=uid,
+                enable_waveform=enable_waveform,
+                enable_ppa=enable_ppa,
+                f4pga_board=f4pga_board,
+                f4pga_target_fmax=f4pga_target_fmax,
+                openlane_pdk=openlane_pdk,
+                openlane_ppa_score=openlane_ppa_score,
+                openlane_critical_path_ns=openlane_critical_path_ns,
+                openlane_core_area_um2=openlane_core_area_um2,
+                openlane_power_total=openlane_power_total,
+            )
+
 
     def disconnect(self, force=False):
         if force:
@@ -232,24 +245,30 @@ class JudgeHandler(ZlibPacketHandler):
         self._working = id
         self._no_response_job = threading.Timer(20, self._kill_if_no_response)
         self.send({
-            'name': 'submission-request',
-            'submission-id': id,
-            'problem-id': problem,
-            'language': language,
-            'source': source,
-            'time-limit': data.time,
-            'memory-limit': data.memory,
-            'short-circuit': data.short_circuit,
-            'meta': {
-                'pretests-only': data.pretests_only,
-                'in-contest': data.contest_no,
-                'attempt-no': data.attempt_no,
-                'user': data.user_id,
-                'enable_waveform': data.enable_waveform,
-                'enable_ppa': data.enable_ppa,
-                'ppa_maximum_fmax': data.ppa_maximum_fmax,
-            },
-        })
+                    'name': 'submission-request',
+                    'submission-id': id,
+                    'problem-id': problem,
+                    'language': language,
+                    'source': source,
+                    'time-limit': data.time,
+                    'memory-limit': data.memory,
+                    'short-circuit': data.short_circuit,
+                    'meta': {
+                        'pretests-only': data.pretests_only,
+                        'in-contest': data.contest_no,
+                        'attempt-no': data.attempt_no,
+                        'user': data.user_id,
+                        'enable_waveform': data.enable_waveform,
+                        'enable_ppa': data.enable_ppa,
+                        'f4pga_board': data.f4pga_board,
+                        'f4pga_target_fmax': data.f4pga_target_fmax,
+                        'openlane_pdk': data.openlane_pdk,
+                        'openlane_ppa_score': data.openlane_ppa_score,
+                        'openlane_critical_path_ns': data.openlane_critical_path_ns,
+                        'openlane_core_area_um2': data.openlane_core_area_um2,
+                        'openlane_power_total': data.openlane_power_total,
+                    },
+                })
 
     def _kill_if_no_response(self):
         logger.error('Judge failed to acknowledge submission: %s: %s', self.name, self._working)

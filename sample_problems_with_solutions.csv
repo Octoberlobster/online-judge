@@ -1,5 +1,5 @@
-code,name,description,group,time_limit,memory_limit,points,types,authors,allowed_languages,is_public,partial,short_circuit,solution_content,solution_is_public,solution_publish_on,solution_authors,translations
-hello_world,Hello World,輸出 Hello World,Demo,1.0,262144,100,Traditional,,Verilog,true,false,false,"這是一個最基本的程式設計問題。
+﻿code,name,description,group,time_limit,memory_limit,points,types,authors,curators,testers,allowed_languages,is_public,partial,short_circuit,is_manually_managed,license,og_image,summary,,banned_users,organizations,is_organization_private,enable_waveform,enable_ppa,f4pga_board,f4pga_target_fmax,openlane_pdk,openlane_ppa_score,openlane_critical_path_ns,openlane_core_area_um2,openlane_power_total,solution_content,solution_is_public,,solution_authors,translations
+﻿hello_world,Hello World,輸出 Hello World,Demo,1,262144,100,Traditional,,,,Verilog,TRUE,FALSE,FALSE,FALSE,,,這是一個簡單的 Hello World 題目,,,,FALSE,FALSE,TRUE,basys3,100,sky130A,80,5,1000,50,"這是一個最基本的程式設計問題。
 
 **題目要求：**
 輸出字串 ""Hello World""
@@ -16,12 +16,8 @@ module hello;
         $finish;
     end
 endmodule
-```
-
-**重點提醒：**
-- 注意字串的大小寫
-- 確保沒有多餘的空格或換行",true,2025-09-01 10:00:00,,"en:Hello World:Output the string Hello World,zh-hant:哈囉世界:輸出字串 Hello World"
-add_two_numbers,兩數相加,計算兩個整數的和,Demo,2.0,262144,150,Math,,Verilog,true,true,false,"這是一個基本的算術問題，需要讀取兩個整數並計算它們的和。
+```",TRUE,,,"en:Hello World:Output the string Hello World,zh-hant:哈囉世界:輸出字串 Hello World"
+﻿add_two_numbers,兩數相加,計算兩個整數的和,Demo,2,262144,150,Math,,,,Verilog,TRUE,TRUE,FALSE,FALSE,,,計算兩個整數的和,,,,FALSE,FALSE,TRUE,basys3,100,sky130A,80,5,1000,50,"這是一個基本的算術問題，需要讀取兩個整數並計算它們的和。
 
 **輸入格式：**
 兩個整數 A 和 B，以空格分隔
@@ -32,25 +28,8 @@ add_two_numbers,兩數相加,計算兩個整數的和,Demo,2.0,262144,150,Math,,
 **解題步驟：**
 1. 讀取兩個整數 A 和 B
 2. 計算 A + B
-3. 輸出結果
-
-**Verilog 實現思路：**
-```verilog
-module adder;
-    reg [31:0] a, b, sum;
-    initial begin
-        $readmemh(""input.txt"", {a, b});
-        sum = a + b;
-        $display(""%d"", sum);
-        $finish;
-    end
-endmodule
-```
-
-**注意事項：**
-- 確保處理可能的溢出情況
-- 輸入範圍：-10^9 ≤ A, B ≤ 10^9",true,2025-09-01 12:00:00,,"en:Add Two Numbers:Calculate the sum of two integers,zh-hant:兩數相加:計算兩個整數的和"
-simple_gate,簡單邏輯門,實現基本的邏輯門電路,Demo,3.0,524288,200,Implementation,,Verilog,true,false,false,"這個問題要求實現基本的邏輯門功能。
+3. 輸出結果",TRUE,,,"en:Add Two Numbers:Calculate the sum of two integers,zh-hant:兩數相加:計算兩個整數的和"
+﻿verilog_gate_with_ppa,Verilog 邏輯門 (含 PPA),實現基本的邏輯門電路並測試 PPA 性能,Demo,3,524288,200,Implementation,,,,Verilog,TRUE,FALSE,FALSE,FALSE,,,帶有 PPA 分析的 Verilog 邏輯門題目,,,,FALSE,TRUE,TRUE,basys3,100,sky130A,80,5,1000,50,"這個問題要求實現基本的邏輯門功能並滿足 PPA 要求。
 
 **題目描述：**
 給定兩個二進位輸入 A 和 B，實現以下邏輯運算：
@@ -58,138 +37,9 @@ simple_gate,簡單邏輯門,實現基本的邏輯門電路,Demo,3.0,524288,200,I
 - OR 運算
 - XOR 運算
 
-**輸入格式：**
-兩個二進位數字 A 和 B (0 或 1)
-
-**輸出格式：**
-三行，分別輸出 AND、OR、XOR 的結果
-
-**Verilog 解法：**
-```verilog
-module logic_gates(input a, b, output and_out, or_out, xor_out);
-    assign and_out = a & b;
-    assign or_out = a | b;
-    assign xor_out = a ^ b;
-endmodule
-
-module testbench;
-    reg a, b;
-    wire and_result, or_result, xor_result;
-    
-    logic_gates dut(a, b, and_result, or_result, xor_result);
-    
-    initial begin
-        $readmemb(""input.txt"", {a, b});
-        #1;
-        $display(""%b"", and_result);
-        $display(""%b"", or_result);
-        $display(""%b"", xor_result);
-        $finish;
-    end
-endmodule
-```",true,2025-09-01 14:00:00,,"en:Simple Logic Gates:Implement basic logic gate operations,zh-hant:簡單邏輯門:實現基本的邏輯門運算"
-fibonacci,費波那契數列,計算第 n 個費波那契數,Demo,5.0,262144,300,Dynamic Programming,,Verilog,true,true,false,"費波那契數列是一個經典的數學序列問題。
-
-**數列定義：**
-- F(0) = 0
-- F(1) = 1
-- F(n) = F(n-1) + F(n-2) for n ≥ 2
-
-**輸入格式：**
-一個整數 n (0 ≤ n ≤ 30)
-
-**輸出格式：**
-第 n 個費波那契數
-
-**解題思路：**
-1. 動態規劃方法：從下往上計算
-2. 遞迴方法：直接按定義計算
-3. 矩陣快速冪：適用於大數
-
-**Verilog 實現 (動態規劃)：**
-```verilog
-module fibonacci;
-    reg [31:0] n, f0, f1, temp;
-    integer i;
-    
-    initial begin
-        $readmemh(""input.txt"", n);
-        
-        if (n == 0) begin
-            $display(""0"");
-        end else if (n == 1) begin
-            $display(""1"");
-        end else begin
-            f0 = 0;
-            f1 = 1;
-            for (i = 2; i <= n; i = i + 1) begin
-                temp = f0 + f1;
-                f0 = f1;
-                f1 = temp;
-            end
-            $display(""%d"", f1);
-        end
-        $finish;
-    end
-endmodule
-```
-
-**複雜度分析：**
-- 時間複雜度：O(n)
-- 空間複雜度：O(1)",true,2025-09-01 16:00:00,,"en:Fibonacci Sequence:Calculate the nth Fibonacci number,zh-hant:費波那契數列:計算第 n 個費波那契數"
-binary_search,二分搜尋,在有序陣列中查找目標值,Demo,4.0,524288,250,Implementation,,Verilog,true,false,false,"二分搜尋是一個高效的搜尋演算法，適用於有序陣列。
-
-**問題描述：**
-給定一個已排序的整數陣列和一個目標值，使用二分搜尋找到目標值的位置。
-
-**輸入格式：**
-第一行：陣列長度 n 和目標值 target
-第二行：n 個已排序的整數
-
-**輸出格式：**
-目標值在陣列中的索引（從 0 開始），如果不存在則輸出 -1
-
-**演算法步驟：**
-1. 設定左右邊界 left = 0, right = n-1
-2. 計算中點 mid = (left + right) / 2
-3. 比較 arr[mid] 與 target
-4. 根據比較結果調整邊界
-5. 重複直到找到或邊界交叉
-
-**Verilog 實現：**
-```verilog
-module binary_search;
-    parameter MAX_SIZE = 1000;
-    reg [31:0] arr [0:MAX_SIZE-1];
-    reg [31:0] n, target, left, right, mid;
-    integer i, found;
-    
-    initial begin
-        $readmemh(""input.txt"", {n, target});
-        for (i = 0; i < n; i = i + 1) begin
-            $readmemh(""data.txt"", arr[i]);
-        end
-        
-        left = 0;
-        right = n - 1;
-        found = -1;
-        
-        while (left <= right && found == -1) begin
-            mid = (left + right) / 2;
-            if (arr[mid] == target) begin
-                found = mid;
-            end else if (arr[mid] < target) begin
-                left = mid + 1;
-            end else begin
-                right = mid - 1;
-            end
-        end
-        
-        $display(""%d"", found);
-        $finish;
-    end
-endmodule
-```
-
-**時間複雜度：** O(log n)
-**空間複雜度：** O(1)",true,2025-09-02 09:00:00,,"en:Binary Search:Find target value in sorted array,zh-hant:二分搜尋:在有序陣列中查找目標值"
+**PPA 要求：**
+- F4PGA 目標頻率：≥100 MHz
+- OpenLane PPA 分數：≥80
+- 關鍵路徑延遲：≤5 ns
+- 核心面積：≤1000 μm²
+- 總功耗：≤50 mW",TRUE,,,"en:Verilog Logic Gates (with PPA):Implement basic logic gate operations with PPA analysis,zh-hant:Verilog 邏輯門 (含 PPA):實現基本的邏輯門運算並進行 PPA 分析"

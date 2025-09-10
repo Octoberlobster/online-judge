@@ -114,7 +114,7 @@ class Problem(models.Model):
         (SubmissionSourceAccess.ONLY_OWN, _('Only own submissions')),
     )
 
-    code = models.CharField(max_length=20, verbose_name=_('problem code'), unique=True,
+    code = models.CharField(max_length=100, verbose_name=_('problem code'), unique=True,
                             validators=[RegexValidator('^[a-z0-9]+$', _('Problem code must be ^[a-z0-9]+$'))],
                             help_text=_('A short, unique code for the problem, used in the URL after /problem/'))
     name = models.CharField(max_length=100, verbose_name=_('problem name'), db_index=True,
@@ -172,14 +172,104 @@ class Problem(models.Model):
                                                          default=SubmissionSourceAccess.FOLLOW,
                                                          choices=SUBMISSION_SOURCE_ACCESS)
     
-
-    enable_waveform = models.BooleanField(verbose_name=_('enable waveform processing'), default=False,
-                                            help_text=_('Whether to process and display waveform files for Verilog problems.'))
-    enable_ppa = models.BooleanField(verbose_name=_('enable PPA calculation'), default=False,
-                                        help_text=_('Whether to calculate and display PPA (Performance, Power, Area) metrics for Verilog problems.'))
-    ppa_maximum_fmax = models.FloatField(verbose_name=_('maximum PPA Fmax (MHz)'), null=True, blank=True,
-                                            help_text=_('Maximum Fmax frequency allowed in MHz. If set, submissions above this frequency will fail.'),
-                                            validators=[MinValueValidator(0.1)])
+    # Verilog 設定
+    F4PGA_BOARD_CHOICES = [
+        ('', '--------'),
+        ('basys3', 'Basys3'),
+        ('arty_a7_35t', 'Arty A7-35T'),
+        ('arty_a7_100t', 'Arty A7-100T'),
+        ('nexys4_ddr', 'Nexys 4 DDR'),
+        ('nexys_video', 'Nexys Video'),
+        ('zybo_z7', 'Zybo Z7'),
+    ]
+    
+    OPENLANE_PDK_CHOICES = [
+        ('', '--------'),
+        ('sky130A', 'sky130A'),
+        ('sky130B', 'sky130B'),
+        ('gf180mcuC', 'gf180mcuC'),
+    ]
+    
+    enable_waveform = models.BooleanField(
+        verbose_name=_('enable waveform processing'), 
+        default=False,
+        help_text=_('Whether to process and display waveform files.')
+    )
+    
+    enable_ppa = models.BooleanField(
+        verbose_name=_('enable PPA calculation'), 
+        default=False,
+        help_text=_('Whether to calculate PPA metrics.')
+    )
+    
+    ppa_maximum_fmax = models.FloatField(
+        verbose_name=_('maximum PPA Fmax (MHz)'), 
+        null=True, 
+        blank=True,
+        help_text=_('Maximum Fmax frequency allowed in MHz. If set, submissions above this frequency will fail.'),
+        validators=[MinValueValidator(0.1)]
+    )
+    
+    # F4PGA 設定
+    f4pga_board = models.CharField(
+        verbose_name=_('F4PGA board'),
+        max_length=20,
+        choices=F4PGA_BOARD_CHOICES,
+        blank=True,
+        default='',
+        help_text=_('Select F4PGA target board for FPGA synthesis.')
+    )
+    
+    f4pga_target_fmax = models.FloatField(
+        verbose_name=_('F4PGA target Fmax (MHz)'),
+        null=True,
+        blank=True,
+        help_text=_('Target Fmax frequency (higher is better).'),
+        validators=[MinValueValidator(0.1)]
+    )
+    
+    # OpenLane 設定
+    openlane_pdk = models.CharField(
+        verbose_name=_('OpenLane PDK'),
+        max_length=20,
+        choices=OPENLANE_PDK_CHOICES,
+        blank=True,
+        default='',
+        help_text=_('Select OpenLane PDK for ASIC synthesis.')
+    )
+    
+    # OpenLane PPA 指標 (可同時使用多個)
+    openlane_ppa_score = models.FloatField(
+        verbose_name=_('target PPA score'),
+        null=True,
+        blank=True,
+        help_text=_('Target PPA score (higher is better).'),
+        validators=[MinValueValidator(0)]
+    )
+    
+    openlane_critical_path_ns = models.FloatField(
+        verbose_name=_('max critical path'),
+        null=True,
+        blank=True,
+        help_text=_('Maximum critical path delay (lower is better).'),
+        validators=[MinValueValidator(0)]
+    )
+    
+    openlane_core_area_um2 = models.FloatField(
+        verbose_name=_('max core area'),
+        null=True,
+        blank=True,
+        help_text=_('Maximum core area (lower is better).'),
+        validators=[MinValueValidator(0)]
+    )
+    
+    openlane_power_total = models.FloatField(
+        verbose_name=_('max total power'),
+        null=True,
+        blank=True,
+        help_text=_('Maximum total power consumption (lower is better).'),
+        validators=[MinValueValidator(0)]
+    )
 
     objects = TranslatedProblemQuerySet.as_manager()
     tickets = GenericRelation('Ticket')

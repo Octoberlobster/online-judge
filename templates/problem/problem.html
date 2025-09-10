@@ -194,30 +194,70 @@
             {% endif %}
         </span>
     </div>
-    <div class="problem-info-entry">
-        <i class="fa fa-clock-o fa-fw"></i><span class="pi-name">{{ _('Time limit:') }}</span>
-        <span class="pi-value">{{ problem.time_limit }}s</span>
-    </div>
-    <div class="problem-lang-limits">
-        {% for name, limit in problem.language_time_limit %}
-            <div class="lang-limit">
-                <span class="lang-name">{{ name }}</span>
-                <span class="lang-tl">{{ limit }}s</span>
+    {% if problem.enable_ppa %}
+        <!-- F4PGA 限制 -->
+        {% if problem.f4pga_target_fmax %}
+            <div class="problem-info-entry">
+                <span class="pi-name">{{ _('F4PGA 頻率要求:') }}</span>
+                <span class="pi-value">≥{{ problem.f4pga_target_fmax }} MHz</span>
             </div>
-        {% endfor %}
-    </div>
-    <div class="problem-info-entry">
-        <i class="fa fa-server fa-fw"></i><span class="pi-name">{{ _('Memory limit:') }}</span>
-        <span class="pi-value">{{ problem.memory_limit|kbsimpleformat }}</span>
-    </div>
-    <div class="problem-lang-limits">
-        {% for name, limit in problem.language_memory_limit %}
-            <div class="lang-limit">
-                <span class="lang-name">{{ name }}</span>
-                <span class="lang-ml">{{ limit|kbsimpleformat }}</span>
+        {% endif %}
+        
+        <!-- OpenLane 限制 -->
+        {% if problem.openlane_ppa_score %}
+            <div class="problem-info-entry">
+                <span class="pi-name">{{ _('OpenLane PPA 分數:') }}</span>
+                <span class="pi-value">≥{{ problem.openlane_ppa_score }}</span>
             </div>
-        {% endfor %}
-    </div>
+        {% endif %}
+        
+        {% if problem.openlane_critical_path_ns %}
+            <div class="problem-info-entry">
+                <span class="pi-name">{{ _('關鍵路徑:') }}</span>
+                <span class="pi-value">≤{{ problem.openlane_critical_path_ns }}ns</span>
+            </div>
+        {% endif %}
+        
+        {% if problem.openlane_core_area_um2 %}
+            <div class="problem-info-entry">
+                <span class="pi-name">{{ _('核心面積:') }}</span>
+                <span class="pi-value">≤{{ problem.openlane_core_area_um2 }}μm²</span>
+            </div>
+        {% endif %}
+        
+        {% if problem.openlane_power_total %}
+            <div class="problem-info-entry">
+                <span class="pi-name">{{ _('功耗:') }}</span>
+                <span class="pi-value">≤{{ problem.openlane_power_total }}mW</span>
+            </div>
+        {% endif %}
+    {% else %}
+        <!-- 傳統時間/記憶體限制 -->
+        <div class="problem-info-entry">
+            <i class="fa fa-clock-o fa-fw"></i><span class="pi-name">{{ _('Time limit:') }}</span>
+            <span class="pi-value">{{ problem.time_limit }}s</span>
+        </div>
+        <div class="problem-lang-limits">
+            {% for name, limit in problem.language_time_limit %}
+                <div class="lang-limit">
+                    <span class="lang-name">{{ name }}</span>
+                    <span class="lang-tl">{{ limit }}s</span>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="problem-info-entry">
+            <i class="fa fa-server fa-fw"></i><span class="pi-name">{{ _('Memory limit:') }}</span>
+            <span class="pi-value">{{ problem.memory_limit|kbsimpleformat }}</span>
+        </div>
+        <div class="problem-lang-limits">
+            {% for name, limit in problem.language_memory_limit %}
+                <div class="lang-limit">
+                    <span class="lang-name">{{ name }}</span>
+                    <span class="lang-ml">{{ limit|kbsimpleformat }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 
     <hr style="padding-top: 0.7em">
 
@@ -351,3 +391,4 @@
     {{ super() }}
     {% include "comments/math.html" %}
 {% endblock %}
+

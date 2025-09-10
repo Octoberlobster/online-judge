@@ -168,8 +168,49 @@
                 {% endif %}
             {% else %}
                 <b>{{ _('Submission aborted!') }}</b>
+                <br>
+                <br>
             {% endif %}
-            
+            <br>
+            {# F4PGA 指標區塊 #}
+            {% set found_f4pga = false %}
+            {% for batch in batches %}
+                {% for case in batch.cases %}
+                    {% if case.extended_feedback and '[F4PGA]' in case.extended_feedback %}
+                        {% set f4pga_text = case.extended_feedback.split('[F4PGA]')[1].split('\n')[0].strip() %}
+                        <br>
+                        <h4>F4PGA</h4>
+                        {% for line in f4pga_text.split(',') %}
+                            <div style="font-weight: normal;">{{ line.strip() }}</div>
+                        {% endfor %}
+                        {% set found_f4pga = true %}
+                        {% break %}
+                    {% endif %}
+                {% endfor %}
+                {% if found_f4pga %}{% break %}{% endif %}
+            {% endfor %}
+
+            {# OpenLane 指標區塊 #}
+            {% set found_openlane = false %}
+            {% for batch in batches %}
+                {% for case in batch.cases %}
+                    {% if case.extended_feedback and '[OpenLane]' in case.extended_feedback %}
+                            {% set openlane_text = case.extended_feedback.split('[OpenLane]')[1].strip() %}
+                            {% if '[PPA]' in openlane_text %}
+                                {% set openlane_text = openlane_text.split('[PPA]')[0].strip() %}
+                            {% endif %}
+                            <br>
+                            <h4>OpenLane</h4>
+                            {% for line in openlane_text.split(',') %}
+                                <div style="font-weight: normal;">{{ line.strip() }}</div>
+                            {% endfor %}
+                        {% set found_openlane = true %}
+                        {% break %}
+                    {% endif %}
+                {% endfor %}
+                {% if found_openlane %}{% break %}{% endif %}
+            {% endfor %}
+
             {# 添加 PPA 指標區塊 - 只有在題目啟用 PPA 計算時才顯示 #}
             {% if submission.problem.enable_ppa %}
                 {% set found_ppa = false %}
@@ -178,13 +219,58 @@
                         {% if case.extended_feedback and '[PPA]' in case.extended_feedback %}
                             {% set ppa_text = case.extended_feedback.split('[PPA]')[1].strip() %}
                             <br>
-                            <h4>{{ _('PPA') }}: <span style="font-weight: normal;">{{ ppa_text }}</span></h4>
+                            <h4>{{ _('PPA') }} targets</h4>
+                            {% if 'FAILED:' in ppa_text %}
+                                {% set ppa_failed = ppa_text.split(':', 1)[1].strip() %}
+                                <div style="font-weight: normal; white-space: pre-line;">
+                                    {% for line in ppa_failed.split(';') %}
+                                        {{ line.strip() }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <span style="font-weight: normal;">{{ ppa_text }}</span>
+                            {% endif %}
                             {% set found_ppa = true %}
                             {% break %}
                         {% endif %}
                     {% endfor %}
                     {% if found_ppa %}{% break %}{% endif %}
                 {% endfor %}
+            {% endif %}
+            <br>
+            {# 添加波形查看器 - 只有在題目啟用波型處理時才顯示 #}
+            {% if submission.language.key == 'VLOG' and submission.problem.enable_waveform %}
+                {% set found_vcd = false %}
+                {% for batch in batches %}
+                    {% for case in batch.cases %}
+                        {% if case.extended_feedback and '[WAVEFORM]VCD:' in case.extended_feedback %}
+                            {% set vcd_path = case.extended_feedback.split('[WAVEFORM]VCD:')[1].split('\n')[0].strip() %}
+                            {% set vcd_filename = vcd_path.split('/')[-1] %}
+                            <br>
+                            <h4>{{ _('Waveform Viewer') }}</h4>
+                            <iframe id="surfer-frame" src="{{ static('pages_build/index.html') }}" style="width: 100%; height: 600px; border: none;"></iframe>
+                            <script>
+                                (async function() {
+                                    try {
+                                        const response = await fetch('/waves/{{ vcd_filename }}');
+                                        if (!response.ok) {
+                                            throw new Error(`HTTP error! status: ${response.status}`);
+                                        }
+                                        const vcdBlob = await response.blob();
+                                        const url = URL.createObjectURL(vcdBlob);
+                                        document.getElementById("surfer-frame").src = `{{ static('pages_build/index.html') }}?load_url=${encodeURIComponent(url)}`;
+                                    } catch (error) {
+                                        console.error('Error loading VCD file:', error);
+                                        document.getElementById("surfer-frame").src = '{{ static("pages_build/index.html") }}';
+                                    }
+                                })();
+                            </script>
+                            {% set found_vcd = true %}
+                            {% break %}
+                        {% endif %}
+                    {% endfor %}
+                    {% if found_vcd %}{% break %}{% endif %}
+                {% endfor %}           
             {% endif %}
 
             {# 添加波形查看器 - 只有在題目啟用波型處理時才顯示 #}

@@ -103,41 +103,291 @@
 <div class="module">
     <h2>{% trans "預覽將要匯入的題目" %}</h2>
     <div class="results">
-        <table id="result_list">
-            <thead>
-                <tr>
-                    <th scope="col">{% trans "題目代碼" %}</th>
-                    <th scope="col">{% trans "題目名稱" %}</th>
-                    <th scope="col">{% trans "組別" %}</th>
-                    <th scope="col">{% trans "分數" %}</th>
-                    <th scope="col">{% trans "時間限制" %}</th>
-                    <th scope="col">{% trans "記憶體限制" %}</th>
-                    <th scope="col">{% trans "允許語言" %}</th>
-                    <th scope="col">{% trans "公開" %}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for problem in problems_preview %}
-                <tr class="{% cycle 'row1' 'row2' %}">
-                    <td>{{ problem.code }}</td>
-                    <td>{{ problem.name }}</td>
-                    <td>{{ problem.group.name }}</td>
-                    <td>{{ problem.points }}</td>
-                    <td>{{ problem.time_limit }}s</td>
-                    <td>{{ problem.memory_limit }}KB</td>
-                    <td>
-                        {% if problem.allowed_languages %}
-                            {% for lang in problem.allowed_languages %}{{ lang.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        {% for problem in problems_preview %}
+        <div class="problem-preview-card" style="border: 1px solid #ddd; margin: 10px 0; padding: 15px; background: #f9f9f9;">
+            <h3 style="margin-top: 0;">{{ problem.code }} - {{ problem.name }}</h3>
+            
+            <!-- 基本資訊 -->
+            <div class="basic-info" style="margin-bottom: 15px;">
+                <h4 style="color: #417690; margin-bottom: 10px;">{% trans "基本資訊" %}</h4>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                    <div><strong>{% trans "組別" %}:</strong> {{ problem.group.name }}</div>
+                    <div><strong>{% trans "分數" %}:</strong> {{ problem.points }}</div>
+                    <div><strong>{% trans "時間限制" %}:</strong> {{ problem.time_limit }}s</div>
+                    <div><strong>{% trans "記憶體限制" %}:</strong> {{ problem.memory_limit }}KB</div>
+                    <div><strong>{% trans "公開" %}:</strong> {{ problem.is_public|yesno:"是,否" }}</div>
+                    <div><strong>{% trans "部分分數" %}:</strong> {{ problem.partial|yesno:"是,否" }}</div>
+                </div>
+                <div style="margin-top: 10px;">
+                    <strong>{% trans "允許語言" %}:</strong>
+                    {% if problem.allowed_languages %}
+                        {% for lang in problem.allowed_languages %}{{ lang.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                    {% else %}
+                        {% trans "所有語言" %}
+                    {% endif %}
+                </div>
+                {% if problem.types %}
+                <div style="margin-top: 5px;">
+                    <strong>{% trans "題目類型" %}:</strong>
+                    {% for type in problem.types %}{{ type.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Verilog 設定 -->
+            {% comment %}檢查是否包含 Verilog 語言{% endcomment %}
+            {% for lang in problem.allowed_languages %}
+                {% if lang.name == 'Verilog' %}
+            <div class="verilog-settings" style="margin-bottom: 15px;">
+                <h4 style="color: #417690; margin-bottom: 10px;">📟 {% trans "Verilog 設定" %}</h4>
+                
+                <!-- 基本功能設定 -->
+                <div style="background: #f0f8ff; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                    <h5 style="margin: 0 0 8px 0; color: #2c5282;">{% trans "功能開關" %}</h5>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                        <div>
+                            <strong>{% trans "波形檢視" %}:</strong> 
+                            <span style="padding: 2px 6px; border-radius: 3px; font-size: 0.9em; {{ problem.enable_waveform|yesno:'background: #10b981; color: white;,background: #ef4444; color: white;' }}">
+                                {{ problem.enable_waveform|yesno:"✓ 啟用,✗ 停用" }}
+                            </span>
+                        </div>
+                        <div>
+                            <strong>{% trans "PPA 分析" %}:</strong> 
+                            <span style="padding: 2px 6px; border-radius: 3px; font-size: 0.9em; {{ problem.enable_ppa|yesno:'background: #10b981; color: white;,background: #ef4444; color: white;' }}">
+                                {{ problem.enable_ppa|yesno:"✓ 啟用,✗ 停用" }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PPA 分析相關設定 -->
+                {% if problem.enable_ppa %}
+                <!-- F4PGA 設定 -->
+                <div style="background: #e0f2fe; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                    <h5 style="margin: 0 0 8px 0; color: #01579b;">🔵 {% trans "F4PGA FPGA 設定" %}</h5>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <strong>{% trans "開發板型號" %}:</strong><br>
+                            {% if problem.f4pga_board %}
+                            <span style="background: #0277bd; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;">
+                                {% if problem.f4pga_board == 'basys3' %}Basys3
+                                {% elif problem.f4pga_board == 'arty_a7_35t' %}Arty A7-35T
+                                {% elif problem.f4pga_board == 'arty_a7_100t' %}Arty A7-100T
+                                {% elif problem.f4pga_board == 'nexys4_ddr' %}Nexys 4 DDR
+                                {% elif problem.f4pga_board == 'nexys_video' %}Nexys Video
+                                {% elif problem.f4pga_board == 'zybo_z7' %}Zybo Z7
+                                {% else %}{{ problem.f4pga_board }}{% endif %}
+                            </span>
+                            <div style="font-size: 0.85em; color: #666; margin-top: 2px;">
+                                {% if problem.f4pga_board == 'basys3' %}Digilent Basys3 (Artix-7)
+                                {% elif problem.f4pga_board == 'arty_a7_35t' %}Digilent Arty A7-35T (Artix-7 35T)
+                                {% elif problem.f4pga_board == 'arty_a7_100t' %}Digilent Arty A7-100T (Artix-7 100T)
+                                {% elif problem.f4pga_board == 'nexys4_ddr' %}Digilent Nexys 4 DDR (Artix-7)
+                                {% elif problem.f4pga_board == 'nexys_video' %}Digilent Nexys Video (Kintex-7)
+                                {% elif problem.f4pga_board == 'zybo_z7' %}Digilent Zybo Z7 (Zynq-7000)
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <span style="background: #9e9e9e; color: white; padding: 4px 8px; border-radius: 4px; font-style: italic;">
+                                未設定
+                            </span>
+                            <div style="font-size: 0.85em; color: #666; margin-top: 2px;">未指定 F4PGA 開發板</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <strong>{% trans "目標最大頻率" %}:</strong><br>
+                            {% if problem.f4pga_target_fmax %}
+                            <span style="background: #00acc1; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 1.1em;">
+                                {{ problem.f4pga_target_fmax }} MHz
+                            </span>
+                            <div style="font-size: 0.85em; color: #666; margin-top: 2px;">設計必須達到的最低工作頻率</div>
+                            {% else %}
+                            <span style="background: #9e9e9e; color: white; padding: 4px 8px; border-radius: 4px; font-style: italic;">
+                                未設定
+                            </span>
+                            <div style="font-size: 0.85em; color: #666; margin-top: 2px;">未指定目標頻率</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OpenLane 設定 -->
+                <div style="background: #f3e5f5; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                    <h5 style="margin: 0 0 8px 0; color: #4a148c;">🟣 {% trans "OpenLane ASIC 設定" %}</h5>
+                    <div style="margin-bottom: 10px;">
+                        <strong>{% trans "製程技術 (PDK)" %}:</strong><br>
+                        {% if problem.openlane_pdk %}
+                        <span style="background: #7b1fa2; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;">
+                            {{ problem.openlane_pdk }}
+                        </span>
+                        <div style="font-size: 0.85em; color: #666; margin-top: 2px;">
+                            {% if problem.openlane_pdk == 'sky130A' %}SkyWater 130nm Process Design Kit (Version A)
+                            {% elif problem.openlane_pdk == 'sky130B' %}SkyWater 130nm Process Design Kit (Version B)
+                            {% elif problem.openlane_pdk == 'gf180mcuC' %}GlobalFoundries 180nm MCU Process Design Kit (Version C)
+                            {% else %}{{ problem.openlane_pdk }}{% endif %}
+                        </div>
                         {% else %}
-                            {% trans "所有語言" %}
+                        <span style="background: #9e9e9e; color: white; padding: 4px 8px; border-radius: 4px; font-style: italic;">
+                            未設定
+                        </span>
+                        <div style="font-size: 0.85em; color: #666; margin-top: 2px;">未指定 OpenLane PDK</div>
                         {% endif %}
-                    </td>
-                    <td>{{ problem.is_public|yesno:"是,否" }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <p class="paginator">
+                    </div>
+
+                    <!-- OpenLane PPA 目標 -->
+                    <div style="border-top: 1px solid #ddd; padding-top: 8px;">
+                        <strong style="color: #4a148c;">🟠 {% trans "PPA 性能目標" %}:</strong>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 5px;">
+                            <div style="background: white; padding: 6px; border-radius: 3px; border-left: 3px solid #9c27b0;">
+                                <div style="font-weight: bold; font-size: 0.9em;">PPA 分數</div>
+                                {% if problem.openlane_ppa_score %}
+                                <div style="font-size: 1.1em; color: #7b1fa2;">≥ {{ problem.openlane_ppa_score }}</div>
+                                <div style="font-size: 0.8em; color: #666;">綜合性能指標</div>
+                                {% else %}
+                                <div style="font-size: 1.1em; color: #9e9e9e; font-style: italic;">未設定</div>
+                                <div style="font-size: 0.8em; color: #666;">未指定 PPA 分數目標</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div style="background: white; padding: 6px; border-radius: 3px; border-left: 3px solid #ff5722;">
+                                <div style="font-weight: bold; font-size: 0.9em;">關鍵路徑延遲</div>
+                                {% if problem.openlane_critical_path_ns %}
+                                <div style="font-size: 1.1em; color: #d84315;">≤ {{ problem.openlane_critical_path_ns }}ns</div>
+                                <div style="font-size: 0.8em; color: #666;">時序約束</div>
+                                {% else %}
+                                <div style="font-size: 1.1em; color: #9e9e9e; font-style: italic;">未設定</div>
+                                <div style="font-size: 0.8em; color: #666;">未指定時序約束</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div style="background: white; padding: 6px; border-radius: 3px; border-left: 3px solid #2196f3;">
+                                <div style="font-weight: bold; font-size: 0.9em;">核心面積</div>
+                                {% if problem.openlane_core_area_um2 %}
+                                <div style="font-size: 1.1em; color: #1976d2;">≤ {{ problem.openlane_core_area_um2 }}μm²</div>
+                                <div style="font-size: 0.8em; color: #666;">晶片面積限制</div>
+                                {% else %}
+                                <div style="font-size: 1.1em; color: #9e9e9e; font-style: italic;">未設定</div>
+                                <div style="font-size: 0.8em; color: #666;">未指定面積限制</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div style="background: white; padding: 6px; border-radius: 3px; border-left: 3px solid #4caf50;">
+                                <div style="font-weight: bold; font-size: 0.9em;">總功耗</div>
+                                {% if problem.openlane_power_total %}
+                                <div style="font-size: 1.1em; color: #388e3c;">≤ {{ problem.openlane_power_total }}mW</div>
+                                <div style="font-size: 0.8em; color: #666;">功耗限制</div>
+                                {% else %}
+                                <div style="font-size: 1.1em; color: #9e9e9e; font-style: italic;">未設定</div>
+                                <div style="font-size: 0.8em; color: #666;">未指定功耗限制</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <!-- PPA 分析停用提示 -->
+                <div style="background: #f5f5f5; padding: 10px; border-radius: 5px; margin-bottom: 10px; border-left: 4px solid #9e9e9e;">
+                    <h5 style="margin: 0 0 8px 0; color: #666;">📊 {% trans "PPA 分析" %}</h5>
+                    <div style="color: #666; font-style: italic;">
+                        {% trans "PPA 分析已停用，F4PGA 和 OpenLane 設定不適用於此題目" %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+                {% endif %}
+            {% endfor %}
+
+            <!-- 人員設定 -->
+            {% if problem.authors or problem.curators or problem.testers %}
+            <div class="people-settings" style="margin-bottom: 15px;">
+                <h4 style="color: #417690; margin-bottom: 10px;">{% trans "人員設定" %}</h4>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                    {% if problem.authors %}
+                    <div><strong>{% trans "作者" %}:</strong> 
+                        {% for author in problem.authors %}{{ author.user.username }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if problem.curators %}
+                    <div><strong>{% trans "策展人" %}:</strong> 
+                        {% for curator in problem.curators %}{{ curator.user.username }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if problem.testers %}
+                    <div><strong>{% trans "測試者" %}:</strong> 
+                        {% for tester in problem.testers %}{{ tester.user.username }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 進階設定 -->
+            {% if problem.license or problem.summary or problem.date or problem.organizations %}
+            <div class="advanced-settings" style="margin-bottom: 15px;">
+                <h4 style="color: #417690; margin-bottom: 10px;">{% trans "進階設定" %}</h4>
+                {% if problem.license %}
+                <div style="margin-bottom: 5px;"><strong>{% trans "授權條款" %}:</strong> {{ problem.license.name }}</div>
+                {% endif %}
+                {% if problem.summary %}
+                <div style="margin-bottom: 5px;"><strong>{% trans "摘要" %}:</strong> {{ problem.summary }}</div>
+                {% endif %}
+                {% if problem.date %}
+                <div style="margin-bottom: 5px;"><strong>{% trans "發布日期" %}:</strong> {{ problem.date|date:"Y-m-d H:i" }}</div>
+                {% endif %}
+                {% if problem.organizations %}
+                <div style="margin-bottom: 5px;"><strong>{% trans "組織" %}:</strong> 
+                    {% for org in problem.organizations %}{{ org.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                </div>
+                {% endif %}
+                <div style="margin-bottom: 5px;"><strong>{% trans "手動管理" %}:</strong> {{ problem.is_manually_managed|yesno:"是,否" }}</div>
+                <div style="margin-bottom: 5px;"><strong>{% trans "組織私有" %}:</strong> {{ problem.is_organization_private|yesno:"是,否" }}</div>
+            </div>
+            {% endif %}
+
+            <!-- 題解資訊 -->
+            {% if problem.solution_content %}
+            <div class="solution-info" style="margin-bottom: 15px;">
+                <h4 style="color: #417690; margin-bottom: 10px;">{% trans "題解資訊" %}</h4>
+                <div><strong>{% trans "包含題解" %}:</strong> {% trans "是" %}</div>
+                <div><strong>{% trans "題解公開" %}:</strong> {{ problem.solution_is_public|yesno:"是,否" }}</div>
+                {% if problem.solution_publish_on %}
+                <div><strong>{% trans "題解發布時間" %}:</strong> {{ problem.solution_publish_on|date:"Y-m-d H:i" }}</div>
+                {% endif %}
+                {% if problem.solution_authors %}
+                <div><strong>{% trans "題解作者" %}:</strong> 
+                    {% for author in problem.solution_authors %}{{ author.user.username }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- 翻譯資訊 -->
+            {% if problem.translations %}
+            <div class="translation-info" style="margin-bottom: 15px;">
+                <h4 style="color: #417690; margin-bottom: 10px;">{% trans "翻譯資訊" %}</h4>
+                <div><strong>{% trans "包含翻譯" %}:</strong> {{ problem.translations|length }} 個語言</div>
+                <div style="margin-top: 5px;">
+                    {% for translation in problem.translations %}
+                    <span style="background: #e1f5fe; padding: 2px 8px; margin: 2px; border-radius: 3px; display: inline-block;">
+                        {{ translation.language }}: {{ translation.name }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 題目描述預覽 -->
+            <div class="description-preview">
+                <h4 style="color: #417690; margin-bottom: 10px;">{% trans "題目描述" %}</h4>
+                <div style="background: white; padding: 10px; border: 1px solid #ddd; border-radius: 3px; max-height: 150px; overflow-y: auto;">
+                    {{ problem.description|truncatewords:50 }}
+                    {% if problem.description|length > 200 %}...{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <p class="paginator" style="text-align: center; font-weight: bold; color: #417690; margin-top: 20px;">
             {% blocktrans count counter=problems_preview|length %}共 {{ counter }} 個題目將被匯入{% plural %}共 {{ counter }} 個題目將被匯入{% endblocktrans %}
         </p>
     </div>
@@ -235,6 +485,214 @@
                     <td>{% trans "否" %}</td>
                     <td>{% trans "是否短路評測（true/false）" %}</td>
                     <td><code>false</code></td>
+                </tr>
+                <tr>
+                    <td><code>curators</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "策展人用戶名，多個用逗號分隔" %}</td>
+                    <td><code>curator1,curator2</code></td>
+                </tr>
+                <tr>
+                    <td><code>testers</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "測試者用戶名，多個用逗號分隔" %}</td>
+                    <td><code>tester1,tester2</code></td>
+                </tr>
+                <tr>
+                    <td><code>is_manually_managed</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "是否手動管理（true/false）" %}</td>
+                    <td><code>false</code></td>
+                </tr>
+                <tr>
+                    <td><code>license</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "授權條款 key" %}</td>
+                    <td><code>cc-by-sa-4.0</code></td>
+                </tr>
+                <tr>
+                    <td><code>og_image</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "OpenGraph 圖片 URL" %}</td>
+                    <td><code>/static/images/problem.png</code></td>
+                </tr>
+                <tr>
+                    <td><code>summary</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "題目摘要" %}</td>
+                    <td><code>基本算術題目</code></td>
+                </tr>
+                <tr>
+                    <td><code>date</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "發布日期（YYYY-MM-DD 或 YYYY-MM-DD HH:MM:SS）" %}</td>
+                    <td><code>2025-09-01 10:00:00</code></td>
+                </tr>
+                <tr>
+                    <td><code>banned_users</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "被禁用戶名，多個用逗號分隔" %}</td>
+                    <td><code>banned1,banned2</code></td>
+                </tr>
+                <tr>
+                    <td><code>organizations</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "組織 slug，多個用逗號分隔" %}</td>
+                    <td><code>school1,school2</code></td>
+                </tr>
+                <tr>
+                    <td><code>is_organization_private</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "是否為組織私有（true/false）" %}</td>
+                    <td><code>false</code></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h4>{% trans "Verilog 專用欄位" %}</h4>
+        <table class="csv-format-table">
+            <thead>
+                <tr>
+                    <th>{% trans "欄位名稱" %}</th>
+                    <th>{% trans "是否必填" %}</th>
+                    <th>{% trans "說明" %}</th>
+                    <th>{% trans "範例" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="background-color: #e3f2fd;">
+                    <td><code>enable_waveform</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>
+                        <strong>{% trans "啟用波形處理" %}</strong><br>
+                        {% trans "是否處理和顯示波形檔案（true/false）。啟用後可檢視提交程式的波形分析。" %}
+                    </td>
+                    <td><code>true</code></td>
+                </tr>
+                <tr style="background-color: #e3f2fd;">
+                    <td><code>enable_ppa</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>
+                        <strong>{% trans "啟用 PPA 分析" %}</strong><br>
+                        {% trans "是否計算 PPA（功率、效能、面積）指標（true/false）。需要與 F4PGA 或 OpenLane 配合使用。" %}
+                    </td>
+                    <td><code>true</code></td>
+                </tr>
+                <tr style="background-color: #e1f5fe;">
+                    <td><code>f4pga_board</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>
+                        <strong>{% trans "F4PGA FPGA 開發板" %}</strong><br>
+                        {% trans "指定 FPGA 綜合目標開發板：" %}<br>
+                        • <code>basys3</code> - Digilent Basys3 (Artix-7)<br>
+                        • <code>arty_a7_35t</code> - Arty A7-35T (Artix-7 35T)<br>
+                        • <code>arty_a7_100t</code> - Arty A7-100T (Artix-7 100T)<br>
+                        • <code>nexys4_ddr</code> - Nexys 4 DDR (Artix-7)<br>
+                        • <code>nexys_video</code> - Nexys Video (Kintex-7)<br>
+                        • <code>zybo_z7</code> - Zybo Z7 (Zynq-7000)
+                    </td>
+                    <td><code>basys3</code></td>
+                </tr>
+                <tr style="background-color: #e1f5fe;">
+                    <td><code>f4pga_target_fmax</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>
+                        <strong>{% trans "F4PGA 目標最大頻率" %}</strong><br>
+                        {% trans "設定設計必須達到的最低工作頻率（MHz）。數值越高要求越嚴格。" %}
+                    </td>
+                    <td><code>100.0</code></td>
+                </tr>
+                <tr style="background-color: #f3e5f5;">
+                    <td><code>openlane_pdk</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>
+                        <strong>{% trans "OpenLane 製程技術 (PDK)" %}</strong><br>
+                        {% trans "指定 ASIC 綜合的製程設計套件：" %}<br>
+                        • <code>sky130A</code> - SkyWater 130nm PDK (Version A)<br>
+                        • <code>sky130B</code> - SkyWater 130nm PDK (Version B)<br>
+                        • <code>gf180mcuC</code> - GlobalFoundries 180nm MCU PDK (Version C)
+                    </td>
+                    <td><code>sky130A</code></td>
+                </tr>
+                <tr style="background-color: #fff3e0;">
+                    <td><code>openlane_ppa_score</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>
+                        <strong>{% trans "OpenLane 目標 PPA 分數" %}</strong><br>
+                        {% trans "設定綜合性能指標的最低要求。數值越高表示更好的整體性能。" %}
+                    </td>
+                    <td><code>80.0</code></td>
+                </tr>
+                <tr style="background-color: #fff3e0;">
+                    <td><code>openlane_critical_path_ns</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>
+                        <strong>{% trans "OpenLane 最大關鍵路徑延遲" %}</strong><br>
+                        {% trans "設定關鍵路徑的最大允許延遲（奈秒）。數值越小表示更嚴格的時序要求。" %}
+                    </td>
+                    <td><code>5.0</code></td>
+                </tr>
+                <tr style="background-color: #fff3e0;">
+                    <td><code>openlane_core_area_um2</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>
+                        <strong>{% trans "OpenLane 最大核心面積" %}</strong><br>
+                        {% trans "設定晶片核心的最大允許面積（平方微米）。數值越小表示更嚴格的面積約束。" %}
+                    </td>
+                    <td><code>1000.0</code></td>
+                </tr>
+                <tr style="background-color: #fff3e0;">
+                    <td><code>openlane_power_total</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>
+                        <strong>{% trans "OpenLane 最大總功耗" %}</strong><br>
+                        {% trans "設定晶片的最大允許總功耗（毫瓦）。數值越小表示更嚴格的功耗約束。" %}
+                    </td>
+                    <td><code>50.0</code></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h4>{% trans "題解相關欄位" %}</h4>
+        <table class="csv-format-table">
+            <thead>
+                <tr>
+                    <th>{% trans "欄位名稱" %}</th>
+                    <th>{% trans "是否必填" %}</th>
+                    <th>{% trans "說明" %}</th>
+                    <th>{% trans "範例" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>solution_content</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "題解內容，支援 Markdown 格式" %}</td>
+                    <td><code>這是題解...</code></td>
+                </tr>
+                <tr>
+                    <td><code>solution_is_public</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "題解是否公開（true/false）" %}</td>
+                    <td><code>true</code></td>
+                </tr>
+                <tr>
+                    <td><code>solution_publish_on</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "題解發布日期（YYYY-MM-DD 或 YYYY-MM-DD HH:MM:SS）" %}</td>
+                    <td><code>2025-09-01 10:00:00</code></td>
+                </tr>
+                <tr>
+                    <td><code>solution_authors</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "題解作者用戶名，多個用逗號分隔" %}</td>
+                    <td><code>author1,author2</code></td>
+                </tr>
+                <tr>
+                    <td><code>translations</code></td>
+                    <td>{% trans "否" %}</td>
+                    <td>{% trans "多語言翻譯，格式：語言代碼:翻譯名稱:翻譯描述，多個用逗號分隔" %}</td>
+                    <td><code>en:Problem Name:Description,zh-hant:題目名稱:描述</code></td>
                 </tr>
             </tbody>
         </table>

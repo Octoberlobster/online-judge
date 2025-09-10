@@ -1,0 +1,5 @@
+code,name,description,group,time_limit,memory_limit,points,allowed_languages,is_public,enable_waveform,enable_ppa,f4pga_board,f4pga_target_fmax,openlane_pdk,openlane_ppa_score,openlane_critical_path_ns,openlane_core_area_um2,openlane_power_total
+vlog01,基本邏輯閘,實作 AND 和 OR 邏輯閘。設計簡單的邏輯閘電路。,test,2.0,262144,50,Verilog,true,true,false,,,,,,,
+vlog02,FPGA 計數器,在 Basys3 開發板上實作 8-bit 計數器電路。,test,5.0,524288,100,Verilog,true,true,true,basys3,80.0,,,,
+vlog03,簡單 ALU,設計一個 4-bit 算術邏輯單元 (ALU)。需要支援加法、減法和邏輯運算。,test,8.0,1048576,200,Verilog,true,true,true,,,sky130A,0.8,10.0,2000.0,0.5
+vlog04,RISC-V 核心,設計一個完整的 32-bit RISC-V CPU 核心。包含指令擷取、解碼、執行、記憶體存取和寫回五個階段。,test,15.0,2097152,500,Verilog,true,true,true,arty_a7_100t,120.0,sky130B,0.9,8.0,5000.0,1.2

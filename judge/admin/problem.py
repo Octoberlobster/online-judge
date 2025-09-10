@@ -46,6 +46,14 @@ class ProblemForm(ModelForm):
             'types': AdminSelect2MultipleWidget,
             'group': AdminSelect2Widget,
             'description': AdminMartorWidget(attrs={'data-markdownfy-url': reverse_lazy('problem_preview')}),
+            #Verilog Settings
+            'f4pga_board': AdminSelect2Widget,
+            'openlane_pdk': AdminSelect2Widget,
+            'f4pga_target_fmax': forms.NumberInput(attrs={'step': '0.1', 'min': '0.1'}),
+            'openlane_ppa_score': forms.NumberInput(attrs={'step': '0.1', 'min': '0'}),
+            'openlane_critical_path_ns': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
+            'openlane_core_area_um2': forms.NumberInput(attrs={'step': '0.1', 'min': '0'}),
+            'openlane_power_total': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
         }
 
 
@@ -137,10 +145,25 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         (_('Points'), {'fields': (('points', 'partial'), 'short_circuit')}),
         (_('Limits'), {'fields': ('time_limit', 'memory_limit')}),
         (_('Language'), {'fields': ('allowed_languages',)}),
-        (_('Verilog Settings'), {'classes': ('collapse',), 'fields': ('enable_waveform', 'enable_ppa', 'ppa_maximum_fmax')}),
+        (_('Verilog Settings'), {
+            'fields': (
+                'enable_waveform',
+                'enable_ppa',
+                ('f4pga_board', 'f4pga_target_fmax'),
+                'openlane_pdk',
+                ('openlane_ppa_score', 'openlane_critical_path_ns'),
+                ('openlane_core_area_um2', 'openlane_power_total'),
+            )
+        }),
         (_('Justice'), {'fields': ('banned_users',)}),
         (_('History'), {'fields': ('change_message',)}),
     )
+    class Media:
+        js = ('admin/js/verilog_settings.js',)
+        css = {
+            'all': ('admin/css/verilog_settings.css',)
+    }
+
     list_display = ['code', 'name', 'show_authors', 'points', 'is_public', 'show_public']
     ordering = ['code']
     search_fields = ('code', 'name', 'authors__user__username', 'curators__user__username')
@@ -170,10 +193,17 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
                     
                     # 檢查是否是預覽模式
                     if 'preview' in request.POST:
-                        # 預覽模式：顯示將要創建的題目
+                        # 預覽模式：將字典轉換為物件以便在模板中使用點號語法
+                        class PreviewObject:
+                            def __init__(self, data_dict):
+                                for key, value in data_dict.items():
+                                    setattr(self, key, value)
+                        
+                        problems_preview = [PreviewObject(problem_data) for problem_data in problems_to_create]
+                        
                         context = {
                             'form': form,
-                            'problems_preview': problems_to_create,
+                            'problems_preview': problems_preview,
                             'title': _('預覽匯入題目'),
                             'opts': self.model._meta,
                             'has_change_permission': self.has_change_permission(request),
@@ -215,8 +245,8 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         import csv
         import os
         
-        # 嘗試讀取實際的 sample_problems_with_solutions.csv 檔案
-        csv_file_path = os.path.join(settings.BASE_DIR, 'sample_problems_with_solutions.csv')
+        # 嘗試讀取實際的 sample_problems_with_ppa_complete.csv 檔案
+        csv_file_path = os.path.join(settings.BASE_DIR, 'sample_problems_with_ppa_complete.csv')
         
         if os.path.exists(csv_file_path):
             # 如果檔案存在，直接提供檔案內容
@@ -224,47 +254,111 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
                 csv_content = f.read()
             
             response = HttpResponse(csv_content, content_type='text/csv; charset=utf-8-sig')
-            response['Content-Disposition'] = 'attachment; filename="sample_problems_with_solutions.csv"'
+            response['Content-Disposition'] = 'attachment; filename="sample_problems_with_ppa_complete.csv"'
             return response
         
         # 如果檔案不存在，則生成預設範例
         response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
-        response['Content-Disposition'] = 'attachment; filename="sample_problems_with_solutions.csv"'
+        response['Content-Disposition'] = 'attachment; filename="sample_problems_with_ppa_complete.csv"'
         
         writer = csv.writer(response)
         
         # 寫入標題行
         headers = [
             'code', 'name', 'description', 'group', 'time_limit', 'memory_limit', 
-            'points', 'types', 'authors', 'allowed_languages', 'is_public', 'partial', 'short_circuit',
-            'solution_content', 'solution_is_public', 'solution_publish_on', 'solution_authors',
+            'points', 'types', 'authors', 'curators', 'testers', 'allowed_languages', 
+            'is_public', 'partial', 'short_circuit', 'is_manually_managed',
+            'license', 'og_image', 'summary',
+            'banned_users', 'organizations', 'is_organization_private',
+            'enable_waveform', 'enable_ppa', 'ppa_maximum_fmax',
+            'f4pga_board', 'f4pga_target_fmax',
+            'openlane_pdk', 'openlane_ppa_score', 'openlane_critical_path_ns', 
+            'openlane_core_area_um2', 'openlane_power_total',
+            'solution_content', 'solution_is_public', 'solution_authors',
             'translations'
         ]
         writer.writerow(headers)
         
-        # 寫入範例資料
+        # 寫入範例資料 - 完整展示各種匯入情境，避免格式問題
         sample_data = [
+            # 1. 基本題目 - 僅功能驗證，無 PPA
             [
-                'hello_world', 'Hello World', '輸出 Hello World', 'Demo', '1.0', '262144', '100', 
-                'Traditional', '', 'Verilog', 'true', 'false', 'false',
-                '這是一個最基本的程式設計問題。\n\n**題目要求：**\n輸出字串 "Hello World"\n\n**解題思路：**\n1. 使用基本的輸出語法\n2. 確保輸出正確的字串\n\n**Verilog 解法：**\n```verilog\nmodule hello;\n    initial begin\n        $display("Hello World");\n        $finish;\n    end\nendmodule\n```', 
-                'true', '2025-09-01 10:00:00', '',
-                'en:Hello World:Output the string Hello World,zh-hant:哈囉世界:輸出字串 Hello World'
+                'hello_world', 'Hello World', '輸出 Hello World 字串', 'Demo', '1.0', '262144', '100', 
+                'Traditional', '', '', '', 'Verilog', 'true', 'false', 'false', 'false',
+                '', '', '這是一個簡單的 Hello World 題目',
+                '', '', 'false',
+                'false', 'false', '',  # enable_waveform=false, enable_ppa=false, ppa_maximum_fmax=空
+                '', '',  # f4pga_board=空, f4pga_target_fmax=空
+                '', '', '', '', '',  # 所有 OpenLane 欄位都空
+                '這是一個最基本的程式設計問題。\\n\\n**題目要求：**\\n輸出字串 "Hello World"\\n\\n**解題思路：**\\n使用基本的輸出語法確保輸出正確的字串。', 
+                'true', '',
+                'en:Hello World:Output the string Hello World|zh-hant:哈囉世界:輸出字串 Hello World'
             ],
+            # 2. 波形檢視題目 - 啟用波形但無 PPA
             [
-                'add_two_numbers', '兩數相加', '計算兩個整數的和', 'Demo', '2.0', '262144', '150', 
-                'Math', '', 'Verilog', 'true', 'true', 'false',
-                '這是一個基本的算術問題，需要讀取兩個整數並計算它們的和。\n\n**輸入格式：**\n兩個整數 A 和 B，以空格分隔\n\n**輸出格式：**\n一個整數，表示 A + B 的結果\n\n**解題步驟：**\n1. 讀取兩個整數 A 和 B\n2. 計算 A + B\n3. 輸出結果',
-                'true', '2025-09-01 12:00:00', '',
-                'en:Add Two Numbers:Calculate the sum of two integers,zh-hant:兩數相加:計算兩個整數的和'
+                'logic_gates', '基本邏輯閘', '實作基本邏輯閘電路', 'Demo', '2.0', '262144', '150', 
+                'Traditional', '', '', '', 'Verilog', 'true', 'true', 'false', 'false',
+                '', '', '基本邏輯閘設計，可觀察波形',
+                '', '', 'false',
+                'true', 'false', '',  # enable_waveform=true, enable_ppa=false, ppa_maximum_fmax=空
+                '', '',  # f4pga_board=空, f4pga_target_fmax=空
+                '', '', '', '', '',  # 所有 OpenLane 欄位都空
+                '設計基本的邏輯閘電路，可以觀察波形變化。\\n\\n**題目要求：**\\n- 實作 AND、OR、XOR 邏輯閘\\n- 輸入：兩個 1-bit 信號\\n- 輸出：三個 1-bit 信號\\n\\n**特色：**\\n- 啟用波形檢視功能\\n- 適合觀察邏輯運算的時序特性', 
+                'true', '',
+                'en:Logic Gates:Basic logic gate implementation|zh-hant:邏輯閘:基本邏輯閘實作'
             ],
+            # 3. 純 F4PGA 題目 - 智能判斷會自動啟用 F4PGA
             [
-                'simple_gate', '簡單邏輯門', '實現基本的邏輯門電路', 'Demo', '3.0', '524288', '200', 
-                'Implementation', '', 'Verilog', 'true', 'false', 'false',
-                '這個問題要求實現基本的邏輯門功能。\n\n**題目描述：**\n給定兩個二進位輸入 A 和 B，實現以下邏輯運算：\n- AND 運算\n- OR 運算\n- XOR 運算\n\n**輸入格式：**\n兩個二進位數字 A 和 B (0 或 1)\n\n**輸出格式：**\n三行，分別輸出 AND、OR、XOR 的結果',
-                'true', '2025-09-01 14:00:00', '',
-                'en:Simple Logic Gates:Implement basic logic gate operations,zh-hant:簡單邏輯門:實現基本的邏輯門運算'
+                'fpga_counter', 'FPGA 計數器設計', '使用 F4PGA 的計數器電路', 'Demo', '3.0', '524288', '200', 
+                'Implementation', '', '', '', 'Verilog', 'true', 'true', 'false', 'false',
+                '', '', 'F4PGA FPGA 設計挑戰',
+                '', '', 'false',
+                'true', 'true', '120.0',  # enable_waveform=true, enable_ppa=true, ppa_maximum_fmax=120.0
+                'basys3', '100.0',  # f4pga_board=basys3, f4pga_target_fmax=100.0 (智能判斷：啟用 F4PGA)
+                '', '', '', '', '',  # 所有 OpenLane 欄位都空 (智能判斷：不啟用 OpenLane)
+                'F4PGA FPGA 計數器設計，目標 Basys3 開發板。\\n\\n**設計要求：**\\n- 實作 8-bit 上下計數器\\n- 目標開發板：Basys3\\n- F4PGA 要求：目標頻率 ≥100 MHz\\n- 全域頻率限制：≤120 MHz\\n\\n**智能判斷：**\\n因為填入了 f4pga_board 和 f4pga_target_fmax，系統會自動啟用 F4PGA 功能。', 
+                'true', '',
+                'en:FPGA Counter:F4PGA counter design for Basys3|zh-hant:FPGA計數器:Basys3的F4PGA計數器設計'
             ],
+            # 4. 純 OpenLane 題目 - 智能判斷會自動啟用 OpenLane  
+            [
+                'asic_alu', 'ASIC ALU 設計', '使用 OpenLane 的 ALU 電路', 'Demo', '5.0', '1048576', '300', 
+                'Implementation', '', '', '', 'Verilog', 'true', 'true', 'false', 'true',
+                '', '', 'OpenLane ASIC 設計挑戰',
+                '', '', 'false',
+                'true', 'true', '150.0',  # enable_waveform=true, enable_ppa=true, ppa_maximum_fmax=150.0
+                '', '',  # f4pga_board=空, f4pga_target_fmax=空 (智能判斷：不啟用 F4PGA)
+                'sky130A', '80.0', '10.0', '2000.0', '50.0',  # 填入 OpenLane 欄位 (智能判斷：啟用 OpenLane)
+                'OpenLane ASIC ALU 設計，需要滿足嚴格的 PPA 約束。\\n\\n**設計要求：**\\n- 實作 8-bit 算術邏輯單元\\n- 全域頻率限制：≤150 MHz\\n\\n**OpenLane PPA 約束：**\\n- PDK：sky130A\\n- PPA 分數：≥80\\n- 關鍵路徑：≤10 ns\\n- 核心面積：≤2000 μm²\\n- 總功耗：≤50 mW\\n\\n**智能判斷：**\\n因為填入了 OpenLane 相關欄位，系統會自動啟用 OpenLane 功能。', 
+                'false', '',
+                'en:ASIC ALU:OpenLane ASIC ALU design|zh-hant:ASIC算術邏輯單元:OpenLane ASIC ALU設計'
+            ],
+            # 5. 混合 PPA 題目 - 同時啟用 F4PGA 和 OpenLane
+            [
+                'hybrid_processor', '混合處理器設計', '跨平台處理器設計', 'Demo', '8.0', '2097152', '500', 
+                'Implementation', '', '', '', 'Verilog', 'true', 'true', 'false', 'true',
+                '', '', '同時支援 FPGA 和 ASIC 的處理器設計',
+                '', '', 'false',
+                'true', 'true', '200.0',  # enable_waveform=true, enable_ppa=true, ppa_maximum_fmax=200.0
+                'arty_a7_100t', '150.0',  # f4pga_board=arty_a7_100t, f4pga_target_fmax=150.0 (智能判斷：啟用 F4PGA)
+                'sky130B', '85.0', '8.0', '3000.0', '60.0',  # 同時填入 OpenLane 欄位 (智能判斷：同時啟用 OpenLane)
+                '混合 PPA 分析的處理器核心設計。\\n\\n**雙重 PPA 約束：**\\n\\n**F4PGA (FPGA)：**\\n- 開發板：Arty A7-100T\\n- 目標頻率：≥150 MHz\\n\\n**OpenLane (ASIC)：**\\n- PDK：sky130B\\n- PPA 分數：≥85\\n- 關鍵路徑：≤8 ns\\n- 核心面積：≤3000 μm²\\n- 總功耗：≤60 mW\\n\\n**全域限制：**\\n- 最大頻率：≤200 MHz\\n\\n**智能判斷：**\\n因為同時填入了 F4PGA 和 OpenLane 欄位，系統會啟用完整的 PPA 分析功能。', 
+                'true', '',
+                'en:Hybrid Processor:Cross-platform processor design|zh-hant:混合處理器:跨平台處理器設計'
+            ],
+            # 6. 數學題目範例 - 非 Verilog 題目
+            [
+                'add_numbers', '兩數相加', '計算兩個整數的和', 'Demo', '1.0', '262144', '100', 
+                'Math', '', '', '', 'C,Python', 'true', 'true', 'false', 'false',
+                '', '', '基本的數學運算題目',
+                '', '', 'false',
+                'false', 'false', '',  # 非 Verilog 題目，所有 Verilog 欄位都不啟用
+                '', '',
+                '', '', '', '', '',
+                '這是一個基本的算術問題。\\n\\n**輸入格式：**\\n兩個整數 A 和 B，以空格分隔\\n\\n**輸出格式：**\\n一個整數，表示 A + B 的結果\\n\\n**範例：**\\n輸入：3 5\\n輸出：8\\n\\n**解題步驟：**\\n1. 讀取兩個整數 A 和 B\\n2. 計算 A + B\\n3. 輸出結果', 
+                'true', '',
+                'en:Add Two Numbers:Calculate the sum of two integers|zh-hant:兩數相加:計算兩個整數的和'
+            ]
         ]
         
         for row in sample_data:
@@ -277,6 +371,10 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         # 提取多對多關係字段和關聯資料
         types = problem_data.pop('types', [])
         authors = problem_data.pop('authors', [])
+        curators = problem_data.pop('curators', [])
+        testers = problem_data.pop('testers', [])
+        banned_users = problem_data.pop('banned_users', [])
+        organizations = problem_data.pop('organizations', [])
         allowed_languages = problem_data.pop('allowed_languages', [])
         solution_data = problem_data.pop('solution', None)
         translations_data = problem_data.pop('translations', None)
@@ -289,6 +387,14 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
             problem.types.set(types)
         if authors:
             problem.authors.set(authors)
+        if curators:
+            problem.curators.set(curators)
+        if testers:
+            problem.testers.set(testers)
+        if banned_users:
+            problem.banned_users.set(banned_users)
+        if organizations:
+            problem.organizations.set(organizations)
         if allowed_languages:
             problem.allowed_languages.set(allowed_languages)
         else:
