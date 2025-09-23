@@ -133,7 +133,7 @@ Demultiplexer operation principle:
 - **Verification:** Your design will be functionally verified by the testing platform
 
 ## **5. Code Template**
-
+```
 module TopModule (
 input data_in,
 input [2:0] sel,
@@ -156,7 +156,7 @@ output [7:0] out
 // assign out = out_reg;
 // Implement your design using one of the methods above
 endmodule
-
+```
 ## **6. Test Case Examples**
 
 | Test Case | data_in | sel | Expected Output out[7:0] | Description |
