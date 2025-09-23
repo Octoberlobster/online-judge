@@ -1,0 +1,571 @@
+#!/usr/bin/env python
+"""
+DMOJ 題目批量匯入腳本
+
+基於資料庫表結構設計的 CSV 題目匯入工具，支援：
+- 基本題目資訊匯入
+- Verilog 特色功能 (波形圖、PPA 分析、F4PGA、OpenLane)
+- 解答內容匯入
+- 關聯資料處理 (作者、組織、語言限制等)
+
+使用方法：
+    python bulk_import_problems.py --csv sample_problems.csv [選項]
+
+CSV 格式說明請參考 BULK_IMPORT_GUIDE.md
+"""
+
+import os
+import sys
+import csv
+import argparse
+import django
+from datetime import datetime
+from typing import Dict, List, Any, Optional
+
+# 設定 Django 環境
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dmoj.settings')
+django.setup()
+
+from django.core.exceptions import ValidationError
+from django.utils import timezone
+from django.db import transaction
+from django.conf import settings
+from judge.models import (
+    Problem, ProblemType, ProblemGroup, 
+    ProblemClarification, ProblemTranslation, Language, Profile, Organization, 
+    License, Solution, LanguageLimit
+)
+from judge.models.problem import disallowed_characters_validator
+
+
+class ProblemImporter:
+    """題目匯入器類別"""
+    
+    def __init__(self, verbose=False, dry_run=False, update_existing=False):
+        self.verbose = verbose
+        self.dry_run = dry_run
+        self.update_existing = update_existing
+        self.disallowed_chars = getattr(settings, 'DMOJ_PROBLEM_STATEMENT_DISALLOWED_CHARACTERS', set())
+        self.stats = {
+            'total': 0,
+            'created': 0,
+            'updated': 0,
+            'skipped': 0,
+            'errors': 0,
+            'cleaned_chars': 0
+        }
+        
+    def log(self, message: str, level='INFO'):
+        """輸出日誌訊息"""
+        if self.verbose or level == 'ERROR':
+            timestamp = datetime.now().strftime('%H:%M:%S')
+            print(f"[{timestamp}] {level}: {message}")
+    
+    def parse_boolean(self, value: str) -> bool:
+        """解析布林值"""
+        if isinstance(value, str):
+            return value.lower().strip() in ('true', '1', 'yes', 'on')
+        return bool(value)
+    
+    def parse_float_or_none(self, value: str) -> Optional[float]:
+        """解析浮點數或返回 None"""
+        if not value or (isinstance(value, str) and not value.strip()):
+            return None
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return None
+    
+    def get_or_create_group(self, group_name: str) -> ProblemGroup:
+        """取得或創建題目群組"""
+        if not group_name:
+            # 預設群組
+            group, created = ProblemGroup.objects.get_or_create(
+                name='Uncategorized',
+                defaults={'full_name': 'Uncategorized Problems'}
+            )
+            if created:
+                self.log(f"創建預設群組: {group.name}")
+            return group
+        
+        try:
+            return ProblemGroup.objects.get(name=group_name)
+        except ProblemGroup.DoesNotExist:
+            raise ValidationError(f"題目群組 '{group_name}' 不存在，請先在管理介面中創建")
+    
+    def get_problem_types(self, types_str: str) -> List[ProblemType]:
+        """取得題目類型列表"""
+        if not types_str:
+            return []
+        
+        type_names = [name.strip() for name in types_str.split(',') if name.strip()]
+        types = []
+        
+        for type_name in type_names:
+            try:
+                types.append(ProblemType.objects.get(name=type_name))
+            except ProblemType.DoesNotExist:
+                raise ValidationError(f"題目類型 '{type_name}' 不存在，請先在管理介面中創建")
+        
+        return types
+    
+    def get_languages(self, languages_str: str) -> List[Language]:
+        """取得允許的語言列表"""
+        if not languages_str:
+            return []
+        
+        language_keys = [key.strip() for key in languages_str.split(',') if key.strip()]
+        languages = []
+        
+        for lang_key in language_keys:
+            try:
+                languages.append(Language.objects.get(key=lang_key))
+            except Language.DoesNotExist:
+                raise ValidationError(f"語言 '{lang_key}' 不存在")
+        
+        return languages
+    
+    def get_profiles(self, usernames_str: str, field_name: str) -> List[Profile]:
+        """取得使用者檔案列表"""
+        if not usernames_str:
+            return []
+        
+        usernames = [name.strip() for name in usernames_str.split(',') if name.strip()]
+        profiles = []
+        
+        for username in usernames:
+            try:
+                profiles.append(Profile.objects.get(user__username=username))
+            except Profile.DoesNotExist:
+                raise ValidationError(f"使用者 '{username}' 不存在於欄位 '{field_name}'")
+        
+        return profiles
+    
+    def get_organizations(self, orgs_str: str) -> List[Organization]:
+        """取得組織列表"""
+        if not orgs_str:
+            return []
+        
+        org_names = [name.strip() for name in orgs_str.split(',') if name.strip()]
+        organizations = []
+        
+        for org_name in org_names:
+            try:
+                organizations.append(Organization.objects.get(name=org_name))
+            except Organization.DoesNotExist:
+                raise ValidationError(f"組織 '{org_name}' 不存在")
+        
+        return organizations
+    
+    def get_license(self, license_key: str) -> Optional[License]:
+        """取得授權許可"""
+        if not license_key:
+            return None
+        
+        try:
+            return License.objects.get(key=license_key)
+        except License.DoesNotExist:
+            raise ValidationError(f"授權許可 '{license_key}' 不存在")
+    
+    def parse_verilog_fields(self, row: Dict[str, str]) -> Dict[str, Any]:
+        """解析 Verilog 特定欄位"""
+        verilog_data = {}
+        
+        # 基本 Verilog 設定
+        verilog_data['enable_waveform'] = self.parse_boolean(row.get('enable_waveform', 'false'))
+        verilog_data['enable_ppa'] = self.parse_boolean(row.get('enable_ppa', 'false'))
+        
+        # PPA 設定
+        if verilog_data['enable_ppa']:
+            verilog_data['ppa_maximum_fmax'] = self.parse_float_or_none(row.get('ppa_maximum_fmax'))
+            
+            # F4PGA 設定
+            f4pga_board = row.get('f4pga_board', '').strip()
+            f4pga_target_fmax = self.parse_float_or_none(row.get('f4pga_target_fmax'))
+            
+            if f4pga_board:
+                valid_boards = ['basys3', 'arty_a7_35t', 'arty_a7_100t', 'nexys4_ddr', 'nexys_video', 'zybo_z7']
+                if f4pga_board not in valid_boards:
+                    raise ValidationError(f"無效的 F4PGA 開發板 '{f4pga_board}'，有效選項: {', '.join(valid_boards)}")
+                verilog_data['f4pga_board'] = f4pga_board
+                verilog_data['f4pga_target_fmax'] = f4pga_target_fmax
+            
+            # OpenLane 設定
+            openlane_pdk = row.get('openlane_pdk', '').strip()
+            if openlane_pdk:
+                valid_pdks = ['sky130A', 'sky130B', 'gf180mcuC']
+                if openlane_pdk not in valid_pdks:
+                    raise ValidationError(f"無效的 OpenLane PDK '{openlane_pdk}'，有效選項: {', '.join(valid_pdks)}")
+                verilog_data['openlane_pdk'] = openlane_pdk
+            
+            # OpenLane 指標
+            verilog_data['openlane_ppa_score'] = self.parse_float_or_none(row.get('openlane_ppa_score'))
+            verilog_data['openlane_critical_path_ns'] = self.parse_float_or_none(row.get('openlane_critical_path_ns'))
+            verilog_data['openlane_core_area_um2'] = self.parse_float_or_none(row.get('openlane_core_area_um2'))
+            verilog_data['openlane_power_total'] = self.parse_float_or_none(row.get('openlane_power_total'))
+        
+        return verilog_data
+    
+    def parse_language_limits(self, limits_str: str) -> List[Dict]:
+        """解析語言限制"""
+        if not limits_str:
+            return []
+        
+        limits = []
+        for limit_spec in limits_str.split('|'):
+            limit_spec = limit_spec.strip()
+            if limit_spec:
+                parts = limit_spec.split(':')
+                if len(parts) == 3:
+                    lang_key, time_limit, memory_limit = parts
+                    try:
+                        language = Language.objects.get(key=lang_key.strip())
+                        limits.append({
+                            'language': language,
+                            'time_limit': float(time_limit.strip()),
+                            'memory_limit': int(memory_limit.strip())
+                        })
+                    except (Language.DoesNotExist, ValueError, TypeError) as e:
+                        self.log(f"警告: 無效的語言限制規格 '{limit_spec}': {e}", 'WARNING')
+        
+        return limits
+    
+    def clean_disallowed_characters(self, text: str) -> str:
+        """清理禁用字符"""
+        if not text:
+            return text
+            
+        # 替換禁用字符為標準字符
+        char_replacements = {
+            '"': '"',   # 左雙引號 → 標準雙引號
+            '"': '"',   # 右雙引號 → 標準雙引號
+            ''': "'",   # 左單引號 → 標準單引號
+            ''': "'",   # 右單引號 → 標準單引號
+            '−': '-',   # 數學減號 → 連字符
+            'ﬀ': 'ff', # 連字符 ff
+            'ﬁ': 'fi', # 連字符 fi
+            'ﬂ': 'fl', # 連字符 fl
+            'ﬃ': 'ffi', # 連字符 ffi
+            'ﬄ': 'ffl', # 連字符 ffl
+        }
+        
+        cleaned_text = text
+        original_char_count = 0
+        
+        for disallowed_char, replacement in char_replacements.items():
+            if disallowed_char in self.disallowed_chars and disallowed_char in cleaned_text:
+                original_char_count += cleaned_text.count(disallowed_char)
+                cleaned_text = cleaned_text.replace(disallowed_char, replacement)
+                
+        if original_char_count > 0:
+            self.stats['cleaned_chars'] += original_char_count
+            if self.verbose:
+                self.log(f"清理了 {original_char_count} 個禁用字符")
+                
+        return cleaned_text
+    
+    def process_description(self, description: str) -> str:
+        """處理題目描述"""
+        if not description:
+            return description
+            
+        # 1. 清理禁用字符
+        description = self.clean_disallowed_characters(description)
+        
+        # 2. 處理 CSV 轉義字符
+        description = description.replace('\\n', '\n')
+        description = description.replace('\\r', '\r')
+        description = description.replace('\\t', '\t')
+        description = description.replace('\\"', '"')
+        description = description.replace("\\'", "'")
+        
+        # 3. 標準化換行符
+        description = description.replace('\r\n', '\n').replace('\r', '\n')
+        
+        # 4. 處理多餘空白
+        lines = description.split('\n')
+        processed_lines = []
+        
+        for line in lines:
+            # 移除行尾空白，但保留行首縮排
+            line = line.rstrip()
+            processed_lines.append(line)
+        
+        # 5. 合併空行（最多保留兩個連續空行）
+        result_lines = []
+        empty_line_count = 0
+        
+        for line in processed_lines:
+            if not line.strip():
+                empty_line_count += 1
+                if empty_line_count <= 2:
+                    result_lines.append(line)
+            else:
+                empty_line_count = 0
+                result_lines.append(line)
+        
+        processed_description = '\n'.join(result_lines).strip()
+        
+        # 6. 驗證處理後的描述
+        try:
+            disallowed_characters_validator(processed_description)
+        except ValidationError as e:
+            raise ValidationError(f"描述包含禁用字符: {e}")
+            
+        return processed_description
+    
+    def create_or_update_problem(self, row: Dict[str, str]) -> bool:
+        """創建或更新題目"""
+        code = row.get('code', '').strip()
+        if not code:
+            raise ValidationError("題目代碼不能為空")
+        
+        name = row.get('name', '').strip()
+        if not name:
+            raise ValidationError("題目名稱不能為空")
+        
+        # 檢查題目是否已存在
+        try:
+            problem = Problem.objects.get(code=code)
+            if not self.update_existing:
+                self.log(f"跳過已存在的題目: {code}", 'WARNING')
+                self.stats['skipped'] += 1
+                return False
+            action = 'updated'
+        except Problem.DoesNotExist:
+            problem = Problem(code=code)
+            action = 'created'
+        
+        # 基本欄位
+        problem.name = name
+        problem.description = self.process_description(row.get('description', ''))
+        problem.time_limit = float(row.get('time_limit', 1.0))
+        problem.memory_limit = int(row.get('memory_limit', 262144))
+        problem.points = float(row.get('points', 100))
+        problem.is_public = self.parse_boolean(row.get('is_public', 'false'))
+        problem.partial = self.parse_boolean(row.get('partial', 'false'))
+        problem.short_circuit = self.parse_boolean(row.get('short_circuit', 'false'))
+        problem.is_manually_managed = self.parse_boolean(row.get('is_manually_managed', 'false'))
+        problem.is_organization_private = self.parse_boolean(row.get('is_organization_private', 'false'))
+        
+        # 處理是否啟用完整 Markdown
+        problem.is_full_markup = self.parse_boolean(row.get('is_full_markup', 'false'))
+        
+        # 可選欄位
+        if row.get('og_image'):
+            problem.og_image = row['og_image'].strip()
+        if row.get('summary'):
+            problem.summary = self.process_description(row['summary'].strip())
+        
+        # 外鍵關係
+        problem.group = self.get_or_create_group(row.get('group', ''))
+        
+        license_obj = self.get_license(row.get('license', ''))
+        if license_obj:
+            problem.license = license_obj
+        
+        # Verilog 特定欄位
+        verilog_data = self.parse_verilog_fields(row)
+        for field, value in verilog_data.items():
+            setattr(problem, field, value)
+        
+        if not self.dry_run:
+            problem.save()
+        
+        # 多對多關係
+        if not self.dry_run:
+            # 題目類型
+            types = self.get_problem_types(row.get('types', ''))
+            problem.types.set(types)
+            
+            # 允許的語言
+            languages = self.get_languages(row.get('allowed_languages', ''))
+            problem.allowed_languages.set(languages)
+            
+            # 作者、策展人、測試者
+            authors = self.get_profiles(row.get('authors', ''), 'authors')
+            problem.authors.set(authors)
+            
+            curators = self.get_profiles(row.get('curators', ''), 'curators')
+            problem.curators.set(curators)
+            
+            testers = self.get_profiles(row.get('testers', ''), 'testers')
+            problem.testers.set(testers)
+            
+            banned_users = self.get_profiles(row.get('banned_users', ''), 'banned_users')
+            problem.banned_users.set(banned_users)
+            
+            # 組織
+            organizations = self.get_organizations(row.get('organizations', ''))
+            problem.organizations.set(organizations)
+
+        # 語言限制
+        language_limits = self.parse_language_limits(row.get('language_limits', ''))
+        if language_limits and not self.dry_run:
+            # 清除現有語言限制（如果是更新模式）
+            if action == 'updated':
+                LanguageLimit.objects.filter(problem=problem).delete()
+            
+            for limit_data in language_limits:
+                LanguageLimit.objects.create(
+                    problem=problem,
+                    language=limit_data['language'],
+                    time_limit=limit_data['time_limit'],
+                    memory_limit=limit_data['memory_limit']
+                )
+        
+        # 處理多語言翻譯
+        if not self.dry_run:
+            self.process_translations(problem, row)
+        
+        self.log(f"成功 {action} 題目: {code} - {name}")
+        if action == 'created':
+            self.stats['created'] += 1
+        else:
+            self.stats['updated'] += 1
+        
+        return True
+    
+    def process_translations(self, problem: Problem, row: Dict[str, str]):
+        """處理多語言翻譯"""
+        translation_fields = [
+            ('translation_en_name', 'translation_en_description', 'en'),
+            ('translation_zh_name', 'translation_zh_description', 'zh-hans'),
+            ('translation_zh_hant_name', 'translation_zh_hant_description', 'zh-hant'),
+            ('translation_ja_name', 'translation_ja_description', 'ja'),
+            ('translation_ko_name', 'translation_ko_description', 'ko'),
+        ]
+        
+        for name_field, desc_field, lang_code in translation_fields:
+            name = row.get(name_field, '').strip()
+            description = row.get(desc_field, '').strip()
+            
+            if name or description:
+                try:
+                    # 處理翻譯描述
+                    if description:
+                        processed_desc = self.process_description(description)
+                    else:
+                        processed_desc = problem.description  # 使用主描述作為預設
+                    
+                    # 創建或更新翻譯
+                    translation, created = ProblemTranslation.objects.get_or_create(
+                        problem=problem,
+                        language=lang_code,
+                        defaults={
+                            'name': name or problem.name,
+                            'description': processed_desc
+                        }
+                    )
+                    
+                    if not created:
+                        # 更新現有翻譯
+                        if name:
+                            translation.name = name
+                        if description:
+                            translation.description = processed_desc
+                        translation.save()
+                    
+                    if self.verbose:
+                        action = '新增' if created else '更新'
+                        self.log(f"  {action}翻譯 {lang_code}: {translation.name}")
+                        
+                except Exception as e:
+                    self.log(f"處理 {lang_code} 翻譯時出錯: {e}", 'WARNING')
+    
+    def import_from_csv(self, csv_file_path: str) -> bool:
+        """從 CSV 檔案匯入題目"""
+        try:
+            with open(csv_file_path, 'r', encoding='utf-8-sig') as csvfile:
+                reader = csv.DictReader(csvfile)
+                
+                for row_num, row in enumerate(reader, start=2):
+                    self.stats['total'] += 1
+                    
+                    try:
+                        with transaction.atomic():
+                            self.create_or_update_problem(row)
+                    except Exception as e:
+                        self.log(f"處理第 {row_num} 行時發生錯誤: {e}", 'ERROR')
+                        self.stats['errors'] += 1
+                        
+                        if self.verbose:
+                            import traceback
+                            traceback.print_exc()
+                        
+                        continue
+            
+            return True
+            
+        except FileNotFoundError:
+            self.log(f"找不到 CSV 檔案: {csv_file_path}", 'ERROR')
+            return False
+        except Exception as e:
+            self.log(f"讀取 CSV 檔案時發生錯誤: {e}", 'ERROR')
+            return False
+    
+    def print_summary(self):
+        """輸出匯入摘要"""
+        print("\n" + "="*50)
+        print("匯入結果摘要")
+        print("="*50)
+        print(f"總計處理: {self.stats['total']} 筆")
+        print(f"成功創建: {self.stats['created']} 筆")
+        print(f"成功更新: {self.stats['updated']} 筆")
+        print(f"跳過: {self.stats['skipped']} 筆")
+        print(f"錯誤: {self.stats['errors']} 筆")
+        print(f"清理禁用字符: {self.stats['cleaned_chars']} 個")
+        
+        if self.dry_run:
+            print("\n注意: 這是預演模式，實際上沒有修改資料庫")
+        
+        print("="*50)
+
+
+def main():
+    """主函數"""
+    parser = argparse.ArgumentParser(
+        description='DMOJ 題目批量匯入工具',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+範例用法:
+  python bulk_import_problems.py --csv enhanced_sample_problems.csv
+  python bulk_import_problems.py --csv problems.csv --verbose --update
+  python bulk_import_problems.py --csv problems.csv --dry-run
+        """
+    )
+    
+    parser.add_argument('--csv', required=True, help='CSV 檔案路徑')
+    parser.add_argument('--verbose', '-v', action='store_true', help='詳細輸出')
+    parser.add_argument('--dry-run', action='store_true', help='預演模式（不實際匯入）')
+    parser.add_argument('--update', action='store_true', help='更新已存在的題目')
+    
+    args = parser.parse_args()
+    
+    # 驗證 CSV 檔案
+    if not os.path.exists(args.csv):
+        print(f"錯誤: 找不到 CSV 檔案 '{args.csv}'")
+        return 1
+    
+    # 創建匯入器
+    importer = ProblemImporter(
+        verbose=args.verbose,
+        dry_run=args.dry_run,
+        update_existing=args.update
+    )
+    
+    # 開始匯入
+    print(f"開始從 '{args.csv}' 匯入題目...")
+    if args.dry_run:
+        print("預演模式: 不會實際修改資料庫")
+    
+    success = importer.import_from_csv(args.csv)
+    
+    # 輸出摘要
+    importer.print_summary()
+    
+    return 0 if success else 1
+
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -3,19 +3,11 @@
 
 {% block object-tools-items %}
     {{ block.super }}
-    <!-- 調試信息 -->
-    <li style="background: yellow; padding: 5px;">
-        <span>調試: has_add_permission = {{ has_add_permission }}</span>
-    </li>
     {% if has_add_permission %}
         <li>
             <a href="{% url 'admin:judge_problem_import_csv' %}" class="addlink">
-                {% trans "匯入 CSV" %}
+                📁 {% trans "匯入 CSV" %}
             </a>
-        </li>
-    {% else %}
-        <li style="background: red; color: white; padding: 5px;">
-            <span>無新增權限</span>
         </li>
     {% endif %}
 {% endblock %}

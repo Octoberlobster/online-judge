@@ -11,11 +11,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='problem',
-            name='ppa_maximum_fmax',
-            field=models.FloatField(blank=True, help_text='Maximum Fmax frequency allowed in MHz. If set, submissions above this frequency will fail.', null=True, validators=[django.core.validators.MinValueValidator(0.1)], verbose_name='maximum PPA Fmax (MHz)'),
-        ),
+    # 移除重複的 ppa_maximum_fmax AddField，保留 0138 的 AddField
         migrations.AlterField(
             model_name='problem',
             name='f4pga_board',

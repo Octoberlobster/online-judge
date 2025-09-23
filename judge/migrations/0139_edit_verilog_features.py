@@ -46,14 +46,4 @@ class Migration(migrations.Migration):
             name='openlane_ppa_score',
             field=models.FloatField(blank=True, help_text='Target PPA score (higher is better).', null=True, validators=[django.core.validators.MinValueValidator(0)], verbose_name='target PPA score'),
         ),
-        migrations.AlterField(
-            model_name='problem',
-            name='enable_ppa',
-            field=models.BooleanField(default=False, help_text='Whether to calculate PPA metrics.', verbose_name='enable PPA calculation'),
-        ),
-        migrations.AlterField(
-            model_name='problem',
-            name='enable_waveform',
-            field=models.BooleanField(default=False, help_text='Whether to process and display waveform files.', verbose_name='enable waveform processing'),
-        ),
     ]

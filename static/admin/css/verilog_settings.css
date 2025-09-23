@@ -1,9 +1,0 @@
-.field-row, .form-row {
-    transition: opacity 0.3s ease-in-out;
-}
-
-.verilog-ppa-fields {
-    border-left: 3px solid #007cba;
-    padding-left: 10px;
-    margin-left: 10px;
-}

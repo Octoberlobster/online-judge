@@ -605,3 +605,9 @@ except IOError:
 
 # Check settings are consistent
 assert DMOJ_PROBLEM_MIN_USER_POINTS_VOTE >= DMOJ_PROBLEM_MIN_PROBLEM_POINTS
+
+# CSV 匯入翻譯語言過濾設定
+# 如果設定此項，CSV 匯入時只會創建列表中指定語言的翻譯
+# 設定為 None 或註解掉此行則允許所有語言
+# ALLOWED_TRANSLATION_LANGUAGES = ['en', 'zh-hant']  # 只允許英文和繁體中文
+ALLOWED_TRANSLATION_LANGUAGES = None  # 允許所有語言（預設行為）

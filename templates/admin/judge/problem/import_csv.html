@@ -344,23 +344,6 @@
             </div>
             {% endif %}
 
-            <!-- 題解資訊 -->
-            {% if problem.solution_content %}
-            <div class="solution-info" style="margin-bottom: 15px;">
-                <h4 style="color: #417690; margin-bottom: 10px;">{% trans "題解資訊" %}</h4>
-                <div><strong>{% trans "包含題解" %}:</strong> {% trans "是" %}</div>
-                <div><strong>{% trans "題解公開" %}:</strong> {{ problem.solution_is_public|yesno:"是,否" }}</div>
-                {% if problem.solution_publish_on %}
-                <div><strong>{% trans "題解發布時間" %}:</strong> {{ problem.solution_publish_on|date:"Y-m-d H:i" }}</div>
-                {% endif %}
-                {% if problem.solution_authors %}
-                <div><strong>{% trans "題解作者" %}:</strong> 
-                    {% for author in problem.solution_authors %}{{ author.user.username }}{% if not forloop.last %}, {% endif %}{% endfor %}
-                </div>
-                {% endif %}
-            </div>
-            {% endif %}
-
             <!-- 翻譯資訊 -->
             {% if problem.translations %}
             <div class="translation-info" style="margin-bottom: 15px;">
@@ -664,30 +647,6 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td><code>solution_content</code></td>
-                    <td>{% trans "否" %}</td>
-                    <td>{% trans "題解內容，支援 Markdown 格式" %}</td>
-                    <td><code>這是題解...</code></td>
-                </tr>
-                <tr>
-                    <td><code>solution_is_public</code></td>
-                    <td>{% trans "否" %}</td>
-                    <td>{% trans "題解是否公開（true/false）" %}</td>
-                    <td><code>true</code></td>
-                </tr>
-                <tr>
-                    <td><code>solution_publish_on</code></td>
-                    <td>{% trans "否" %}</td>
-                    <td>{% trans "題解發布日期（YYYY-MM-DD 或 YYYY-MM-DD HH:MM:SS）" %}</td>
-                    <td><code>2025-09-01 10:00:00</code></td>
-                </tr>
-                <tr>
-                    <td><code>solution_authors</code></td>
-                    <td>{% trans "否" %}</td>
-                    <td>{% trans "題解作者用戶名，多個用逗號分隔" %}</td>
-                    <td><code>author1,author2</code></td>
-                </tr>
                 <tr>
                     <td><code>translations</code></td>
                     <td>{% trans "否" %}</td>

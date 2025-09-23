@@ -1,19 +1,32 @@
 import csv
 import io
 from django import forms
+from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
 from django.forms import FileField
 from django.core.exceptions import ValidationError
+from django.utils import timezone
+from typing import Dict, List, Any, Optional
 
 
 class CSVImportForm(forms.Form):
     csv_file = FileField(
-        label='CSV File',
-        help_text='Upload a CSV file containing problem data. The file should include fields: '
-                  'code, name, description, group, time_limit, memory_limit, points, allowed_languages. '
-                  'For Verilog problems, additional fields are available: enable_waveform, enable_ppa, '
-                  'f4pga_board, f4pga_target_fmax, openlane_pdk, openlane_ppa_score, etc. '
-                  'When enable_ppa=false, all PPA-related fields are ignored regardless of their values.',
+        label='CSV 檔案',
+        help_text='上傳包含題目資料的 CSV 檔案。支援欄位包括：\n'
+                  '基本: code, name, description, group, time_limit, memory_limit, points, is_public, '
+                  'partial, short_circuit, is_manually_managed, license, og_image, summary\n'
+                  '分類: types, group\n'
+                  '人員: authors, curators, testers, banned_users\n'
+                  '存取: allowed_languages, organizations, is_organization_private\n'
+                  'Verilog: enable_waveform, enable_ppa, ppa_maximum_fmax, f4pga_board, f4pga_target_fmax, '
+                  'openlane_pdk, openlane_ppa_score, openlane_critical_path_ns, openlane_core_area_um2, '
+                  'openlane_power_total\n'
+                  '翻譯: translation_en_name, translation_en_description, translation_zh_hant_name, '
+                  'translation_zh_hant_description (或舊格式: translation_language, translation_name, translation_description)\n'
+                  '解答: solution_content, solution_is_public, solution_authors\n'
+                  '說明: clarifications (以分號分隔)\n'
+                  '內容: language_limits\n'
+                  '格式詳情請參考文件。',
         required=True
     )
     
@@ -193,13 +206,21 @@ class CSVImportForm(forms.Form):
         languages_str = row.get('allowed_languages', '').strip()
         if languages_str:
             from judge.models import Language
-            language_names = [name.strip() for name in languages_str.split(',') if name.strip()]
+            language_keys = [key.strip() for key in languages_str.split(',') if key.strip()]
             languages = []
-            for lang_name in language_names:
+            for lang_key in language_keys:
                 try:
-                    languages.append(Language.objects.get(name=lang_name))
+                    # Try by key first, then by name for backward compatibility
+                    try:
+                        languages.append(Language.objects.get(key=lang_key))
+                    except Language.DoesNotExist:
+                        try:
+                            languages.append(Language.objects.get(name=lang_key))
+                        except Language.MultipleObjectsReturned:
+                            # If multiple languages have the same name, prefer by key
+                            raise ValidationError(f'Multiple languages found with name "{lang_key}". Please use language key instead.')
                 except Language.DoesNotExist:
-                    raise ValidationError(f'Language "{lang_name}" does not exist')
+                    raise ValidationError(f'Language "{lang_key}" does not exist')
             problem_data['allowed_languages'] = languages
         
         # Handle authors, curators, testers
@@ -229,12 +250,141 @@ class CSVImportForm(forms.Form):
                     raise ValidationError(f'Organization "{org_name}" does not exist')
             problem_data['organizations'] = organizations
         
+        # Handle license by key
+        license_key = row.get('license', '').strip()
+        if license_key:
+            from judge.models import License
+            try:
+                problem_data['license'] = License.objects.get(key=license_key)
+            except License.DoesNotExist:
+                raise ValidationError(f'License "{license_key}" does not exist')
+        
         # Handle other optional fields
-        optional_fields = ['license', 'og_image', 'summary']
+        optional_fields = ['og_image', 'summary', 'is_full_markup']
         for field in optional_fields:
             value = row.get(field, '').strip()
             if value:
-                problem_data[field] = value
+                if field == 'is_full_markup':
+                    problem_data[field] = self._parse_boolean(value)
+                else:
+                    problem_data[field] = value
+
+        # Handle language limits
+        language_limits_str = row.get('language_limits', '').strip()
+        if language_limits_str:
+            # Format: "language1:time_limit:memory_limit|language2:time_limit:memory_limit"
+            language_limits_list = []
+            for limit_spec in language_limits_str.split('|'):
+                limit_spec = limit_spec.strip()
+                if limit_spec:
+                    parts = limit_spec.split(':')
+                    if len(parts) == 3:
+                        lang_key, time_limit, memory_limit = parts
+                        try:
+                            from judge.models import Language
+                            # Try by key first, then by name for backward compatibility
+                            try:
+                                language = Language.objects.get(key=lang_key.strip())
+                            except Language.DoesNotExist:
+                                try:
+                                    language = Language.objects.get(name=lang_key.strip())
+                                except Language.DoesNotExist:
+                                    # Skip invalid language instead of raising error
+                                    print(f'Warning: Language "{lang_key.strip()}" not found, skipping language limit')
+                                    continue
+                                except Language.MultipleObjectsReturned:
+                                    # If multiple languages have the same name, prefer by key
+                                    print(f'Warning: Multiple languages found with name "{lang_key.strip()}", skipping')
+                                    continue
+                            language_limits_list.append({
+                                'language': language,
+                                'time_limit': float(time_limit.strip()),
+                                'memory_limit': int(memory_limit.strip())
+                            })
+                        except (ValueError, TypeError) as e:
+                            print(f'Warning: Invalid language limit specification: "{limit_spec}" - {str(e)}, skipping')
+                            continue
+            if language_limits_list:
+                problem_data['language_limits'] = language_limits_list
         
         # Handle organization private setting
         problem_data['is_organization_private'] = self._parse_boolean(row.get('is_organization_private', 'false'))
+        
+        # Handle translations
+        translations = []
+        
+        # 英文翻譯
+        en_name = row.get('translation_en_name', '').strip()
+        en_description = row.get('translation_en_description', '').strip()
+        if en_name or en_description:
+            translations.append({
+                'language': 'en',
+                'name': en_name,
+                'description': en_description
+            })
+        
+        # 繁體中文翻譯
+        zh_hant_name = row.get('translation_zh_hant_name', '').strip()
+        zh_hant_description = row.get('translation_zh_hant_description', '').strip()
+        if zh_hant_name or zh_hant_description:
+            translations.append({
+                'language': 'zh-hant',
+                'name': zh_hant_name,
+                'description': zh_hant_description
+            })
+        
+        # 向後相容：支援舊格式的翻譯欄位
+        translation_language = row.get('translation_language', '').strip()
+        translation_name = row.get('translation_name', '').strip()
+        translation_description = row.get('translation_description', '').strip()
+        if translation_language and (translation_name or translation_description):
+            # 檢查是否已經有相同語言的翻譯
+            existing_languages = [t['language'] for t in translations]
+            if translation_language not in existing_languages:
+                translations.append({
+                    'language': translation_language,
+                    'name': translation_name,
+                    'description': translation_description
+                })
+        
+        if translations:
+            problem_data['translations'] = translations
+        
+        # Handle solutions
+        solution_content = row.get('solution_content', '').strip()
+        solution_is_public = self._parse_boolean(row.get('solution_is_public', 'false'))
+        solution_authors_str = row.get('solution_authors', '').strip()
+        
+        if solution_content:
+            from django.utils import timezone
+            solution_data = {
+                'content': solution_content,
+                'is_public': solution_is_public,
+                'publish_on': timezone.now()  # 設定解答發布時間為當前時間
+            }
+            
+            # Handle solution authors
+            if solution_authors_str:
+                from judge.models import Profile
+                solution_authors = []
+                for username in [name.strip() for name in solution_authors_str.split(',') if name.strip()]:
+                    try:
+                        solution_authors.append(Profile.objects.get(user__username=username))
+                    except Profile.DoesNotExist:
+                        raise ValidationError(f'Solution author "{username}" does not exist')
+                solution_data['authors'] = solution_authors
+            
+            problem_data['solution'] = solution_data
+        
+        # Handle clarifications
+        clarifications_str = row.get('clarifications', '').strip()
+        if clarifications_str:
+            clarifications = []
+            for clarification in clarifications_str.split(';'):
+                clarification = clarification.strip()
+                if clarification:
+                    clarifications.append({
+                        'description': clarification
+                    })
+            if clarifications:
+                problem_data['clarifications'] = clarifications

@@ -121,7 +121,7 @@ class ProblemTranslationInline(admin.StackedInline):
     model = ProblemTranslation
     fields = ('language', 'name', 'description')
     form = ProblemTranslationForm
-    extra = 0
+    extra = 1
 
     def has_permission_full_markup(self, request, obj=None):
         if not obj:
@@ -174,6 +174,7 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
     list_filter = ('is_public', ProblemCreatorListFilter)
     form = ProblemForm
     date_hierarchy = 'date'
+    change_list_template = 'admin/judge/problem/change_list.html'
 
     def get_urls(self):
         urls = super().get_urls()
@@ -197,7 +198,26 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
                         class PreviewObject:
                             def __init__(self, data_dict):
                                 for key, value in data_dict.items():
-                                    setattr(self, key, value)
+                                    if key == 'translations' and isinstance(value, list):
+                                        # 特別處理翻譯資料
+                                        translation_objects = []
+                                        for trans_data in value:
+                                            trans_obj = type('TranslationPreview', (), {})()
+                                            trans_obj.language = trans_data.get('language', '')
+                                            trans_obj.name = trans_data.get('name', '')
+                                            trans_obj.description = trans_data.get('description', '')
+                                            translation_objects.append(trans_obj)
+                                        setattr(self, key, translation_objects)
+                                    elif key == 'clarifications' and isinstance(value, list):
+                                        # 特別處理澄清說明資料
+                                        clarification_objects = []
+                                        for clar_data in value:
+                                            clar_obj = type('ClarificationPreview', (), {})()
+                                            clar_obj.description = clar_data.get('description', '')
+                                            clarification_objects.append(clar_obj)
+                                        setattr(self, key, clarification_objects)
+                                    else:
+                                        setattr(self, key, value)
                         
                         problems_preview = [PreviewObject(problem_data) for problem_data in problems_to_create]
                         
@@ -245,8 +265,8 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         import csv
         import os
         
-        # 嘗試讀取實際的 sample_problems_with_ppa_complete.csv 檔案
-        csv_file_path = os.path.join(settings.BASE_DIR, 'sample_problems_with_ppa_complete.csv')
+        # 嘗試讀取新的修正版範例檔案
+        csv_file_path = os.path.join(settings.BASE_DIR, 'enhanced_sample_problems.csv')
         
         if os.path.exists(csv_file_path):
             # 如果檔案存在，直接提供檔案內容
@@ -254,12 +274,13 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
                 csv_content = f.read()
             
             response = HttpResponse(csv_content, content_type='text/csv; charset=utf-8-sig')
-            response['Content-Disposition'] = 'attachment; filename="sample_problems_with_ppa_complete.csv"'
+            response['Content-Disposition'] = 'attachment; filename="enhanced_sample_problems.csv"'
             return response
         
-        # 如果檔案不存在，則生成預設範例
+        
+        # 如果檔案不存在，則生成基本範例
         response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
-        response['Content-Disposition'] = 'attachment; filename="sample_problems_with_ppa_complete.csv"'
+        response['Content-Disposition'] = 'attachment; filename="enhanced_sample_problems.csv"'
         
         writer = csv.writer(response)
         
@@ -275,89 +296,55 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
             'openlane_pdk', 'openlane_ppa_score', 'openlane_critical_path_ns', 
             'openlane_core_area_um2', 'openlane_power_total',
             'solution_content', 'solution_is_public', 'solution_authors',
-            'translations'
+            'translation_en_name', 'translation_en_description',
+            'translation_zh_hant_name', 'translation_zh_hant_description',
+            'clarifications', 'language_limits', 'is_full_markup'
         ]
         writer.writerow(headers)
         
-        # 寫入範例資料 - 完整展示各種匯入情境，避免格式問題
+        # 寫入實用的範例資料
         sample_data = [
-            # 1. 基本題目 - 僅功能驗證，無 PPA
             [
-                'hello_world', 'Hello World', '輸出 Hello World 字串', 'Demo', '1.0', '262144', '100', 
-                'Traditional', '', '', '', 'Verilog', 'true', 'false', 'false', 'false',
-                '', '', '這是一個簡單的 Hello World 題目',
+                'hello_world', 'Hello World', '輸出 Hello World 字串到標準輸出', 'Demo', '1.0', '262144', '100', 
+                'Traditional', '', '', '', '', 'true', 'false', 'false', 'false',
+                'CC0-1.0', '', '這是一個簡單的 Hello World 入門題目',
                 '', '', 'false',
-                'false', 'false', '',  # enable_waveform=false, enable_ppa=false, ppa_maximum_fmax=空
-                '', '',  # f4pga_board=空, f4pga_target_fmax=空
-                '', '', '', '', '',  # 所有 OpenLane 欄位都空
-                '這是一個最基本的程式設計問題。\\n\\n**題目要求：**\\n輸出字串 "Hello World"\\n\\n**解題思路：**\\n使用基本的輸出語法確保輸出正確的字串。', 
-                'true', '',
-                'en:Hello World:Output the string Hello World|zh-hant:哈囉世界:輸出字串 Hello World'
-            ],
-            # 2. 波形檢視題目 - 啟用波形但無 PPA
-            [
-                'logic_gates', '基本邏輯閘', '實作基本邏輯閘電路', 'Demo', '2.0', '262144', '150', 
-                'Traditional', '', '', '', 'Verilog', 'true', 'true', 'false', 'false',
-                '', '', '基本邏輯閘設計，可觀察波形',
-                '', '', 'false',
-                'true', 'false', '',  # enable_waveform=true, enable_ppa=false, ppa_maximum_fmax=空
-                '', '',  # f4pga_board=空, f4pga_target_fmax=空
-                '', '', '', '', '',  # 所有 OpenLane 欄位都空
-                '設計基本的邏輯閘電路，可以觀察波形變化。\\n\\n**題目要求：**\\n- 實作 AND、OR、XOR 邏輯閘\\n- 輸入：兩個 1-bit 信號\\n- 輸出：三個 1-bit 信號\\n\\n**特色：**\\n- 啟用波形檢視功能\\n- 適合觀察邏輯運算的時序特性', 
-                'true', '',
-                'en:Logic Gates:Basic logic gate implementation|zh-hant:邏輯閘:基本邏輯閘實作'
-            ],
-            # 3. 純 F4PGA 題目 - 智能判斷會自動啟用 F4PGA
-            [
-                'fpga_counter', 'FPGA 計數器設計', '使用 F4PGA 的計數器電路', 'Demo', '3.0', '524288', '200', 
-                'Implementation', '', '', '', 'Verilog', 'true', 'true', 'false', 'false',
-                '', '', 'F4PGA FPGA 設計挑戰',
-                '', '', 'false',
-                'true', 'true', '120.0',  # enable_waveform=true, enable_ppa=true, ppa_maximum_fmax=120.0
-                'basys3', '100.0',  # f4pga_board=basys3, f4pga_target_fmax=100.0 (智能判斷：啟用 F4PGA)
-                '', '', '', '', '',  # 所有 OpenLane 欄位都空 (智能判斷：不啟用 OpenLane)
-                'F4PGA FPGA 計數器設計，目標 Basys3 開發板。\\n\\n**設計要求：**\\n- 實作 8-bit 上下計數器\\n- 目標開發板：Basys3\\n- F4PGA 要求：目標頻率 ≥100 MHz\\n- 全域頻率限制：≤120 MHz\\n\\n**智能判斷：**\\n因為填入了 f4pga_board 和 f4pga_target_fmax，系統會自動啟用 F4PGA 功能。', 
-                'true', '',
-                'en:FPGA Counter:F4PGA counter design for Basys3|zh-hant:FPGA計數器:Basys3的F4PGA計數器設計'
-            ],
-            # 4. 純 OpenLane 題目 - 智能判斷會自動啟用 OpenLane  
-            [
-                'asic_alu', 'ASIC ALU 設計', '使用 OpenLane 的 ALU 電路', 'Demo', '5.0', '1048576', '300', 
-                'Implementation', '', '', '', 'Verilog', 'true', 'true', 'false', 'true',
-                '', '', 'OpenLane ASIC 設計挑戰',
-                '', '', 'false',
-                'true', 'true', '150.0',  # enable_waveform=true, enable_ppa=true, ppa_maximum_fmax=150.0
-                '', '',  # f4pga_board=空, f4pga_target_fmax=空 (智能判斷：不啟用 F4PGA)
-                'sky130A', '80.0', '10.0', '2000.0', '50.0',  # 填入 OpenLane 欄位 (智能判斷：啟用 OpenLane)
-                'OpenLane ASIC ALU 設計，需要滿足嚴格的 PPA 約束。\\n\\n**設計要求：**\\n- 實作 8-bit 算術邏輯單元\\n- 全域頻率限制：≤150 MHz\\n\\n**OpenLane PPA 約束：**\\n- PDK：sky130A\\n- PPA 分數：≥80\\n- 關鍵路徑：≤10 ns\\n- 核心面積：≤2000 μm²\\n- 總功耗：≤50 mW\\n\\n**智能判斷：**\\n因為填入了 OpenLane 相關欄位，系統會自動啟用 OpenLane 功能。', 
-                'false', '',
-                'en:ASIC ALU:OpenLane ASIC ALU design|zh-hant:ASIC算術邏輯單元:OpenLane ASIC ALU設計'
-            ],
-            # 5. 混合 PPA 題目 - 同時啟用 F4PGA 和 OpenLane
-            [
-                'hybrid_processor', '混合處理器設計', '跨平台處理器設計', 'Demo', '8.0', '2097152', '500', 
-                'Implementation', '', '', '', 'Verilog', 'true', 'true', 'false', 'true',
-                '', '', '同時支援 FPGA 和 ASIC 的處理器設計',
-                '', '', 'false',
-                'true', 'true', '200.0',  # enable_waveform=true, enable_ppa=true, ppa_maximum_fmax=200.0
-                'arty_a7_100t', '150.0',  # f4pga_board=arty_a7_100t, f4pga_target_fmax=150.0 (智能判斷：啟用 F4PGA)
-                'sky130B', '85.0', '8.0', '3000.0', '60.0',  # 同時填入 OpenLane 欄位 (智能判斷：同時啟用 OpenLane)
-                '混合 PPA 分析的處理器核心設計。\\n\\n**雙重 PPA 約束：**\\n\\n**F4PGA (FPGA)：**\\n- 開發板：Arty A7-100T\\n- 目標頻率：≥150 MHz\\n\\n**OpenLane (ASIC)：**\\n- PDK：sky130B\\n- PPA 分數：≥85\\n- 關鍵路徑：≤8 ns\\n- 核心面積：≤3000 μm²\\n- 總功耗：≤60 mW\\n\\n**全域限制：**\\n- 最大頻率：≤200 MHz\\n\\n**智能判斷：**\\n因為同時填入了 F4PGA 和 OpenLane 欄位，系統會啟用完整的 PPA 分析功能。', 
-                'true', '',
-                'en:Hybrid Processor:Cross-platform processor design|zh-hant:混合處理器:跨平台處理器設計'
-            ],
-            # 6. 數學題目範例 - 非 Verilog 題目
-            [
-                'add_numbers', '兩數相加', '計算兩個整數的和', 'Demo', '1.0', '262144', '100', 
-                'Math', '', '', '', 'C,Python', 'true', 'true', 'false', 'false',
-                '', '', '基本的數學運算題目',
-                '', '', 'false',
-                'false', 'false', '',  # 非 Verilog 題目，所有 Verilog 欄位都不啟用
+                'true', 'false', '',
                 '', '',
                 '', '', '', '', '',
-                '這是一個基本的算術問題。\\n\\n**輸入格式：**\\n兩個整數 A 和 B，以空格分隔\\n\\n**輸出格式：**\\n一個整數，表示 A + B 的結果\\n\\n**範例：**\\n輸入：3 5\\n輸出：8\\n\\n**解題步驟：**\\n1. 讀取兩個整數 A 和 B\\n2. 計算 A + B\\n3. 輸出結果', 
-                'true', '',
-                'en:Add Two Numbers:Calculate the sum of two integers|zh-hant:兩數相加:計算兩個整數的和'
+                '這是一個基礎的 Verilog 模組範例，用於輸出固定字串。\\n\\nmodule hello_world;\\ninitial begin\\n    $display("Hello World");\\n    $finish;\\nend\\nendmodule', 'true', '',
+                'Hello World', 'Output the string Hello World to standard output',
+                'Hello World', '輸出 Hello World 字串到標準輸出',
+                '請確保輸出格式完全正確，包括大小寫;不要忘記在輸出後結束模擬',
+                '', 'false'
+            ],
+            [
+                'fpga_counter', 'FPGA 8位元計數器', '設計一個8位元二進制計數器，支援時鐘和重置信號', 'Demo', '3.0', '524288', '200', 
+                'Implementation', '', '', '', '', 'true', 'true', 'false', 'false',
+                '', '', '使用 F4PGA 工具鏈的 FPGA 設計挑戰',
+                '', '', 'false',
+                'true', 'true', '120.0',
+                'basys3', '100.0',
+                '', '', '', '', '',
+                '設計一個8位元計數器模組：\\n\\nmodule counter_8bit(\\n    input clk,\\n    input reset,\\n    output [7:0] count\\n);\\n\\nreg [7:0] count_reg;\\n\\nalways @(posedge clk or posedge reset) begin\\n    if (reset)\\n        count_reg <= 8\'b0;\\n    else\\n        count_reg <= count_reg + 1;\\nend\\n\\nassign count = count_reg;\\n\\nendmodule', 'true', '',
+                'FPGA 8-bit Counter', 'Design an 8-bit binary counter with clock and reset signals',
+                'FPGA 8位元計數器', '設計一個8位元二進制計數器，支援時鐘和重置信號',
+                '計數器必須支援同步重置功能;設計目標頻率為100MHz;請注意時序約束的設定',
+                '', 'false'
+            ],
+            [
+                'asic_alu', 'ASIC 算術邏輯單元', '設計一個4位元ALU，支援加法、減法、AND、OR運算', 'Demo', '2.0', '512000', '150',
+                'Implementation', '', '', '', '', 'true', 'true', 'false', 'true',
+                '', '', '使用 OpenLane 流程的 ASIC 設計挑戰',
+                '', '', 'false',
+                'true', 'true', '200.0',
+                '', '',
+                'sky130A', '75.0', '8.5', '1500.0', '35.0',
+                '設計一個4位元ALU模組：\\n\\nmodule alu_4bit(\\n    input [3:0] a, b,\\n    input [1:0] op,\\n    output [3:0] result,\\n    output carry_out\\n);\\n\\n// 運算碼：00=ADD, 01=SUB, 10=AND, 11=OR\\n\\nendmodule', 'false', '',
+                'ASIC ALU', 'Design a 4-bit ALU supporting addition, subtraction, AND, OR operations',
+                'ASIC 算術邏輯單元', '設計一個4位元ALU，支援加法、減法、AND、OR運算',
+                '請實作所有四種運算功能;注意進位輸出的正確性;考慮功耗和面積最佳化',
+                '', 'false'
             ]
         ]
         
@@ -378,6 +365,8 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         allowed_languages = problem_data.pop('allowed_languages', [])
         solution_data = problem_data.pop('solution', None)
         translations_data = problem_data.pop('translations', None)
+        clarifications_data = problem_data.pop('clarifications', None)
+        language_limits_data = problem_data.pop('language_limits', None)
 
         # 創建題目
         problem = Problem.objects.create(**problem_data)
@@ -418,6 +407,22 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
                 ProblemTranslation.objects.create(
                     problem=problem,
                     **translation_data
+                )
+
+        # 創建澄清說明
+        if clarifications_data:
+            for clarification_data in clarifications_data:
+                ProblemClarification.objects.create(
+                    problem=problem,
+                    **clarification_data
+                )
+
+        # 創建語言限制
+        if language_limits_data:
+            for limit_data in language_limits_data:
+                LanguageLimit.objects.create(
+                    problem=problem,
+                    **limit_data
                 )
 
         return problem
